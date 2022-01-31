@@ -66,4 +66,30 @@ const getAll = async (req, res) => {
     }
 }
 
-export  {getOne, getAll, create, update}
+const deleteOne = async (req, res) => {
+    User.updateOne(
+		{
+			_id: req.params._id,
+		},
+		{
+			status: 0,
+		}
+	)
+		.then((response) =>{
+			res.status(201).json({
+				message: 'Utilisateur désactivé !',
+			})
+        }
+            
+		)
+		.catch((error) =>
+			res.status(400).json({
+				error,
+			})
+		)
+}
+
+const takeAppoint = async (req, res) => {
+    
+}
+export  {getOne, getAll, create, update, deleteOne}
