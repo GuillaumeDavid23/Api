@@ -1,62 +1,94 @@
-import ReportType from '../models/ReportType.js'
-// import locationValidation from "../validation/locationValidation.js"
+import Thing from '../models/Thing'
 
-const createOne = (req, res) => {
-	const { body } = req
-	// // Validation:
-	// const { error } = locationValidation(body)
-	// if (error) return res.status(401).json(error.details[0].message)
-
-	ReportType.create(body)
+exports.createThing = (req, res, next) => {
+	delete req.body._id
+	const thing = new Thing({
+		...req.body,
+	})
+	thing
+		.save()
 		.then(() =>
 			res.status(201).json({
-				message: 'Type de signalement enregistré',
+				message: 'Objet enregistré !',
 			})
 		)
-		.catch((error) => res.status(500).json({ error }))
-}
-
-const updateOne = (req, res) => {
-	const { body } = req
-	Collect.update(body, { where: { id: body.id } })
-		.then(() =>
-			res.status(200).json({ message: 'Type de signalement modifié' })
+		.catch((error) =>
+			res.status(400).json({
+				error,
+			})
 		)
-		.catch((error) => res.status(500).json({ error }))
 }
 
-const deleteOne = (req, res) => {
-	// On check l'existence du type de signalement:
-	ReportType.findOne({ where: { id: req.params.id } })
-		.then((reportType) => {
-			if (!reportType)
-				return res
-					.status(404)
-					.json({ message: 'Type de signalement inexistante' })
+exports.modifyThing = (req, res, next) => {
+	Thing.updateOne(
+		{
+			_id: req.params.id,
+		},
+		{
+			...req.body,
+			_id: req.params.id,
+		}
+	)
+		.then(() =>
+			res.status(200).json({
+				message: 'Objet modifié !',
+			})
+		)
+		.catch((error) =>
+			res.status(400).json({
+				error,
+			})
+		)
+}
+
+exports.deleteThing = (req, res, next) => {
+	Thing.findOne({
+		_id: req.params.id,
+	}).then((thing) => {
+		if (!thing) {
+			return res.status(404).json({
+				error: new Error('Objet non trouvé !'),
+			})
+		}
+		if (thing.userId !== req.auth.userId) {
+			return res.status(401).json({
+				error: new Error('Requête non autorisée !'),
+			})
+		}
+		Thing.deleteOne({
+			_id: req.params.id,
 		})
-		.catch((error) => res.status(500).json({ error }))
-
-	// Exécution:
-	ReportType.destroy({ where: { id: req.params.id } })
-		.then(res.status(200).json({ message: 'Type de signalement supprimé' }))
-		.catch((error) => res.status(500).json({ error }))
-}
-
-const getAll = (req, res) => {
-	ReportType.findAll({
-		attributes: ['id', 'type'],
-		where: { portail: 1 },
+			.then(() =>
+				res.status(200).json({
+					message: 'Objet supprimé !',
+				})
+			)
+			.catch((error) =>
+				res.status(400).json({
+					error,
+				})
+			)
 	})
-		.then((reportTypes) => {
-			res.status(200).json(reportTypes)
-		})
-		.catch((error) => res.status(500).json(error))
 }
 
-const getOne = (req, res) => {
-	ReportType.findOne({ where: { id: req.params.id } })
-		.then((reportType) => res.status(200).json(reportType))
-		.catch((error) => res.status(500).json(error))
+exports.getOneThing = (req, res, next) => {
+	Thing.findOne({
+		_id: req.params.id,
+	})
+		.then((thing) => res.status(200).json(thing))
+		.catch((error) =>
+			res.status(400).json({
+				error,
+			})
+		)
 }
 
-export { createOne, updateOne, deleteOne, getAll, getOne }
+exports.getAllThings = (req, res, next) => {
+	Thing.find()
+		.then((things) => res.status(200).json(things))
+		.catch((error) =>
+			res.status(400).json({
+				error,
+			})
+		)
+}

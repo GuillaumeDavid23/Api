@@ -1,24 +1,11 @@
-import mongoose from 'mongoose'
-import db from '../db/db.js'
+const mongoose = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator')
 
-const { DataTypes } = sequelize
+const userShema = mongoose.Schema({
+	email: { type: String, required: true, unique: true },
+	password: { type: String, required: true },
+})
 
-export default db.define(
-	'type_signalement',
-	{
-		id: {
-			type: DataTypes.INTEGER,
-			primaryKey: true,
-			allowNull: false,
-		},
-		type: {
-			type: DataTypes.STRING(60),
-			allowNull: false,
-		},
-		portail: {
-			type: DataTypes.INTEGER(1),
-			allowNull: false,
-		},
-	},
-	{ timestamps: false, freezeTableName: true }
-)
+userShema.plugin(uniqueValidator)
+
+module.exports = mongoose.model('User', userShema)
