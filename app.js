@@ -4,6 +4,7 @@ import db from './db/db.js'
 // Routes:
 import userRoutes from './routes/user.js'
 import transactionRoutes from './routes/transaction.js'
+import agentRoutes from './routes/agent.js'
 
 const app = express()
 
@@ -25,5 +26,6 @@ app.use(express.urlencoded())
 
 app.use('/user', userRoutes)
 app.use('/transaction', transactionRoutes)
+app.use('/agent', agentRoutes)
 
 export default app

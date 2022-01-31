@@ -1,4 +1,4 @@
-import Mongoose from 'mongoose'
+import Mongoose from '../db/db.js'
 
 const agentSchema = Mongoose.Schema({
 	pro_phone_number: { type: String, required: true },
