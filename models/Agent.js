@@ -1,5 +1,7 @@
-import mongoose from '../db/db.js'
+import Mongoose from 'mongoose'
 
-const agentShema = mongoose.Schema({})
+const agentSchema = Mongoose.Schema({
+	pro_phone_number: { type: String, required: true },
+})
 
-export default mongoose.model('Agent', agentShema)
+export default Mongoose.model('Agent', agentSchema)
