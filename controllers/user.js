@@ -1,17 +1,21 @@
 import User from '../models/User.js'
-
+import bcrypt from 'bcrypt'
 const create = (req, res) => {
+    const saltRounds = 10;
     delete req.body._id;
     const user = new User({
-        ...req.body
+        ...req.body,
     });
-    user.save()
-        .then(() => res.status(201).json({
-            message: 'Utilisateur créé !'
-        }))
-        .catch(error => res.status(400).json({
-            error
-        }));
+    bcrypt.hash(user.password, saltRounds, function(err, hash) {
+        user.password = hash
+        user.save()
+            .then(() => res.status(201).json({
+                message: 'Utilisateur créé !'
+            }))
+            .catch(error => res.status(400).json({
+                error
+            }));
+    });
 };
 
 const update = (req, res) => {
