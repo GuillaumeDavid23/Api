@@ -7,7 +7,7 @@ const create = (req, res) => {
     });
     user.save()
         .then(() => res.status(201).json({
-            message: 'Objet enregistré !'
+            message: 'Utilisateur créé !'
         }))
         .catch(error => res.status(400).json({
             error
@@ -15,18 +15,28 @@ const create = (req, res) => {
 };
 
 const update = (req, res) => {
-    delete req.body._id;
-    const user = new User({
-        ...req.body
-    });
-    user.save()
-        .then(() => res.status(201).json({
-            message: 'Objet enregistré !'
-        }))
-        .catch(error => res.status(400).json({
-            error
-        }));
-};
+	User.updateOne(
+		{
+			_id: req.params._id,
+		},
+		{
+			...req.body,
+		}
+	)
+		.then((response) =>{
+			res.status(201).json({
+				message: 'Utilisateur modifié !',
+			})
+        }
+            
+		)
+		.catch((error) =>
+			res.status(400).json({
+				error,
+			})
+		)
+    
+}
 
 const getOne = async (req, res) => {        
     try {
@@ -56,4 +66,4 @@ const getAll = async (req, res) => {
     }
 }
 
-export  {getOne, getAll, create}
+export  {getOne, getAll, create, update}
