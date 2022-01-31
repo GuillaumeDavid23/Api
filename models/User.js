@@ -1,6 +1,6 @@
 import mongoose from '../db/db.js'
 
-const userShema = mongoose.Schema({
+const userSchema = mongoose.Schema({
     firstname: {type: String, required: true},
     lastname: {type: String, required: true},
     email: {type: String, required: true, unique: true},
@@ -12,4 +12,4 @@ const userShema = mongoose.Schema({
     ref: {type: String, required: false}
 })
 
-export default mongoose.model('User', userShema)
+export default mongoose.model('User', userSchema)
