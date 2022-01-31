@@ -1,6 +1,6 @@
-import Thing from '../models/Thing'
+import Rental, { bulkSave } from '../models/Rental'
 
-exports.createThing = (req, res, next) => {
+const create = (req, res, next) => {
 	delete req.body._id
 	const thing = new Thing({
 		...req.body,
@@ -19,7 +19,7 @@ exports.createThing = (req, res, next) => {
 		)
 }
 
-exports.modifyThing = (req, res, next) => {
+const update = (req, res, next) => {
 	Thing.updateOne(
 		{
 			_id: req.params.id,
@@ -41,7 +41,7 @@ exports.modifyThing = (req, res, next) => {
 		)
 }
 
-exports.deleteThing = (req, res, next) => {
+const erase = (req, res, next) => {
 	Thing.findOne({
 		_id: req.params.id,
 	}).then((thing) => {
@@ -71,7 +71,17 @@ exports.deleteThing = (req, res, next) => {
 	})
 }
 
-exports.getOneThing = (req, res, next) => {
+const getAll = (req, res, next) => {
+	Thing.find()
+		.then((things) => res.status(200).json(things))
+		.catch((error) =>
+			res.status(400).json({
+				error,
+			})
+		)
+}
+
+const getOne = (req, res, next) => {
 	Thing.findOne({
 		_id: req.params.id,
 	})
@@ -83,12 +93,4 @@ exports.getOneThing = (req, res, next) => {
 		)
 }
 
-exports.getAllThings = (req, res, next) => {
-	Thing.find()
-		.then((things) => res.status(200).json(things))
-		.catch((error) =>
-			res.status(400).json({
-				error,
-			})
-		)
-}
+export { create, update, erase, getAll, getOne }

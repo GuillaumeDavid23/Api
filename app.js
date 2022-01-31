@@ -2,8 +2,19 @@ import express from 'express'
 import db from './db/db.js'
 
 // Routes:
-import userRoutes from './routes/user.js'
-import transactionRoutes from './routes/transaction.js'
+import {
+	agentRoutes,
+	appointmentRoutes,
+	buyerRoutes,
+	inventoryRoutes,
+	propertyRoutes,
+	rentalRoutes,
+	roleRoutes,
+	sellerRoutes,
+	transactionRoutes,
+	userRoutes,
+	wishlistRoutes,
+} from './routes/index.js'
 
 const app = express()
 
