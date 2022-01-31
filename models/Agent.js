@@ -1,7 +1,11 @@
-import Mongoose from 'mongoose'
+import Mongoose from '../db/db.js'
+import User from './User.js'
 
-const agentSchema = Mongoose.Schema({
-	pro_phone_number: { type: String, required: true },
-})
+const Agent = User.discriminator(
+	'Agent',
+	Mongoose.Schema({
+		pro_phone_number: { type: String, required: true },
+	})
+)
 
-export default Mongoose.model('Agent', agentSchema)
+export default Agent

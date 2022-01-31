@@ -35,5 +35,6 @@ app.use(express.json())
 
 app.use('/user', userRoutes)
 app.use('/transaction', transactionRoutes)
+app.use('/agent', agentRoutes)
 
 export default app
