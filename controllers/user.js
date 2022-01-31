@@ -1,18 +1,46 @@
 import User from '../models/User.js'
-
+import bcrypt from 'bcrypt'
 const create = (req, res) => {
+    const saltRounds = 10;
     delete req.body._id;
     const user = new User({
-        ...req.body
+        ...req.body,
     });
-    user.save()
-        .then(() => res.status(201).json({
-            message: 'Objet enregistré !'
-        }))
-        .catch(error => res.status(400).json({
-            error
-        }));
+    bcrypt.hash(user.password, saltRounds, function(err, hash) {
+        user.password = hash
+        user.save()
+            .then(() => res.status(201).json({
+                message: 'Utilisateur créé !'
+            }))
+            .catch(error => res.status(400).json({
+                error
+            }));
+    });
 };
+
+const update = (req, res) => {
+	User.updateOne(
+		{
+			_id: req.params._id,
+		},
+		{
+			...req.body,
+		}
+	)
+		.then((response) =>{
+			res.status(201).json({
+				message: 'Utilisateur modifié !',
+			})
+        }
+            
+		)
+		.catch((error) =>
+			res.status(400).json({
+				error,
+			})
+		)
+    
+}
 
 const getOne = async (req, res) => {        
     try {
@@ -28,4 +56,44 @@ const getOne = async (req, res) => {
     }
 }
 
-export  {getOne, create}
+const getAll = async (req, res) => {        
+    try {
+        const user = await User.find()
+        if (user){
+            res.status(200).json(user)
+        }else{
+            res.status(204).json({message: 'Aucun utilisateur'})
+        } 
+    } catch (error) {
+        console.log(error);
+        res.status(400).json(error)
+    }
+}
+
+const deleteOne = async (req, res) => {
+    User.updateOne(
+		{
+			_id: req.params._id,
+		},
+		{
+			status: 0,
+		}
+	)
+		.then((response) =>{
+			res.status(201).json({
+				message: 'Utilisateur désactivé !',
+			})
+        }
+            
+		)
+		.catch((error) =>
+			res.status(400).json({
+				error,
+			})
+		)
+}
+
+const takeAppoint = async (req, res) => {
+    
+}
+export  {getOne, getAll, create, update, deleteOne}
