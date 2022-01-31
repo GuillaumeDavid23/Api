@@ -1,5 +1,6 @@
 import express from "express"
-import mongoose from "mongoose"
+import db from './db/db.js'
+import userRoutes from './routes/user.js'
 const app = express()
 
 app.use((req, res, next) => {
@@ -15,16 +16,7 @@ app.use((req, res, next) => {
 	next()
 })
 
-mongoose
-	.connect('mongodb://localhost:27017/amaizon', {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-	})
-	.then(() => console.log('Connexion à MongoDB réussie !'))
-	.catch(() => console.log('Connexion à MongoDB échouée !'))
-
 app.use(express.json())
 
-// app.use('/collect', collectRoutes)
-
+app.use('/user', userRoutes)
 export default app
