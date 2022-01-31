@@ -1,5 +1,5 @@
 import express from 'express'
-import { create, update, erase, getAll, getOne } from '../controllers/user.js'
+import { create, update, erase, getAll, getOne } from '../controllers/transaction.js'
 
 const router = express.Router()
 
