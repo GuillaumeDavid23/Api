@@ -1,6 +1,10 @@
-import express from "express"
+import express from 'express'
 import db from './db/db.js'
+
+// Routes:
 import userRoutes from './routes/user.js'
+import transactionRoutes from './routes/transaction.js'
+
 const app = express()
 
 app.use((req, res, next) => {
@@ -19,4 +23,6 @@ app.use((req, res, next) => {
 app.use(express.json())
 
 app.use('/user', userRoutes)
+app.use('/transaction', transactionRoutes)
+
 export default app
