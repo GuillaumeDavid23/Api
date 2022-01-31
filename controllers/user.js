@@ -2,7 +2,6 @@ import User from '../models/User.js'
 
 const create = (req, res) => {
     delete req.body._id;
-    console.log(req.body);
     const user = new User({
         ...req.body
     });
@@ -17,7 +16,7 @@ const create = (req, res) => {
 
 const getOne = async (req, res) => {        
     try {
-        const user = await User.find()
+        const user = await User.findById(req.params._id)
         if (user){
             res.status(200).json(user)
         }else{

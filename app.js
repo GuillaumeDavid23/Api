@@ -17,6 +17,7 @@ app.use((req, res, next) => {
 })
 
 app.use(express.json())
+app.use(express.urlencoded())
 
 app.use('/user', userRoutes)
 export default app
