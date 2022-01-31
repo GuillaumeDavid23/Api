@@ -1,3 +1,5 @@
+import express from "express"
+import mongoose from "mongoose"
 const app = express()
 
 app.use((req, res, next) => {
@@ -23,10 +25,12 @@ mongoose
 
 app.use(express.json())
 
-app.use('/collect', collectRoutes)
-app.use('/collectivity', collectivityRoutes)
-app.use('/location', locationRoutes)
-app.use('/report', reportRoutes)
-app.use('/locationAsk', locationAskRoutes)
-app.use('/reportType', reportTypeRoutes)
-app.use('/user', userRoutes)
+// app.use('/collect', collectRoutes)
+// app.use('/collectivity', collectivityRoutes)
+// app.use('/location', locationRoutes)
+// app.use('/report', reportRoutes)
+// app.use('/locationAsk', locationAskRoutes)
+// app.use('/reportType', reportTypeRoutes)
+// app.use('/user', userRoutes)
+
+export default app
