@@ -10,4 +10,4 @@ router.delete('/:id', erase)
 router.get('/:id', getOne)
 router.get('/', getAll)
 
-module.exports = router
+export default router
