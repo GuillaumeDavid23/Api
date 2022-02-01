@@ -1,4 +1,5 @@
 import Property from '../models/Property.js'
+import fs from 'fs'
 
 // CREATE
 /**
@@ -42,12 +43,16 @@ import Property from '../models/Property.js'
  *       "error": "Propriété non crée !"
  *     }
  */
+// Version avec fichiers:
 const createProperty = (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 
 	const newProperty = new Property({
 		...datas,
 		isToSell: datas.isToSell == 'on' ? true : false,
+		imageUrl: `${req.protocol}://${req.get('host')}/uploads/${
+			req.file.filename
+		}`,
 	})
 
 	newProperty
@@ -151,17 +156,26 @@ const getPropertyById = async (req, res) => {
 
 // UPDATE
 const updateProperty = (req, res) => {
+	const property = req.file
+		? {
+				...JSON.parse(req.body),
+				imageUrl: `${req.protocol}://${req.get('host')}/uploads/${
+					req.file.filename
+				}`,
+		  }
+		: { ...req.body }
+
 	Property.updateOne(
 		{ _id: req.params.id },
 		{
 			...req.body,
-			_id: req.body.id,
+			_id: req.body._id,
 		}
 	)
 		.then(() => {
 			res.status(200).json({
 				status_code: 200,
-				message: 'Proprité modifiée !',
+				message: 'Propriété modifiée !',
 			})
 		})
 		.catch((error) => {
@@ -176,7 +190,7 @@ const updateProperty = (req, res) => {
 const deleteProperty = async (req, res) => {
 	try {
 		// On récupère la propriété avec son Id
-		let property = await Property.findById({ _id: req.params.id })
+		let property = await Property.findById({ _id: req.params._id })
 
 		// Si pas de propriété trouvée
 		if (!property) {
@@ -186,14 +200,29 @@ const deleteProperty = async (req, res) => {
 			})
 		}
 
-		// Enfin, on supprime la propriété
-		Property.deleteOne({ _id: req.params.id }).then(() => {
-			return res.status(200).json({
-				status_code: 200,
-				message: 'Propriété supprimée !',
+		// Si image existante, on supprime tout: (unlink need callback)
+		if (property.imageUrl) {
+			fs.unlink(
+				'uploads/' + property.imageUrl.split('/uploads/')[1],
+				() => {
+					Property.deleteOne({ _id: req.params._id }).then(() => {
+						return res.status(200).json({
+							status_code: 200,
+							message: 'Propriété et ses images supprimées !',
+						})
+					})
+				}
+			)
+		} else {
+			Property.deleteOne({ _id: req.params._id }).then(() => {
+				return res.status(200).json({
+					status_code: 200,
+					message: 'Propriété supprimée !',
+				})
 			})
-		})
+		}
 	} catch (error) {
+		console.log(error)
 		return res.status(400).json({
 			status_code: 400,
 			message: error,
