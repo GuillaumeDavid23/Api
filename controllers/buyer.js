@@ -1,4 +1,4 @@
-import Buyer from '../models/buyer.js'
+import Buyer from '../models/Buyer.js'
 
 const getAll = () => {
 	Buyer.find()
