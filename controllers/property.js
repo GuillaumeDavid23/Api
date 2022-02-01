@@ -6,6 +6,8 @@ import Property from '../models/Property.js'
  * @apiName createProperty
  * @apiGroup Property
  *
+ * @apiHeader {String} Bearer Bearer Token
+ *
  * @apiParam {String} title="Super Maison"
  * @apiParam {String} description="Vraiment super !"
  * @apiParam {Number} amount="300000"
