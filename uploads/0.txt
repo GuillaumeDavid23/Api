@@ -1,0 +1,1 @@
+Fichier pour ne pas laisser le dossier vide pour GitHub.
