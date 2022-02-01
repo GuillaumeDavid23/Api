@@ -9,7 +9,6 @@ import sellerRoutes from './seller.js'
 import transactionRoutes from './transaction.js'
 import userRoutes from './user.js'
 import wishlistRoutes from './wishlist.js'
-import propertyRoutes from './property.js'
 
 export default {
 	agentRoutes,
@@ -23,5 +22,4 @@ export default {
 	transactionRoutes,
 	userRoutes,
 	wishlistRoutes,
-	propertyRoutes,
 }
