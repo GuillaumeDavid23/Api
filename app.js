@@ -34,6 +34,7 @@ app.use((req, res, next) => {
 app.use(express.json())
 
 app.use('/user', userRoutes)
+app.use('/appointment', userRoutes)
 app.use('/transaction', transactionRoutes)
 app.use('/agent', agentRoutes)
 

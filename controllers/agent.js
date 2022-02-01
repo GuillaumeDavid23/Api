@@ -53,7 +53,7 @@ const getAgent = async (req, res) => {
 }
 
 //GET AVAILABILITIES OF AGENT
-const getAvailabilites = async (req, res) => {
+const getAvailabilities = async (req, res) => {
 	try {
 		let begin = req.body.dateBegin
 		let end = req.body.dateEnd
@@ -64,7 +64,7 @@ const getAvailabilites = async (req, res) => {
 				$gte: new Date(new Date(begin)),
 				$lt: new Date(new Date(end)),
 			},
-		})
+		}).sort({ slot: 'asc' })
 		res.status(200).json({
 			appointments: appointments,
 		})
@@ -73,4 +73,4 @@ const getAvailabilites = async (req, res) => {
 	}
 }
 
-export { create, getAllAgents, getAgent }
+export { create, getAllAgents, getAgent, getAvailabilities }
