@@ -5,11 +5,48 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 //CREATE USER
+/**
+ * @api {post} /user Créer un utilisateur
+ * @apiName create
+ * @apiGroup User
+ *
+ * @apiParam {String} firstname
+ * @apiParam {String} lastname
+ * @apiParam {String} email
+ * @apiParam {String} password
+ * @apiParam {String} [token]
+ * @apiParam {String} [phone]
+ * @apiParam {Boolean} [newsletter]
+ * @apiParam {Boolean} status
+ * @apiParam {String} [ref]
+ *
+ * @apiSuccess {String} message Message de complétion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": 'Utilisateur enregistrée !',
+ *     }
+ *
+ * @apiError ServerError Erreur serveur.
+ * @apiError UserAlreadyExists Un compte avec cette adresse email existe déjà !
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Utilisateur non crée !"
+ *     }
+ */
 const create = async (req, res) => {
 	const saltRounds = 10
 	delete req.body._id
+
+	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
+
 	const user = new User({
-		...req.body,
+		...datas,
+		newsletter: datas.newsletter == 'on' ? true : false,
+		status: datas.status == 'on' ? true : false,
 	})
 	const mailCheck = await User.findOne({ email: user.email })
 	if (mailCheck) {
