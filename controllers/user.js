@@ -4,12 +4,18 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 dotenv.config()
 
-const create = (req, res) => {
+const create = async (req, res) => {
 	const saltRounds = 10
 	delete req.body._id
 	const user = new User({
 		...req.body,
 	})
+	const mailCheck = await User.findOne({ email: user.email })
+	if (mailCheck) {
+		return res.status(403).json({
+			error: 'Un compte avec cette adresse email existe déjà !',
+		})
+	}
 	bcrypt.hash(user.password, saltRounds, function (err, hash) {
 		user.password = hash
 		user.save()
@@ -63,7 +69,7 @@ const getOne = async (req, res) => {
 
 const getAll = async (req, res) => {
 	try {
-		const user = await User.find()
+		const user = await User.find({ status: true })
 		if (user) {
 			res.status(200).json(user)
 		} else {
@@ -124,47 +130,51 @@ const signup = async (req, res) => {
 }
 
 const login = async (req, res) => {
-	User.findOne({ email: req.body.email })
-		.then((user) => {
-			if (!user) {
-				return res.status(401).json({
-					error: 'Utilisateur non trouvé !',
-				})
-			}
-			bcrypt
-				.compare(req.body.password, user.password)
-				.then((valid) => {
-					if (!valid) {
-						return res.status(401).json({
-							error: 'Mot de passe incorrect !',
-						})
-					}
-					res.status(200).json({
-						userId: user._id,
-						token: jwt.sign(
-							{ userId: user._id },
-							process.env.SECRET_TOKEN,
-							{ expiresIn: '24h' }
-						),
-						message: 'Utilisateur connecté !',
-					})
-				})
-				.catch((error) =>
-					res.status(500).json({
-						error,
-					})
-				)
-		})
-		.catch((error) =>
-			res.status(500).json({
-				error,
+	try {
+		const user = await User.findOne({ email: req.body.email })
+		if (user.status == false) {
+			return res.status(403).json({
+				error: 'Compte utilisateur désactivé !',
 			})
-		)
+		}
+		bcrypt
+			.compare(req.body.password, user.password)
+			.then((valid) => {
+				if (!valid) {
+					return res.status(401).json({
+						error: 'Mot de passe incorrect !',
+					})
+				}
+				res.status(200).json({
+					userId: user._id,
+					token: jwt.sign(
+						{ userId: user._id },
+						process.env.SECRET_TOKEN,
+						{ expiresIn: '24h' }
+					),
+					message: 'Utilisateur connecté !',
+				})
+			})
+			.catch((error) =>
+				res.status(500).json({
+					error,
+				})
+			)
+	} catch (error) {
+		return res.status(401).json({
+			error: 'Utilisateur non trouvé !',
+		})
+	}
 }
 
 const forgotPass = async (req, res) => {
 	User.findOne({ email: req.body.email })
 		.then((user) => {
+			if (user.status == false) {
+				return res.status(403).json({
+					error: 'Compte utilisateur désactivé !',
+				})
+			}
 			User.updateOne(
 				{ _id: user.id },
 				{
