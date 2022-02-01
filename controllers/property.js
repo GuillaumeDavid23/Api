@@ -199,9 +199,7 @@ const getPropertyById = async (req, res) => {
  *     }
  */
 const updateProperty = (req, res) => {
-<<<<<<< HEAD
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
-=======
 	const property = req.file
 		? {
 				...JSON.parse(req.body),
@@ -210,18 +208,12 @@ const updateProperty = (req, res) => {
 				}`,
 		  }
 		: { ...req.body }
->>>>>>> dev
 
 	Property.updateOne(
 		{ _id: datas.id },
 		{
-<<<<<<< HEAD
 			...datas,
 			_id: datas.id,
-=======
-			...req.body,
-			_id: req.body._id,
->>>>>>> dev
 		}
 	)
 		.then(() => {
