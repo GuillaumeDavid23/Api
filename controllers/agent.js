@@ -1,8 +1,6 @@
 import Agent from '../models/Agent.js'
 
 const create = (req, res) => {
-	delete req.body._id
-
 	const ag = new Agent({
 		...req.body,
 	})
