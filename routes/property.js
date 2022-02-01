@@ -1,18 +1,12 @@
 import express from 'express'
-import {
-	create,
-	update,
-	erase,
-	getAll,
-	getOne,
-} from '../controllers/property.js'
+import * as PC from '../controllers/property.js'
 
 const router = express.Router()
 
-router.post('/', create)
-router.put('/:_id', update)
-router.delete('/:_id', erase)
-router.get('/', getAll)
-router.get('/:_id', getOne)
+router.post('/', PC.createProperty)
+router.get('/', PC.getAllProperties)
+router.get('/:_id', PC.getPropertyById)
+router.put('/:_id', PC.updateProperty)
+router.delete('/:_id', PC.deleteProperty)
 
 export default router
