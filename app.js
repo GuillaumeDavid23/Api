@@ -1,7 +1,8 @@
 import express from 'express'
 import db from './db/db.js'
+import path from 'path'
 
-// Routes:
+// Imports des routes:
 import {
 	agentRoutes,
 	appointmentRoutes,
@@ -33,6 +34,8 @@ app.use((req, res, next) => {
 
 app.use(express.json())
 
+// Intégration des routes:
+app.use('/images', express.static(path.join(path.dirname('uploads'))))
 app.use('/user', userRoutes)
 app.use('/appointment', userRoutes)
 app.use('/transaction', transactionRoutes)

@@ -6,10 +6,10 @@ import multer from '../middleware/multer-config.js'
 
 const router = express.Router()
 
-router.post('/', auth, validation, PC.createProperty)
+router.post('/', validation, multer, PC.createProperty)
 router.get('/', PC.getAllProperties)
 router.get('/:_id', PC.getPropertyById)
-router.put('/:_id', auth, validation, PC.updateProperty)
-router.delete('/:_id', auth, PC.deleteProperty)
+router.put('/:_id', validation, multer, PC.updateProperty)
+router.delete('/:_id', PC.deleteProperty)
 
 export default router

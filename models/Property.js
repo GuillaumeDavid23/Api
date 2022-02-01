@@ -16,6 +16,7 @@ const propertySchema = Mongoose.Schema({
 	gasMeterRef: { type: String, required: true },
 	isToSell: { type: Boolean, required: true },
 	propertyRef: { type: String, required: true },
+	imageUrl: { type: String, required: false },
 })
 
 export default Mongoose.model('Property', propertySchema)

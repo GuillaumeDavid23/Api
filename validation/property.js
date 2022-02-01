@@ -12,8 +12,8 @@ export default (req, res, next) => {
 	// body('lst_equipment').is
 	// body('lst_heater').is
 	// body('lst_water').is
-	body('electricMeterRef').isInt()
-	body('gasMeterRef').isInt()
+	body('electricMeterRef').isAlphanumeric()
+	body('gasMeterRef').isAlphanumeric()
 	body('isToSell').isBoolean()
 	body('propertyRef').isAlphanumeric()
 
