@@ -9,4 +9,4 @@ const rentalShema = mongoose.Schema({
 	keysNumber: { type: Number, required: true },
 })
 
-module.exports = mongoose.model('Rental', rentalShema)
+export default mongoose.model('Rental', rentalShema)
