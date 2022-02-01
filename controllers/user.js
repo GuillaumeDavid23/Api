@@ -148,4 +148,5 @@ const login = async (req, res) => {
             error
         }));
 };
+
 export  {getOne, getAll, create, update, deleteOne, login, signup}
