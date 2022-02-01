@@ -5,8 +5,8 @@ import validation from '../validation/agent.js'
 
 const router = express.Router()
 
-router.get('/agents', getAllAgents)
-router.get('/agents/:_id', getAgent)
-router.post('/create_agent', auth, validation, create)
+router.get('/', getAllAgents)
+router.get('/:_id', getAgent)
+router.post('/', auth, validation, create)
 
 export default router
