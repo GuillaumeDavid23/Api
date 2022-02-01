@@ -6,11 +6,12 @@ import {
 	getAll,
 	getOne,
 } from '../controllers/transaction.js'
+import validation from '../validation/transaction.js'
 
 const router = express.Router()
 
-router.post('/', create)
-router.put('/:_id', update)
+router.post('/', validation, create)
+router.put('/:_id', validation, update)
 router.delete('/:_id', erase)
 router.get('/', getAll)
 router.get('/:_id', getOne)
