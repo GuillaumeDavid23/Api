@@ -1,4 +1,4 @@
-import Rental, { bulkSave } from '../models/Rental'
+import Rental, { bulkSave } from '../models/Rental.js'
 
 const create = (req, res, next) => {
 	delete req.body._id
