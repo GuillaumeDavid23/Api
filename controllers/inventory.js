@@ -1,14 +1,14 @@
-import Wishlist from '../models/Wishlist.js'
+import Inventory from '../models/inventory.js'
 
 const create = (req, res) => {
-	const wishlist = new Wishlist({
+	const inventory = new Inventory({
 		...req.body,
 	})
-	wishlist
+	inventory
 		.save()
 		.then(() =>
 			res.status(201).json({
-				message: 'Liste de souhaits enregistrée !',
+				message: 'Inventaire enregistrée !',
 			})
 		)
 		.catch((error) =>
@@ -19,7 +19,7 @@ const create = (req, res) => {
 }
 
 const update = (req, res) => {
-	Wishlist.updateOne(
+	Inventory.updateOne(
 		{
 			_id: req.params.id,
 		},
@@ -30,7 +30,7 @@ const update = (req, res) => {
 	)
 		.then(() =>
 			res.status(200).json({
-				message: 'Liste de souhaits modifiée !',
+				message: 'Inventaire modifiée !',
 			})
 		)
 		.catch((error) =>
@@ -43,38 +43,61 @@ const update = (req, res) => {
 const erase = async (req, res) => {
 	try {
 		// On check la transaction a supprimer:
-		let wishlist = await Wishlist.findOne({ _id: req.params.id })
-		if (!wishlist) {
+		let inventory = await Inventory.findOne({ _id: req.params.id })
+		if (!inventory) {
 			return res.status(404).json({
-				error: new Error('Liste de souhaits non trouvé !'),
+				error: new Error('Inventaire non trouvé !'),
 			})
 		}
-		if (wishlist.userId !== req.auth.userId) {
+		if (inventory.userId !== req.auth.userId) {
 			return res.status(401).json({
 				error: new Error('Requête non autorisée !'),
 			})
 		}
 
 		// On éxecute:
-		Wishlist.deleteOne({ _id: req.params.id }).then(() =>
-			res.status(200).json({ message: 'Liste de souhaits supprimée !' })
-		)
+		inventory
+			.deleteOne({ _id: req.params.id })
+			.then(() =>
+				res.status(200).json({ message: 'Inventaire supprimée !' })
+			)
 	} catch (error) {
 		res.status(400).json({ error })
 	}
 }
 
+const getAll = () => {
+	Inventory.find()
+		.then((inventories) => res.status(200).json(inventories))
+		.catch((error) =>
+			res.status(400).json({
+				error,
+			})
+		)
+}
+
 const getOne = async (req, res) => {
 	try {
-		let wishlist = await Wishlist.find()
-		if (wishlist) {
-			res.status(200).json(wishlist)
+		let inventory = await Inventory.find()
+		if (inventory) {
+			res.status(200).json(inventory)
 		} else {
-			res.status(204).json({ message: 'Aucun liste de souhaits' })
+			res.status(204).json({ message: 'Aucun inventaire' })
 		}
 	} catch (error) {
 		res.status(400).json(error)
 	}
 }
 
-export { create, update, erase, getOne }
+// /!\ Réussir à recupérer la condition:
+const getAllForOneUser = () => {
+	Inventory.find({})
+		.then((inventories) => res.status(200).json(inventories))
+		.catch((error) =>
+			res.status(400).json({
+				error,
+			})
+		)
+}
+
+export { create, update, erase, getAll, getOne, getAllForOneUser }
