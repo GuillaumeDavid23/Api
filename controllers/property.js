@@ -41,10 +41,11 @@ import Property from '../models/Property.js'
  *     }
  */
 const createProperty = (req, res) => {
+	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
+
 	const newProperty = new Property({
-		...req.query,
-		isToSell: req.query.isToSell == 'on' ? true : false,
-		// ...req.body,
+		...datas,
+		isToSell: datas.isToSell == 'on' ? true : false,
 	})
 
 	newProperty
