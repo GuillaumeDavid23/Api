@@ -8,6 +8,7 @@ import {
 	login,
 	signup,
 	forgotPass,
+	checkResetToken,
 } from '../controllers/user.js'
 
 const router = express.Router()
@@ -21,5 +22,6 @@ router.put('/:_id', update)
 router.delete('/:_id', deleteOne)
 router.get('/:_id', getOne)
 router.get('/', getAll)
+router.get('/check/:token', checkResetToken)
 
 export default router

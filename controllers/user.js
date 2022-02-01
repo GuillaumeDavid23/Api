@@ -181,4 +181,23 @@ const forgotPass = async (req, res) => {
 		)
 }
 
-export { getOne, getAll, create, update, deleteOne, login, signup, forgotPass }
+const checkResetToken = async (req, res) => {
+	const user = await User.findOne({ token: req.body.token })
+	if (user) {
+		res.status(200).json(user)
+	} else {
+		res.status(204).json({ message: 'Aucun utilisateur' })
+	}
+}
+
+export {
+	getOne,
+	getAll,
+	create,
+	update,
+	deleteOne,
+	login,
+	signup,
+	forgotPass,
+	checkResetToken,
+}
