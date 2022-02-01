@@ -5,7 +5,7 @@ import {
 	erase,
 	getAll,
 	getOne,
-} from '../controllers/transaction.js'
+} from '../controllers/inventory.js'
 
 const router = express.Router()
 

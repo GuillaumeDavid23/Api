@@ -1,6 +1,16 @@
 import Buyer from './Buyer.js'
 
-const getBuyer = async () => {
+const getAll = () => {
+	Buyer.find()
+		.then((buyers) => res.status(200).json(buyers))
+		.catch((error) =>
+			res.status(400).json({
+				error,
+			})
+		)
+}
+
+const getOne = async () => {
 	try {
 		const buyer = await Buyer.findById(req.params._id)
 		if (buyer) {
@@ -14,14 +24,4 @@ const getBuyer = async () => {
 	}
 }
 
-const getAllBuyers = () => {
-	Buyer.find()
-		.then((buyers) => res.status(200).json(buyers))
-		.catch((error) =>
-			res.status(400).json({
-				error,
-			})
-		)
-}
-
-export { getAllBuyers, getBuyer }
+export { getAll, getOne }
