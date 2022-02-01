@@ -5,10 +5,10 @@ import Buyer from './Buyer.js'
 import Agent from './Agent.js'
 
 const appointmentShema = Schema({
-	slot: { type: Date, required: true },
+	dateBegin: { type: Date, required: true },
+	dateEnd: { type: Date, required: true },
 	adress: { type: String, required: true },
 	outdoor: { type: Boolean, required: true },
-	duration: { type: Number, required: true },
 	id_buyer: {
 		type: Schema.Types.ObjectId,
 		ref: Buyer,
