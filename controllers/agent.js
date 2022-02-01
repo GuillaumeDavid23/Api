@@ -1,5 +1,7 @@
 import Agent from '../models/Agent.js'
+import Appointment from '../models/Appointment.js'
 
+//CREATE AGENT
 const create = (req, res) => {
 	delete req.body._id
 
@@ -22,7 +24,8 @@ const create = (req, res) => {
 		})
 }
 
-const getAll = (req, res) => {
+//GET ALL AGENT
+const getAllAgents = (req, res) => {
 	Agent.find()
 		.then((ags) => {
 			res.status(200).json({
@@ -36,4 +39,40 @@ const getAll = (req, res) => {
 		})
 }
 
-export { create, getAll }
+//GET ONE AGENT
+const getAgent = async (req, res) => {
+	try {
+		const user = await User.findById(req.params._id)
+		if (user) {
+			res.status(200).json(user)
+		} else {
+			res.status(204).json({ message: 'Aucun utilisateur' })
+		}
+	} catch (error) {
+		console.log(error)
+		res.status(400).json(error)
+	}
+}
+
+//GET AVAILABILITIES OF AGENT
+const getAvailabilites = async (req, res) => {
+	try {
+		let begin = req.body.dateBegin
+		let end = req.body.dateEnd
+
+		let appointments = await Appointment.find({
+			id_agent: req.body._id,
+			slot: {
+				$gte: new Date(new Date(begin)),
+				$lt: new Date(new Date(end)),
+			},
+		})
+		res.status(200).json({
+			appointments: appointments,
+		})
+	} catch (error) {
+		res.status(400).json(error)
+	}
+}
+
+export { create, getAllAgents, getAgent }
