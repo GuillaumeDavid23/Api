@@ -3,8 +3,6 @@ import Appointment from '../models/Appointment.js'
 
 //CREATE AGENT
 const create = (req, res) => {
-	delete req.body._id
-
 	const ag = new Agent({
 		...req.body,
 	})
