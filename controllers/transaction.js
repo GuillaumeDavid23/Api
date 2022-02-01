@@ -76,7 +76,7 @@ const getAll = (req, res) => {
 
 const getOne = async (req, res) => {
 	try {
-		let transaction = await Transaction.find()
+		let transaction = await Transaction.findById(req.body._id)
 		if (transaction) {
 			res.status(200).json(transaction)
 		} else {
