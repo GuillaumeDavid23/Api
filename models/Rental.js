@@ -1,11 +1,12 @@
-const mongoose = require('mongoose')
-const uniqueValidator = require('mongoose-unique-validator')
+import mongoose from '../db/db.js'
 
-const userShema = mongoose.Schema({
-	email: { type: String, required: true, unique: true },
-	password: { type: String, required: true },
+const rentalShema = mongoose.Schema({
+	startDate: { type: Date, required: true },
+	endDate: { type: Date, required: true },
+	effectiveEndDate: { type: Date, required: true },
+	amount: { type: Number, required: true },
+	status: { type: Boolean, required: true },
+	keysNumber: { type: Number, required: true },
 })
 
-userShema.plugin(uniqueValidator)
-
-module.exports = mongoose.model('User', userShema)
+module.exports = mongoose.model('Rental', rentalShema)
