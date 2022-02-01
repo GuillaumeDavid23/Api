@@ -1,6 +1,8 @@
 import User from '../models/User.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
+dotenv.config()
 
 const create = (req, res) => {
 	const saltRounds = 10
@@ -141,7 +143,7 @@ const login = async (req, res) => {
 						userId: user._id,
 						token: jwt.sign(
 							{ userId: user._id },
-							'RANDOM_TOKEN_SECRET',
+							process.env.SECRET_TOKEN,
 							{ expiresIn: '24h' }
 						),
 						message: 'Utilisateur connecté !',
@@ -168,7 +170,7 @@ const forgotPass = async (req, res) => {
 				{
 					token: jwt.sign(
 						{ userId: user._id },
-						'RANDOM_TOKEN_SECRET',
+						process.env.SECRET_TOKEN,
 						{ expiresIn: '5h' }
 					),
 				}
