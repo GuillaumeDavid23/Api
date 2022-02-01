@@ -1,4 +1,4 @@
-import Inventory from '../models/inventory.js'
+import Inventory from '../models/Inventory.js'
 
 const create = (req, res) => {
 	const inventory = new Inventory({

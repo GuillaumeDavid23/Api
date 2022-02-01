@@ -6,4 +6,4 @@ const router = express.Router()
 
 router.get('/:id', getOne)
 
-module.exports = router
+export default router
