@@ -12,7 +12,7 @@ import validation from '../validation/appointment.js'
 
 const router = express.Router()
 
-router.post('/', validation, create)
+router.post('/', auth, validation, create)
 router.put('/:_id', auth, validation, update)
 router.delete('/:_id', auth, erase)
 router.get('/', auth, getAll)
