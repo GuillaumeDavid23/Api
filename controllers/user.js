@@ -173,16 +173,32 @@ const signup = async (req, res) => {
 }
 
 //LOGIN USER
+/**
+ * @api {post} /user/login Authentification d'un utilisateur
+ * @apiName login
+ * @apiGroup User
+ *
+ * @apiParam {String} email
+ * @apiParam {String} password
+ *
+ * @apiSuccess 200 Utilisateur connecté
+ *
+ * @apiError 401 Mot de passe incorrect
+ * @apiError 403 Compte désactivé
+ *
+ */
 const login = async (req, res) => {
+	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
+
 	try {
-		const user = await User.findOne({ email: req.body.email })
+		const user = await User.findOne({ email: datas.email })
 		if (user.status == false) {
 			return res.status(403).json({
 				error: 'Compte utilisateur désactivé !',
 			})
 		}
 		bcrypt
-			.compare(req.body.password, user.password)
+			.compare(datas.password, user.password)
 			.then(async (valid) => {
 				if (!valid) {
 					return res.status(401).json({
@@ -207,6 +223,7 @@ const login = async (req, res) => {
 				})
 			)
 	} catch (error) {
+		console.log(error)
 		return res.status(401).json({
 			error: 'Utilisateur non trouvé !',
 		})

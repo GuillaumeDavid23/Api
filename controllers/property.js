@@ -17,9 +17,9 @@ import Property from '../models/Property.js'
  * @apiParam {Number} roomNumber="5"
  * @apiParam {String} transactionType="Achat"
  *
- * @apiParam {Array} list_equipments={murs:4},{toit:1}
- * @apiParam {Array} list_heater={hp:30},{hc:50}
- * @apiParam {Array} list_water={hot:40},{cold:10}
+ * @apiParam {Array} lst_equipments={murs:4},{toit:1}
+ * @apiParam {Array} lst_heater={hp:30},{hc:50}
+ * @apiParam {Array} lst_water={hot:40},{cold:10}
  * @apiParam {String} electricMeterRef="azertyuiop"
  * @apiParam {String} gasMeterRef="azertyuiop2"
  *
