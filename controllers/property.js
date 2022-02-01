@@ -62,3 +62,5 @@ const getPropertyById = async (req, res) => {
 		})
 	}
 }
+
+export { createProperty, getAllProperties, getPropertyById }
