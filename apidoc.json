@@ -1,0 +1,13 @@
+{
+	"name": "Amaizon API",
+	"version": "0.1.0",
+	"description": "Amaizon API Documentation",
+	"url": "http://127.0.0.1:8080",
+	"sampleUrl": "http://127.0.0.1:8080",
+	"template": {
+		"showRequiredLabels": false,
+		"withCompare": true,
+		"withGenerator": true,
+		"aloneDisplay": false
+	}
+}

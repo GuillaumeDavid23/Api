@@ -14,7 +14,7 @@ const propertySchema = Mongoose.Schema({
 	list_water: { type: Array, required: true },
 	electricMeterRef: { type: String, required: true },
 	gasMeterRef: { type: String, required: true },
-	isToSell: { type: String, required: true },
+	isToSell: { type: Boolean, required: true },
 	propertyRef: { type: String, required: true },
 })
 
