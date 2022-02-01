@@ -182,7 +182,7 @@ const forgotPass = async (req, res) => {
 }
 
 const checkResetToken = async (req, res) => {
-	const user = await User.findOne({ token: req.body.token })
+	const user = await User.findOne({ token: req.params.token })
 	if (user) {
 		res.status(200).json(user)
 	} else {
