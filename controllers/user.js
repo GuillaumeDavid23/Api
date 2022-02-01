@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 dotenv.config()
 
+//CREATE USER
 const create = async (req, res) => {
 	const saltRounds = 10
 	delete req.body._id
@@ -32,6 +33,7 @@ const create = async (req, res) => {
 	})
 }
 
+//UPDATE USER
 const update = (req, res) => {
 	User.updateOne(
 		{
@@ -53,6 +55,7 @@ const update = (req, res) => {
 		)
 }
 
+//GET ONE USER
 const getOne = async (req, res) => {
 	try {
 		const user = await User.findById(req.params._id)
@@ -67,6 +70,7 @@ const getOne = async (req, res) => {
 	}
 }
 
+//GET ALL USER
 const getAll = async (req, res) => {
 	try {
 		const user = await User.find({ status: true })
@@ -81,6 +85,7 @@ const getAll = async (req, res) => {
 	}
 }
 
+//GET DELETE
 const deleteOne = async (req, res) => {
 	User.updateOne(
 		{
@@ -102,6 +107,7 @@ const deleteOne = async (req, res) => {
 		)
 }
 
+//SIGNUP USER
 const signup = async (req, res) => {
 	bcrypt
 		.hash(req.body.password, 10)
@@ -129,6 +135,7 @@ const signup = async (req, res) => {
 		)
 }
 
+//LOGIN USER
 const login = async (req, res) => {
 	try {
 		const user = await User.findOne({ email: req.body.email })
@@ -167,6 +174,7 @@ const login = async (req, res) => {
 	}
 }
 
+//USER FORGOT PASSWORD
 const forgotPass = async (req, res) => {
 	User.findOne({ email: req.body.email })
 		.then((user) => {
@@ -193,6 +201,7 @@ const forgotPass = async (req, res) => {
 		)
 }
 
+//CHECK RESEST PASSWORD TOKEN
 const checkResetToken = async (req, res) => {
 	const user = await User.findOne({ token: req.params.token })
 	if (user) {
