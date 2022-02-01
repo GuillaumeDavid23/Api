@@ -3,14 +3,14 @@ import {
 	create,
 	getAgent,
 	getAllAgents,
-	getAvailabilities,
+	checkAvailabilities,
 } from '../controllers/agent.js'
 import auth from '../middleware/auth.js'
 import validation from '../validation/agent.js'
 
 const router = express.Router()
 
-router.get('/availabilities', getAvailabilities)
+router.get('/availabilities', checkAvailabilities)
 router.get('/', getAllAgents)
 router.get('/:_id', getAgent)
 router.post('/', validation, create)
