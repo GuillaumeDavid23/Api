@@ -1,8 +1,8 @@
 import Mongoose from '../db/db.js'
 import User from './User.js'
 
-const Agent = User.discriminator(
-	'Agent',
+const Buyer = User.discriminator(
+	'Buyer',
 	Mongoose.Schema({
 		budgetMin: { type: Number, required: false },
 		budgetMax: { type: Number, required: false },
@@ -13,4 +13,4 @@ const Agent = User.discriminator(
 	})
 )
 
-export default Agent
+export default Buyer
