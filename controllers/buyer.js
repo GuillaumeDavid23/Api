@@ -1,5 +1,26 @@
 import Buyer from '../models/Buyer.js'
 
+//CREATE BUYER
+const create = (req, res) => {
+	const ag = new Buyer({
+		...req.body,
+	})
+
+	ag.save()
+		.then(() => {
+			res.status(201).json({
+				status_code: 201,
+				message: 'Buyer enregistré !',
+			})
+		})
+		.catch((error) => {
+			res.status(400).json({
+				status_code: 400,
+				message: error,
+			})
+		})
+}
+
 const getAll = () => {
 	Buyer.find()
 		.then((buyers) => res.status(200).json(buyers))
@@ -24,4 +45,4 @@ const getOne = async () => {
 	}
 }
 
-export { getAll, getOne }
+export { getAll, getOne, create }

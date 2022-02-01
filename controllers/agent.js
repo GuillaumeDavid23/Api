@@ -60,11 +60,11 @@ const getAvailabilities = async (req, res) => {
 
 		let appointments = await Appointment.find({
 			id_agent: req.body._id,
-			slot: {
+			dateBegin: {
 				$gte: new Date(new Date(begin)),
 				$lt: new Date(new Date(end)),
 			},
-		}).sort({ slot: 'asc' })
+		}).sort({ dateBegin: 'asc' })
 		res.status(200).json({
 			appointments: appointments,
 		})
