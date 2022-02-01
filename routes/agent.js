@@ -13,6 +13,6 @@ const router = express.Router()
 router.get('/availabilities', getAvailabilities)
 router.get('/', getAllAgents)
 router.get('/:_id', getAgent)
-router.post('/', auth, validation, create)
+router.post('/', validation, create)
 
 export default router

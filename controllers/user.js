@@ -146,19 +146,21 @@ const login = async (req, res) => {
 		}
 		bcrypt
 			.compare(req.body.password, user.password)
-			.then((valid) => {
+			.then(async (valid) => {
 				if (!valid) {
 					return res.status(401).json({
 						error: 'Mot de passe incorrect !',
 					})
 				}
+				const token = jwt.sign(
+					{ userId: user._id },
+					process.env.SECRET_TOKEN,
+					{ expiresIn: '24h' }
+				)
+				await User.updateOne({ _id: user._id }, { token: token })
 				res.status(200).json({
 					userId: user._id,
-					token: jwt.sign(
-						{ userId: user._id },
-						process.env.SECRET_TOKEN,
-						{ expiresIn: '24h' }
-					),
+					token: token,
 					message: 'Utilisateur connecté !',
 				})
 			})
