@@ -5,12 +5,12 @@ import Property from '../models/Property.js'
 const wishlistShema = mongoose.Schema({
 	createdAt: { type: Date, required: true },
 	id_buyer: {
-		type: Schema.type.ObjectId,
+		type: mongoose.Schema.Types.ObjectId,
 		ref: Buyer,
 		required: true,
 	},
 	id_property: {
-		type: Schema.type.ObjectId,
+		type: mongoose.Schema.Types.ObjectId,
 		ref: Property,
 		required: true,
 	},

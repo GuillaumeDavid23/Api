@@ -10,7 +10,7 @@ import transactionRoutes from './transaction.js'
 import userRoutes from './user.js'
 import wishlistRoutes from './wishlist.js'
 
-export default {
+export {
 	agentRoutes,
 	appointmentRoutes,
 	buyerRoutes,

@@ -3,7 +3,7 @@ import Agent from './Agent.js'
 
 const inventoryShema = mongoose.Schema({
 	id_agent: {
-		type: Schema.type.ObjectId,
+		type: mongoose.Schema.Types.ObjectId,
 		ref: Agent,
 		required: true,
 	},

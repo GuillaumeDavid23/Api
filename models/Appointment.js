@@ -10,12 +10,12 @@ const appointmentShema = Schema({
 	outdoor: { type: Boolean, required: true },
 	duration: { type: Number, required: true },
 	id_buyer: {
-		type: Schema.type.ObjectId,
+		type: Schema.Types.ObjectId,
 		ref: Buyer,
 		required: true,
 	},
 	id_agent: {
-		type: Schema.type.ObjectId,
+		type: Schema.Types.ObjectId,
 		ref: Agent,
 		required: true,
 	},

@@ -6,7 +6,7 @@ const transactionShema = Schema({
 	lst_buyer: { type: Array, required: true },
 	lst_seller: { type: Array, required: true },
 	id_agent: {
-		type: Schema.type.ObjectId,
+		type: Schema.Types.ObjectId,
 		ref: Agent,
 		required: true,
 	},
