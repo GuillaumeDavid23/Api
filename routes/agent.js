@@ -1,9 +1,12 @@
 import express from 'express'
-import { create, getAll } from '../controllers/agent.js'
+import { create, getAgent, getAllAgents } from '../controllers/agent.js'
+import auth from '../middleware/auth.js'
+import validation from '../validation/agent.js'
 
 const router = express.Router()
 
-router.get('/agents', getAll)
-router.post('/create_agent', create)
+router.get('/', getAllAgents)
+router.get('/:_id', getAgent)
+router.post('/', auth, validation, create)
 
 export default router

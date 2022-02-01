@@ -1,15 +1,14 @@
 import Rental from '../models/Rental.js'
 
 const create = (req, res, next) => {
-	delete req.body._id
-	const thing = new Thing({
+	const rental = new Rental({
 		...req.body,
 	})
-	thing
+	rental
 		.save()
 		.then(() =>
 			res.status(201).json({
-				message: 'Objet enregistré !',
+				message: 'Location enregistrée !',
 			})
 		)
 		.catch((error) =>
@@ -20,7 +19,7 @@ const create = (req, res, next) => {
 }
 
 const update = (req, res, next) => {
-	Thing.updateOne(
+	Rental.updateOne(
 		{
 			_id: req.params.id,
 		},
@@ -31,7 +30,7 @@ const update = (req, res, next) => {
 	)
 		.then(() =>
 			res.status(200).json({
-				message: 'Objet modifié !',
+				message: 'Location modifiée !',
 			})
 		)
 		.catch((error) =>
@@ -42,25 +41,25 @@ const update = (req, res, next) => {
 }
 
 const erase = (req, res, next) => {
-	Thing.findOne({
+	Rental.findOne({
 		_id: req.params.id,
-	}).then((thing) => {
-		if (!thing) {
+	}).then((rental) => {
+		if (!rental) {
 			return res.status(404).json({
-				error: new Error('Objet non trouvé !'),
+				error: new Error('Location non trouvée !'),
 			})
 		}
-		if (thing.userId !== req.auth.userId) {
+		if (rental.userId !== req.auth.userId) {
 			return res.status(401).json({
 				error: new Error('Requête non autorisée !'),
 			})
 		}
-		Thing.deleteOne({
+		Rental.deleteOne({
 			_id: req.params.id,
 		})
 			.then(() =>
 				res.status(200).json({
-					message: 'Objet supprimé !',
+					message: 'Location supprimée !',
 				})
 			)
 			.catch((error) =>
@@ -72,8 +71,8 @@ const erase = (req, res, next) => {
 }
 
 const getAll = (req, res, next) => {
-	Thing.find()
-		.then((things) => res.status(200).json(things))
+	Rental.find()
+		.then((rentals) => res.status(200).json(rentals))
 		.catch((error) =>
 			res.status(400).json({
 				error,
@@ -82,10 +81,10 @@ const getAll = (req, res, next) => {
 }
 
 const getOne = (req, res, next) => {
-	Thing.findOne({
+	Rental.findOne({
 		_id: req.params.id,
 	})
-		.then((thing) => res.status(200).json(thing))
+		.then((rental) => res.status(200).json(rental))
 		.catch((error) =>
 			res.status(400).json({
 				error,
