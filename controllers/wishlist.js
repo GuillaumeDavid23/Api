@@ -1,11 +1,14 @@
 import Wishlist from '../models/Wishlist.js'
 
 /**
- * @api {post} /api/whishlist Créer une liste de souhait
+ * @api {post} /api/wishlist Créer une liste de souhait
  * @apiName create
  * @apiGroup ListeSouhait
  *
- * @apiBody {ObjectId} id_buyer
+ * @apiHeader {String} Authorization Token d'Authentification
+ *
+ * @apiBody {ObjectId} id_buyer="61f93c440e15ba1e37772e03" ID de l'acheteur.
+ *
  */
 const create = (req, res) => {
 	const wishlist = new Wishlist({
