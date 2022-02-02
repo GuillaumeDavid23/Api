@@ -284,7 +284,6 @@ const deleteOne = async (req, res) => {
  */
 const signup = (req, res) => {
 	let datas = req.body
-	console.log(datas)
 
 	if (datas.password != null) {
 		bcrypt
