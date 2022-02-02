@@ -15,7 +15,7 @@ const propertySchema = Mongoose.Schema({
 	electricMeterRef: { type: String, required: true },
 	gasMeterRef: { type: String, required: true },
 	isToSell: { type: Boolean, required: true },
-	propertyRef: { type: String, required: true },
+	propertyRef: { type: String, required: true, unique: true },
 	imageUrl: { type: String, required: false },
 })
 
