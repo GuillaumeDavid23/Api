@@ -17,6 +17,13 @@ const propertySchema = Mongoose.Schema({
 	isToSell: { type: Boolean, required: true },
 	propertyRef: { type: String, required: true, unique: true },
 	imageUrl: { type: String, required: false },
+
+	wishlists: [
+		{
+			type: Mongoose.Schema.Types.ObjectId,
+			ref: 'Wishlist',
+		},
+	],
 })
 
 export default Mongoose.model('Property', propertySchema)

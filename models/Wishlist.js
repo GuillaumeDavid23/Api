@@ -9,11 +9,12 @@ const wishlistShema = mongoose.Schema({
 		ref: Buyer,
 		required: true,
 	},
-	id_property: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: Property,
-		required: true,
-	},
+	properties: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Property',
+		},
+	],
 })
 
 export default mongoose.model('Wishlist', wishlistShema)

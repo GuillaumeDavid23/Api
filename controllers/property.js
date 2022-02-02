@@ -5,37 +5,38 @@ import fs from 'fs'
 /**
  * @api {post} /api/property Créer une propriété
  * @apiName createProperty
- * @apiGroup Property
+ * @apiGroup Propriété
  *
  * @apiHeader {String} Authorization
  *
- * @apiParam {String} title="Super Maison"
- * @apiParam {String} description="Vraiment super !"
- * @apiParam {Number} amount="300000"
- * @apiParam {String} location="Amiens"
- * @apiParam {String} propertyType="Maison"
- * @apiParam {Number} surface="100"
- * @apiParam {Number} roomNumber="5"
- * @apiParam {String} transactionType="Achat"
+ * @apiBody {String} title="Super Maison"
+ * @apiBody {String} description="Vraiment super !"
+ * @apiBody {Number} amount="300000"
+ * @apiBody {String} location="Amiens"
+ * @apiBody {String} propertyType="Maison"
+ * @apiBody {Number} surface="100"
+ * @apiBody {Number} roomNumber="5"
+ * @apiBody {String} transactionType="Achat"
  *
- * @apiParam {Array} lst_equipments={murs:4},{toit:1}
- * @apiParam {Array} lst_heater={hp:30},{hc:50}
- * @apiParam {Array} lst_water={hot:40},{cold:10}
- * @apiParam {String} electricMeterRef="azertyuiop"
- * @apiParam {String} gasMeterRef="azertyuiop2"
+ * @apiBody {Array} lst_equipments={murs:4},{toit:1}
+ * @apiBody {Array} lst_heater={hp:30},{hc:50}
+ * @apiBody {Array} lst_water={hot:40},{cold:10}
+ * @apiBody {String} electricMeterRef="azertyuiop"
+ * @apiBody {String} gasMeterRef="azertyuiop2"
  *
- * @apiParam {Boolean} isToSell="true"
- * @apiParam {String} propertyRef="azertyuiop0"
+ * @apiBody {Boolean} isToSell="true"
+ * @apiBody {String} propertyRef="azertyuiop0"
  *
  * @apiSuccess {String} message Message de completion.
  *
  * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
+ *     HTTP/1.1 201 OK
  *     {
  *       "message": "Propriété enregistrée !"",
  *     }
  *
- * @apiError ServerError Propriété non crée.
+ * @apiError 400 Propriété non crée.
+ * @apiError (Erreur 500) ServerError Erreur sur le Serveur.
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 400 Not Found
@@ -44,13 +45,11 @@ import fs from 'fs'
  *     }
  */
 const createProperty = (req, res) => {
-	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
-
 	const newProperty = new Property({
-		...datas,
-		isToSell: datas.isToSell == 'on' ? true : false,
+		...req.body,
+		isToSell: req.body.isToSell == 'on' ? true : false,
 		imageUrl: `${req.protocol}://${req.get('host')}/uploads/${
-			datas.propertyRef
+			req.body.propertyRef
 		}`,
 	})
 
@@ -74,7 +73,7 @@ const createProperty = (req, res) => {
 /**
  * @api {get} /api/property Récupérer toutes les propriétés
  * @apiName getAllProperties
- * @apiGroup Property
+ * @apiGroup Propriété
  *
  * @apiSuccess {Array} properties Liste de Propriétés
  *
@@ -109,9 +108,9 @@ const getAllProperties = (req, res) => {
 /**
  * @api {get} /api/property/:id Récupérer une propriété
  * @apiName getPropertyById
- * @apiGroup Property
+ * @apiGroup Propriété
  *
- * @apiParam {Number} _id ID de la propriété.
+ * @apiParam {ObjectId} _id ID de la propriété.
  *
  * @apiSuccess {Property} property Objet Propriété.
  *
@@ -131,8 +130,10 @@ const getAllProperties = (req, res) => {
  *     }
  */
 const getPropertyById = async (req, res) => {
+	let data = Object.keys(req.params).length === 0 ? req.query : req.params
+
 	try {
-		let property = await Property.findById(req.body._id)
+		let property = await Property.findById(data._id)
 		if (property) {
 			res.status(200).json({
 				status_code: 200,
@@ -157,36 +158,37 @@ const getPropertyById = async (req, res) => {
 /**
  * @api {put} /api/property/:_id Mettre à jour une propriété
  * @apiName updateProperty
- * @apiGroup Property
+ * @apiGroup Propriété
  *
  * @apiHeader {String} Authorization Token d'authentification
  *
  * @apiParam {ObjectId} _id
  *
- * @apiParam {String} title="Super Maison"
- * @apiParam {String} description="Vraiment super !"
- * @apiParam {Number} amount="300000"
- * @apiParam {String} location="Amiens"
- * @apiParam {String} propertyType="Maison"
- * @apiParam {Number} surface="100"
- * @apiParam {Number} roomNumber="5"
- * @apiParam {String} transactionType="Achat"
+ * @apiBody {String} title="Super Maison"
+ * @apiBody {String} description="Vraiment super !"
+ * @apiBody {Number} amount="300000"
+ * @apiBody {String} location="Amiens"
+ * @apiBody {String} propertyType="Maison"
+ * @apiBody {Number} surface="100"
+ * @apiBody {Number} roomNumber="5"
+ * @apiBody {String} transactionType="Achat"
  *
- * @apiParam {Array} lst_equipments={murs:4},{toit:1}
- * @apiParam {Array} lst_heater={hp:30},{hc:50}
- * @apiParam {Array} lst_water={hot:40},{cold:10}
- * @apiParam {String} electricMeterRef="azertyuiop"
- * @apiParam {String} gasMeterRef="azertyuiop2"
+ * @apiBody {Array} lst_equipments={murs:4},{toit:1}
+ * @apiBody {Array} lst_heater={hp:30},{hc:50}
+ * @apiBody {Array} lst_water={hot:40},{cold:10}
+ * @apiBody {String} electricMeterRef="azertyuiop"
+ * @apiBody {String} gasMeterRef="azertyuiop2"
  *
- * @apiParam {Boolean} isToSell="true"
- * @apiParam {String} propertyRef="azertyuiop0"
+ * @apiBody {Boolean} isToSell="true"
+ * @apiBody {String} propertyRef="azertyuiop0"
  *
  * @apiSuccess {String} message Message de completion.
+ * @apiSuccess {UserModel} data azertyuiop
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": 'Propriété enregistrée !',
+ *       "message": "Propriété actualisée !",
  *     }
  *
  * @apiError ServerError Propriété non crée.
@@ -198,7 +200,8 @@ const getPropertyById = async (req, res) => {
  *     }
  */
 const updateProperty = (req, res) => {
-	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
+	let datas = Object.keys(req.params).length === 0 ? req.query : req.params
+	console.log(datas)
 	const property = req.file
 		? {
 				...JSON.parse(req.body),
@@ -209,10 +212,9 @@ const updateProperty = (req, res) => {
 		: { ...req.body }
 
 	Property.updateOne(
-		{ _id: datas.id },
+		{ _id: datas._id },
 		{
-			...datas,
-			_id: datas.id,
+			...req.body,
 		}
 	)
 		.then(() => {
@@ -231,10 +233,37 @@ const updateProperty = (req, res) => {
 }
 
 // DELETE
+/**
+ * @api {delete} /api/property/:_id Supprimer une propriété
+ * @apiName deleteProperty
+ * @apiGroup Propriété
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id
+ *
+ * @apiSuccess {String} message Message de completion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": "Propriété supprimée !",
+ *     }
+ *
+ * @apiError ServerError Propriété non crée.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Propriété non crée !"
+ *     }
+ */
 const deleteProperty = async (req, res) => {
+	let data = Object.keys(req.params).length === 0 ? req.query : req.params
+
 	try {
 		// On récupère la propriété avec son Id
-		let property = await Property.findById({ _id: req.params._id })
+		let property = await Property.findById({ _id: data._id })
 
 		// Si pas de propriété trouvée
 		if (!property) {
@@ -272,6 +301,11 @@ const deleteProperty = async (req, res) => {
 			message: error,
 		})
 	}
+}
+
+// Sending Alert
+const sendAlert = (req, res) => {
+	// Récupération des alertes
 }
 
 export {
