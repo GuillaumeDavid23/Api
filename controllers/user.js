@@ -10,15 +10,14 @@ dotenv.config()
  * @apiName create
  * @apiGroup User
  *
- * @apiParam {String} firstname
- * @apiParam {String} lastname
- * @apiParam {String} email
- * @apiParam {String} password
- * @apiParam {String} [token]
- * @apiParam {String} [phone]
- * @apiParam {Boolean} [newsletter]
- * @apiParam {Boolean} status
- * @apiParam {String} [ref]
+ * @apiBody {String} firstname
+ * @apiBody {String} lastname
+ * @apiBody {String} email
+ * @apiBody {String} password
+ * @apiBody {String} [phone]
+ * @apiBody {Boolean} [newsletter]
+ * @apiBody {Boolean} status
+ * @apiBody {String} [ref]
  *
  * @apiSuccess {String} message Message de complétion.
  *
@@ -39,6 +38,7 @@ dotenv.config()
  */
 const create = async (req, res) => {
 	const saltRounds = 10
+	console.log(req.body)
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 
 	const user = new User({
@@ -69,6 +69,40 @@ const create = async (req, res) => {
 }
 
 //UPDATE USER
+/**
+ * @api {put} /api/user/:_id Mettre à jour une propriété
+ * @apiName update
+ * @apiGroup User
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id
+ *
+ * @apiParam {String} firstname="Jean"
+ * @apiParam {String} lastname="Dupont"
+ * @apiParam {String} email="jean-dupont@email.Fr"
+ * @apiParam {String} password="123456789"
+ * @apiParam {String} phone="0322325669"
+ * @apiParam {Boolean} newsletter="true"
+ * @apiParam {Boolean} status="true"
+ * @apiParam {String} ref="152GD15J"
+ *
+ * @apiSuccess {String} message Utilisateur modifié !.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Utilisateur modifié !',
+ *     }
+ *
+ * @apiError ServerError Utilisateur non modifié.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Utilisateur non modifié !"
+ *     }
+ */
 const update = (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 
@@ -93,21 +127,73 @@ const update = (req, res) => {
 }
 
 //GET ONE USER
+/**
+ * @api {get} /user/:_id Récupérer un utilisateur
+ * @apiName getOne
+ * @apiGroup User
+ *
+ * @apiParam {Number} _id ID de l'utilisateur.
+ *
+ * @apiSuccess {User} user Objet Utilisateur.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      "message": 'Utilisateur récupéré !',
+		"data": user,
+ *     }
+ *
+ * @apiError UserNotFound Aucun utilisateur.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Utilisateur non trouvé !"
+ *     }
+ */
 const getOne = async (req, res) => {
 	try {
 		const user = await User.findById(req.params._id)
 		if (user) {
-			res.status(200).json(user)
+			res.status(200).json({
+				message: 'Utilissateur récupéré !',
+				data: user,
+			})
 		} else {
 			res.status(204).json({ message: 'Aucun utilisateur' })
 		}
 	} catch (error) {
 		console.log(error)
-		res.status(400).json(error)
+		res.status(400).json({
+			error: error,
+			message: 'Utilisateur non trouvé !',
+		})
 	}
 }
 
 //GET ALL USER
+/**
+ * @api {get} /user/ Récupérer tout les utilisateurs
+ * @apiName getAll
+ * @apiGroup User
+ *
+ * @apiSuccess {User} user Objet Utilisateur.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      "message": 'Utilisateur récupéré !',
+		"data": user,
+ *     }
+ *
+ * @apiError UserNotFound Aucun utilisateur.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 500 Not Found
+ *     {
+ *       "error": "Aucun utilisateur trouvé !"
+ *     }
+ */
 const getAll = async (req, res) => {
 	try {
 		const user = await User.find({ status: true })
@@ -123,6 +209,27 @@ const getAll = async (req, res) => {
 }
 
 //GET DELETE
+/**
+ * @api {DELETE} /user/:_id Récupérer tout les utilisateurs
+ * @apiName deleteOne
+ * @apiGroup User
+ *
+ * @apiSuccess {String} message Utilisateur désactivé !.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *      "message": 'Utilisateur désactivé !',
+ *     }
+ *
+ * @apiError UserNotFound Aucun utilisateur.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Impossible de désactiver cet utilisateur !"
+ *     }
+ */
 const deleteOne = async (req, res) => {
 	User.updateOne(
 		{
@@ -145,6 +252,35 @@ const deleteOne = async (req, res) => {
 }
 
 //SIGNUP USER
+/**
+ * @api {post} /user/signup Créer un utilisateur
+ * @apiName signup
+ * @apiGroup User
+ *
+ * @apiParam {String} firstname="Jean"
+ * @apiParam {String} lastname="Dupont"
+ * @apiParam {String} email="jean-dupont@email.Fr"
+ * @apiParam {String} password="123456789"
+ * @apiParam {String} phone="0322325669"
+ * @apiParam {Boolean} newsletter="true"
+ *
+ * @apiSuccess {String} message Message de complétion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Compte créé  !',
+ *     }
+ *
+ * @apiError ServerError Erreur serveur.
+ * @apiError UserAlreadyExists Un compte avec cette adresse email existe déjà !
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Compte non crée !"
+ *     }
+ */
 const signup = async (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 	bcrypt
@@ -157,7 +293,7 @@ const signup = async (req, res) => {
 			user.save()
 				.then(() =>
 					res.status(201).json({
-						message: 'Utilisateur créé !',
+						message: 'Compte créé !',
 					})
 				)
 				.catch((error) =>
@@ -232,6 +368,40 @@ const login = async (req, res) => {
 }
 
 //USER FORGOT PASSWORD
+/**
+ * @api {post} /api/forgot Création du token
+ * @apiName update
+ * @apiGroup User
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id
+ *
+ * @apiParam {String} firstname="Jean"
+ * @apiParam {String} lastname="Dupont"
+ * @apiParam {String} email="jean-dupont@email.Fr"
+ * @apiParam {String} password="123456789"
+ * @apiParam {String} phone="0322325669"
+ * @apiParam {Boolean} newsletter="true"
+ * @apiParam {Boolean} status="true"
+ * @apiParam {String} ref="152GD15J"
+ *
+ * @apiSuccess {String} message Utilisateur modifié !.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Utilisateur modifié !',
+ *     }
+ *
+ * @apiError ServerError Utilisateur non modifié.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Utilisateur non modifié !"
+ *     }
+ */
 const forgotPass = (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 	User.findOne({ email: datas.email })
@@ -260,6 +430,30 @@ const forgotPass = (req, res) => {
 }
 
 //CHECK RESEST PASSWORD TOKEN
+/**
+ * @api {get} /user/check/:token Récupérer un utilisateur
+ * @apiName checkResetToken
+ * @apiGroup User
+ *
+ * @apiParam {String} token de l'utilisateur.
+ *
+ * @apiSuccess {User} user Objet Utilisateur.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      "message": 'Token OK !',
+		"data": user,
+ *     }
+ *
+ * @apiError UserNotFound Aucun utilisateur.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Aucun utilisateur !"
+ *     }
+ */
 const checkResetToken = async (req, res) => {
 	const user = await User.findOne({ token: req.params.token })
 	if (user) {

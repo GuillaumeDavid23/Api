@@ -32,7 +32,7 @@ app.use((req, res, next) => {
 	next()
 })
 
-app.use(express.json())
+app.use(express.json()).use(express.urlencoded({ extended: true }))
 
 // Intégration des routes:
 app.use('/api/images', express.static(path.join(path.dirname('uploads'))))
