@@ -11,10 +11,17 @@ const storage = multer.diskStorage({
 		callback(null, 'uploads')
 	},
 	filename: (req, file, callback) => {
-		const name = file.originalname.split(' ').join('_')
+		let datas = Object.keys(req.body).length === 0 ? req.query : req.body
+		const name = datas.propertyRef + '-' + file.fieldname
 		const extension = MIME_TYPES[file.mimetype]
-		callback(null, name + Date.now() + '.' + extension)
+		callback(null, name + '-' + Date.now() + '.' + extension)
 	},
 })
 
-export default multer({ storage: storage }).single('file')
+export default multer({ storage: storage }).fields([
+	{ name: 'photo1' },
+	{ name: 'photo2' },
+	{ name: 'photo3' },
+	{ name: 'photo4' },
+	{ name: 'photo5' },
+])

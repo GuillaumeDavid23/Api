@@ -36,11 +36,16 @@ app.use(express.json())
 
 // Intégration des routes:
 app.use('/api/images', express.static(path.join(path.dirname('uploads'))))
-app.use('/api/user', userRoutes)
+app.use('/api/agent', agentRoutes)
 app.use('/api/appointment', appointmentRoutes)
 app.use('/api/buyer', buyerRoutes)
-app.use('/api/transaction', transactionRoutes)
-app.use('/api/agent', agentRoutes)
+app.use('/api/inventory', inventoryRoutes)
 app.use('/api/property', propertyRoutes)
+app.use('/api/rental', rentalRoutes)
+app.use('/api/role', roleRoutes)
+app.use('/api/seller', sellerRoutes)
+app.use('/api/transaction', transactionRoutes)
+app.use('/api/user', userRoutes)
+app.use('/api/wishlist', wishlistRoutes)
 
 export default app
