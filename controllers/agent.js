@@ -8,7 +8,7 @@ import Transaction from '../models/Transaction.js'
  * @apiName create
  * @apiGroup Agent
  *
- * @apiHeader {String} Authorization
+ * @apiHeader {String} Authorization Token d'authentification
  *
  * @apiBody {String} firstname Prénom de l'agent
  * @apiBody {String} lastname Nom de l'agent
@@ -236,7 +236,7 @@ const checkAvailabilities = async (req, res) => {
  * @apiName makeTransaction
  * @apiGroup Agent
  *
- * @apiHeader {String} Authorization
+ * @apiHeader {String} Authorization Token d'authentification
  *
  * @apiBody {Array} lst_buyer Liste des ID acheteurs
  * @apiBody {Array} lst_seller Liste des ID vendeurs

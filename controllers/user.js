@@ -10,7 +10,7 @@ dotenv.config()
  * @apiName create
  * @apiGroup Utilisateur
  *
- * @apiHeader {String} Authorization
+ * @apiHeader {String} Authorization Token d'authentification
  *
  * @apiBody {String} firstname Prénom de l'utilisateur
  * @apiBody {String} lastname Nom de l'utilisateur
