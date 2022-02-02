@@ -44,7 +44,6 @@ import fs from 'fs'
  *       "error": "Propriété non crée !"
  *     }
  */
-// Version avec fichiers:
 const createProperty = (req, res) => {
 	const newProperty = new Property({
 		...req.body,
