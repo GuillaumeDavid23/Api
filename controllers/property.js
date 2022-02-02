@@ -3,11 +3,11 @@ import fs from 'fs'
 
 // CREATE
 /**
- * @api {post} /property Créer une propriété
+ * @api {post} /api/property Créer une propriété
  * @apiName createProperty
  * @apiGroup Property
  *
- * @apiHeader {String} Bearer Bearer Token
+ * @apiHeader {String} Authorization
  *
  * @apiParam {String} title="Super Maison"
  * @apiParam {String} description="Vraiment super !"
@@ -32,7 +32,7 @@ import fs from 'fs'
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": 'Propriété enregistrée !',
+ *       "message": "Propriété enregistrée !"",
  *     }
  *
  * @apiError ServerError Propriété non crée.
@@ -73,7 +73,7 @@ const createProperty = (req, res) => {
 
 // READ
 /**
- * @api {get} /property Récupérer toutes les propriétés
+ * @api {get} /api/property Récupérer toutes les propriétés
  * @apiName getAllProperties
  * @apiGroup Property
  *
@@ -108,7 +108,7 @@ const getAllProperties = (req, res) => {
 
 // READ ONE
 /**
- * @api {get} /property/:id Récupérer une propriété
+ * @api {get} /api/property/:id Récupérer une propriété
  * @apiName getPropertyById
  * @apiGroup Property
  *
@@ -155,7 +155,51 @@ const getPropertyById = async (req, res) => {
 }
 
 // UPDATE
+/**
+ * @api {put} /api/property/:_id Mettre à jour une propriété
+ * @apiName updateProperty
+ * @apiGroup Property
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id
+ *
+ * @apiParam {String} title="Super Maison"
+ * @apiParam {String} description="Vraiment super !"
+ * @apiParam {Number} amount="300000"
+ * @apiParam {String} location="Amiens"
+ * @apiParam {String} propertyType="Maison"
+ * @apiParam {Number} surface="100"
+ * @apiParam {Number} roomNumber="5"
+ * @apiParam {String} transactionType="Achat"
+ *
+ * @apiParam {Array} lst_equipments={murs:4},{toit:1}
+ * @apiParam {Array} lst_heater={hp:30},{hc:50}
+ * @apiParam {Array} lst_water={hot:40},{cold:10}
+ * @apiParam {String} electricMeterRef="azertyuiop"
+ * @apiParam {String} gasMeterRef="azertyuiop2"
+ *
+ * @apiParam {Boolean} isToSell="true"
+ * @apiParam {String} propertyRef="azertyuiop0"
+ *
+ * @apiSuccess {String} message Message de completion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": 'Propriété enregistrée !',
+ *     }
+ *
+ * @apiError ServerError Propriété non crée.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Propriété non crée !"
+ *     }
+ */
 const updateProperty = (req, res) => {
+	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 	const property = req.file
 		? {
 				...JSON.parse(req.body),
@@ -166,10 +210,10 @@ const updateProperty = (req, res) => {
 		: { ...req.body }
 
 	Property.updateOne(
-		{ _id: req.params.id },
+		{ _id: datas.id },
 		{
-			...req.body,
-			_id: req.body._id,
+			...datas,
+			_id: datas.id,
 		}
 	)
 		.then(() => {
@@ -179,6 +223,7 @@ const updateProperty = (req, res) => {
 			})
 		})
 		.catch((error) => {
+			console.log(error)
 			res.status(400).json({
 				status_code: 400,
 				message: error,
