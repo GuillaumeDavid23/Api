@@ -1,5 +1,27 @@
 import Seller from '../models/Seller.js'
 
+// CREATE
+const create = (req, res) => {
+	const seller = new Seller({
+		...req.body,
+	})
+
+	seller
+		.save()
+		.then(() => {
+			res.status(201).json({
+				status_code: 201,
+				message: 'Vendeur enregistré !',
+			})
+		})
+		.catch((error) => {
+			res.status(400).json({
+				status_code: 400,
+				message: error,
+			})
+		})
+}
+
 const getOne = async (req, res) => {
 	try {
 		const seller = await Seller.findById(req.params._id)
@@ -28,4 +50,4 @@ const getAll = async (req, res) => {
 	}
 }
 
-export { getOne, getAll }
+export { create, getOne, getAll }
