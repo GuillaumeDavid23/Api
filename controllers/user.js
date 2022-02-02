@@ -39,8 +39,6 @@ dotenv.config()
  */
 const create = async (req, res) => {
 	const saltRounds = 10
-	delete req.body._id
-
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 
 	const user = new User({
@@ -72,12 +70,14 @@ const create = async (req, res) => {
 
 //UPDATE USER
 const update = (req, res) => {
+	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
+
 	User.updateOne(
 		{
 			_id: req.params._id,
 		},
 		{
-			...req.body,
+			...datas,
 		}
 	)
 		.then((response) => {
@@ -146,11 +146,12 @@ const deleteOne = async (req, res) => {
 
 //SIGNUP USER
 const signup = async (req, res) => {
+	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 	bcrypt
-		.hash(req.body.password, 10)
+		.hash(datas.password, 10)
 		.then((hash) => {
 			const user = new User({
-				...req.body,
+				...datas,
 				password: hash,
 			})
 			user.save()
@@ -231,8 +232,9 @@ const login = async (req, res) => {
 }
 
 //USER FORGOT PASSWORD
-const forgotPass = async (req, res) => {
-	User.findOne({ email: req.body.email })
+const forgotPass = (req, res) => {
+	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
+	User.findOne({ email: datas.email })
 		.then((user) => {
 			if (user.status == false) {
 				return res.status(403).json({
