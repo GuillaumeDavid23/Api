@@ -103,8 +103,8 @@ const update = (req, res) => {
 /**
  * @api {DELETE} /api/transaction/:_id Supprimer une transaction
  * @apiName erase
- * @apiGroup Utilisateur
- **
+ * @apiGroup Transaction
+ *
  * @apiHeader {String} Authorization Token d'authentification
  * @apiSuccess {String} message Transaction supprimée !.
  *
