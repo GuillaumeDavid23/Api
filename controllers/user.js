@@ -8,7 +8,7 @@ dotenv.config()
 /**
  * @api {post} /api/user Créer un utilisateur
  * @apiName create
- * @apiGroup User
+ * @apiGroup Utilisateur
  *
  * @apiHeader {String} Authorization
  *
@@ -44,8 +44,6 @@ const create = async (req, res) => {
 
 	const user = new User({
 		...datas,
-		newsletter: datas.newsletter == 'on' ? true : false,
-		status: datas.status == 'on' ? true : false,
 	})
 	const mailCheck = await User.findOne({ email: user.email })
 	if (mailCheck) {
@@ -73,7 +71,7 @@ const create = async (req, res) => {
 /**
  * @api {put} /api/user/:_id Mettre à jour un utilisateur
  * @apiName update
- * @apiGroup User
+ * @apiGroup Utilisateur
  *
  * @apiHeader {String} Authorization
  *
@@ -131,7 +129,7 @@ const update = (req, res) => {
 /**
  * @api {get} /api/user/:_id Récupérer un utilisateur
  * @apiName getOne
- * @apiGroup User
+ * @apiGroup Utilisateur
  *
  * @apiParam {Number} _id ID de l'utilisateur.
  *
@@ -174,9 +172,9 @@ const getOne = async (req, res) => {
 
 //GET ALL USER
 /**
- * @api {get} /api/user/ Récupérer tout les utilisateurs
+ * @api {get} /api/user/ Récupérer tous les utilisateurs
  * @apiName getAll
- * @apiGroup User
+ * @apiGroup Utilisateur
  *
  * @apiSuccess {User} user Objet Utilisateur.
  *
@@ -213,7 +211,7 @@ const getAll = async (req, res) => {
 /**
  * @api {DELETE} /api/user/:_id Supprimer un utilisateur
  * @apiName deleteOne
- * @apiGroup User
+ * @apiGroup Utilisateur
  *
  * @apiSuccess {String} message Utilisateur désactivé !.
  *
@@ -256,7 +254,7 @@ const deleteOne = async (req, res) => {
 /**
  * @api {post} /api/user/signup Inscrire un utilisateur
  * @apiName signup
- * @apiGroup User
+ * @apiGroup Utilisateur
  *
  * @apiBody {String} firstname Prénom de l'utilisateur
  * @apiBody {String} lastname Nom de l'utilisateur
@@ -322,7 +320,7 @@ const signup = (req, res) => {
 /**
  * @api {post} /api/user/login Authentifier un utilisateur
  * @apiName login
- * @apiGroup User
+ * @apiGroup Utilisateur
  *
  * @apiBody {String} email
  * @apiBody {String} password
@@ -379,7 +377,7 @@ const login = async (req, res) => {
 /**
  * @api {post} /api/forgot Créer un token de réinitilisation
  * @apiName forgotPass
- * @apiGroup User
+ * @apiGroup Utilisateur
  *
  * @apiParam {ObjectId} _id
  *
@@ -430,7 +428,7 @@ const forgotPass = (req, res) => {
 /**
  * @api {get} /api/user/check/:token Vérifier le token utilisateur
  * @apiName checkResetToken
- * @apiGroup User
+ * @apiGroup Utilisateur
  *
  * @apiParam {String} token de l'utilisateur.
  *
