@@ -252,20 +252,52 @@ const forgotPass = (req, res) => {
 				}
 			)
 		})
-		.catch((error) =>
-			res.status(500).json({
-				error,
-			})
-		)
+		.catch((error) => res.status(500).json({ error }))
 }
 
 //CHECK RESEST PASSWORD TOKEN
 const checkResetToken = async (req, res) => {
-	const user = await User.findOne({ token: req.params.token })
-	if (user) {
-		res.status(200).json(user)
-	} else {
-		res.status(204).json({ message: 'Aucun utilisateur' })
+	try {
+		const user = await User.findOne({ token: req.params.token })
+		if (user) {
+			res.status(200).json(user)
+		} else {
+			res.status(204).json({ message: 'Aucun utilisateur' })
+		}
+	} catch (error) {
+		res.status(500).json({ error })
+	}
+}
+
+// SETNEWSLETTER
+const setNewsletter = async (req, res) => {
+	try {
+		const user = await findById(req.params._id)
+		if (!user)
+			return res.status(400).json({ message: 'Utilisateur inexistant' })
+		User.updateOne({ _id: req.params._id }, { newsletter: true }).then(
+			res
+				.status(200)
+				.json({ message: 'Utilisateur inscrit à la newsletter !' })
+		)
+	} catch (error) {
+		res.status(500).json({ error })
+	}
+}
+
+// UNSETNEWSLETTER
+const unsetNewsletter = async (req, res) => {
+	try {
+		const user = await findById(req.params._id)
+		if (!user)
+			return res.status(400).json({ message: 'Utilisateur inexistant' })
+		User.updateOne({ _id: req.params._id }, { newsletter: false }).then(
+			res
+				.status(200)
+				.json({ message: 'Utilisateur désinscrit à la newsletter !' })
+		)
+	} catch (error) {
+		res.status(500).json({ error })
 	}
 }
 
@@ -279,4 +311,6 @@ export {
 	signup,
 	forgotPass,
 	checkResetToken,
+	setNewsletter,
+	unsetNewsletter,
 }
