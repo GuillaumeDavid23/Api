@@ -3,7 +3,7 @@ import fs from 'fs'
 
 // CREATE
 /**
- * @api {post} /property Créer une propriété
+ * @api {post} /api/property Créer une propriété
  * @apiName createProperty
  * @apiGroup Property
  *
@@ -32,7 +32,7 @@ import fs from 'fs'
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": 'Propriété enregistrée !',
+ *       "message": "Propriété enregistrée !"",
  *     }
  *
  * @apiError ServerError Propriété non crée.
@@ -73,7 +73,7 @@ const createProperty = (req, res) => {
 
 // READ
 /**
- * @api {get} /property Récupérer toutes les propriétés
+ * @api {get} /api/property Récupérer toutes les propriétés
  * @apiName getAllProperties
  * @apiGroup Property
  *
@@ -108,7 +108,7 @@ const getAllProperties = (req, res) => {
 
 // READ ONE
 /**
- * @api {get} /property/:id Récupérer une propriété
+ * @api {get} /api/property/:id Récupérer une propriété
  * @apiName getPropertyById
  * @apiGroup Property
  *
@@ -156,7 +156,7 @@ const getPropertyById = async (req, res) => {
 
 // UPDATE
 /**
- * @api {put} /property/:_id Mettre à jour une propriété
+ * @api {put} /api/property/:_id Mettre à jour une propriété
  * @apiName updateProperty
  * @apiGroup Property
  *
