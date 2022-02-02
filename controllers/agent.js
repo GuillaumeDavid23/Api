@@ -64,15 +64,46 @@ const checkAvailabilities = async (req, res) => {
 			id_agent: req.body.id_agent,
 		}).sort({ dateBegin: 'asc' })
 
-		let availableArray = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+		let availableArray = [
+			'9h-9h30',
+			'9h30-10h',
+			'10h-10h30',
+			'10h30-11h',
+			'11h-11h30',
+			'11h30-12h',
+			'12h-12h30',
+			'12h30-13h',
+			'13h-13h30',
+			'13h30-14h',
+			'14h-14h30',
+			'14h30-15h',
+			'15h-15h30',
+			'15h30-16h',
+			'16h-16h30',
+			'16h30-17h',
+			'17h-17h30',
+			'17h30-18h',
+			'18h-18h30',
+			'18h30-19h',
+		]
+		let index = 0
 		appointments.forEach((appoint) => {
 			if (appoint.dateBegin >= begin && appoint.dateEnd <= end) {
 				let hourBegin = appoint.dateBegin.getUTCHours()
 				let hourEnd = appoint.dateEnd.getUTCHours()
-				while (hourBegin <= hourEnd) {
-					let index = availableArray.indexOf(hourBegin)
+				while (hourBegin < hourEnd) {
+					let slot = hourBegin + 0.5
+					if (hourBegin % 1 === 0) {
+						slot -= 0.5
+						let result = hourBegin + 'h-' + slot + 'h30'
+						index = availableArray.indexOf(result)
+					} else {
+						index = availableArray.indexOf(
+							hourBegin - 0.5 + 'h30-' + slot + 'h'
+						)
+					}
 					availableArray.splice(index, 1)
-					hourBegin++
+					hourBegin += 0.5
 				}
 			}
 		})
