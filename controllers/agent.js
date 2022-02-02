@@ -1,6 +1,7 @@
 import Agent from '../models/Agent.js'
 import Appointment from '../models/Appointment.js'
 import Transaction from '../models/Transaction.js'
+import bcrypt from 'bcrypt'
 
 //CREATE AGENT
 /**
