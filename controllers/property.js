@@ -43,10 +43,9 @@ import fs from 'fs'
  *       "error": "Propriété non crée !"
  *     }
  */
-// Version avec fichiers:
 const createProperty = (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
-	console.log(datas)
+
 	const newProperty = new Property({
 		...datas,
 		isToSell: datas.isToSell == 'on' ? true : false,
