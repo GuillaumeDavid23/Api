@@ -6,7 +6,7 @@ import Agent from '../models/Agent.js'
 /**
  * @api {post} /api/appointment Créer un rendez-vous
  * @apiName create
- * @apiGroup Appointment
+ * @apiGroup Rendez-vous
  *
  * @apiHeader {String} Authorization
  *
@@ -56,7 +56,7 @@ const create = (req, res) => {
 /**
  * @api {post} /api/appointment Modifier un rendez-vous
  * @apiName update
- * @apiGroup Appointment
+ * @apiGroup Rendez-vous
  *
  * @apiHeader {String} Authorization
  *
@@ -111,7 +111,7 @@ const update = (req, res) => {
 /**
  * @api {post} /api/appointment Supprimer un rendez-vous
  * @apiName delete
- * @apiGroup Appointment
+ * @apiGroup Rendez-vous
  *
  * @apiHeader {String} Authorization
  *
@@ -161,7 +161,7 @@ const erase = async (req, res) => {
 /**
  * @api {get} /api/appointment Récupérer tout les rendez-vous
  * @apiName getAll
- * @apiGroup Appointment
+ * @apiGroup Rendez-vous
  *
  * @apiSuccess {Array} appointments Liste de rendez-vbus
  *
@@ -194,7 +194,7 @@ const getAll = (req, res) => {
 /**
  * @api {get} /api/property/:id Récupérer un rendez-vous
  * @apiName getOne
- * @apiGroup Appointment
+ * @apiGroup Rendez-vous
  *
  * @apiParam {String} _id ID du rendez-vous.
  *
@@ -232,7 +232,7 @@ const getOne = async (req, res) => {
 /**
  * @api {get} /api/property/:id Récupérer les participants d'un rendez-vous
  * @apiName getParticipants
- * @apiGroup Appointment
+ * @apiGroup Rendez-vous
  *
  * @apiParam {String} _id ID du rendez-vous.
  *

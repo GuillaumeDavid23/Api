@@ -160,7 +160,7 @@ const getPropertyById = async (req, res) => {
  * @apiName updateProperty
  * @apiGroup Propriété
  *
- * @apiHeader {String} Authorization
+ * @apiHeader {String} Authorization Token d'authentification
  *
  * @apiParam {ObjectId} _id
  *
