@@ -6,18 +6,20 @@ dotenv.config()
 
 //CREATE USER
 /**
- * @api {post} /user Créer un utilisateur
+ * @api {post} /api/user Créer un utilisateur
  * @apiName create
  * @apiGroup User
  *
- * @apiBody {String} firstname
- * @apiBody {String} lastname
- * @apiBody {String} email
- * @apiBody {String} password
- * @apiBody {String} [phone]
- * @apiBody {Boolean} [newsletter]
- * @apiBody {Boolean} status
- * @apiBody {String} [ref]
+ * @apiHeader {String} Authorization
+ *
+ * @apiBody {String} firstname Prénom de l'utilisateur
+ * @apiBody {String} lastname Nom de l'utilisateur
+ * @apiBody {String} email Email de l'utilisateur
+ * @apiBody {String} password Mot de passe de l'utilisateur
+ * @apiBody {String} [phone] Numéro de téléphone de l'utilisateur
+ * @apiBody {Boolean} newsletter="false" Accord des newsletters de l'utilisateur
+ * @apiBody {Boolean} status="true" Status actif ou non
+ * @apiBody {String} [ref] Référence client
  *
  * @apiSuccess {String} message Message de complétion.
  *
@@ -38,8 +40,7 @@ dotenv.config()
  */
 const create = async (req, res) => {
 	const saltRounds = 10
-	console.log(req.body)
-	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
+	let datas = req.body
 
 	const user = new User({
 		...datas,
@@ -70,7 +71,7 @@ const create = async (req, res) => {
 
 //UPDATE USER
 /**
- * @api {put} /api/user/:_id Mettre à jour une propriété
+ * @api {put} /api/user/:_id Mettre à jour un utilisateur
  * @apiName update
  * @apiGroup User
  *
@@ -78,14 +79,14 @@ const create = async (req, res) => {
  *
  * @apiParam {ObjectId} _id
  *
- * @apiParam {String} firstname="Jean"
- * @apiParam {String} lastname="Dupont"
- * @apiParam {String} email="jean-dupont@email.Fr"
- * @apiParam {String} password="123456789"
- * @apiParam {String} phone="0322325669"
- * @apiParam {Boolean} newsletter="true"
- * @apiParam {Boolean} status="true"
- * @apiParam {String} ref="152GD15J"
+ * @apiBody {String} firstname Prénom de l'utilisateur
+ * @apiBody {String} lastname Nom de l'utilisateur
+ * @apiBody {String} email Email de l'utilisateur
+ * @apiBody {String} password Mot de passe de l'utilisateur
+ * @apiBody {String} [phone] Numéro de téléphone de l'utilisateur
+ * @apiBody {Boolean} newsletter="false" Accord des newsletters de l'utilisateur
+ * @apiBody {Boolean} status="true" Status actif ou non
+ * @apiBody {String} [ref] Référence client
  *
  * @apiSuccess {String} message Utilisateur modifié !.
  *
@@ -128,7 +129,7 @@ const update = (req, res) => {
 
 //GET ONE USER
 /**
- * @api {get} /user/:_id Récupérer un utilisateur
+ * @api {get} /api/user/:_id Récupérer un utilisateur
  * @apiName getOne
  * @apiGroup User
  *
@@ -173,7 +174,7 @@ const getOne = async (req, res) => {
 
 //GET ALL USER
 /**
- * @api {get} /user/ Récupérer tout les utilisateurs
+ * @api {get} /api/user/ Récupérer tout les utilisateurs
  * @apiName getAll
  * @apiGroup User
  *
@@ -210,7 +211,7 @@ const getAll = async (req, res) => {
 
 //GET DELETE
 /**
- * @api {DELETE} /user/:_id Récupérer tout les utilisateurs
+ * @api {DELETE} /api/user/:_id Supprimer un utilisateur
  * @apiName deleteOne
  * @apiGroup User
  *
@@ -253,16 +254,16 @@ const deleteOne = async (req, res) => {
 
 //SIGNUP USER
 /**
- * @api {post} /user/signup Créer un utilisateur
+ * @api {post} /api/user/signup Inscrire un utilisateur
  * @apiName signup
  * @apiGroup User
  *
- * @apiParam {String} firstname="Jean"
- * @apiParam {String} lastname="Dupont"
- * @apiParam {String} email="jean-dupont@email.Fr"
- * @apiParam {String} password="123456789"
- * @apiParam {String} phone="0322325669"
- * @apiParam {Boolean} newsletter="true"
+ * @apiBody {String} firstname Prénom de l'utilisateur
+ * @apiBody {String} lastname Nom de l'utilisateur
+ * @apiBody {String} email Email de l'utilisateur
+ * @apiBody {String} password Mot de passe de l'utilisateur
+ * @apiBody {String} [phone] Numéro de téléphone de l'utilisateur
+ * @apiBody {Boolean} newsletter="false" Accord des newsletters de l'utilisateur
  *
  * @apiSuccess {String} message Message de complétion.
  *
@@ -281,42 +282,51 @@ const deleteOne = async (req, res) => {
  *       "error": "Compte non crée !"
  *     }
  */
-const signup = async (req, res) => {
-	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
-	bcrypt
-		.hash(datas.password, 10)
-		.then((hash) => {
-			const user = new User({
-				...datas,
-				password: hash,
+const signup = (req, res) => {
+	let datas = req.body
+	console.log(datas)
+
+	if (datas.password != null) {
+		bcrypt
+			.hash(datas.password, 10)
+			.then((hash) => {
+				const user = new User({
+					...datas,
+					password: hash,
+				})
+				user.save()
+					.then(() =>
+						res.status(201).json({
+							message: 'Compte créé !',
+						})
+					)
+					.catch((error) =>
+						res.status(400).json({
+							error,
+						})
+					)
 			})
-			user.save()
-				.then(() =>
-					res.status(201).json({
-						message: 'Compte créé !',
-					})
-				)
-				.catch((error) =>
-					res.status(400).json({
-						error,
-					})
-				)
+			.catch((error) => {
+				console.log(error)
+				res.status(500).json({
+					error,
+				})
+			})
+	} else {
+		res.status(400).json({
+			message: 'Mot de passe incorrect',
 		})
-		.catch((error) =>
-			res.status(500).json({
-				error,
-			})
-		)
+	}
 }
 
 //LOGIN USER
 /**
- * @api {post} /user/login Authentification d'un utilisateur
+ * @api {post} /api/user/login Authentifier un utilisateur
  * @apiName login
  * @apiGroup User
  *
- * @apiParam {String} email
- * @apiParam {String} password
+ * @apiBody {String} email
+ * @apiBody {String} password
  *
  * @apiSuccess 200 Utilisateur connecté
  *
@@ -326,7 +336,6 @@ const signup = async (req, res) => {
  */
 const login = async (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
-
 	try {
 		const user = await User.findOne({ email: datas.email })
 		if (user.status == false) {
@@ -369,37 +378,26 @@ const login = async (req, res) => {
 
 //USER FORGOT PASSWORD
 /**
- * @api {post} /api/forgot Création du token
- * @apiName update
+ * @api {post} /api/forgot Créer un token de réinitilisation
+ * @apiName forgotPass
  * @apiGroup User
- *
- * @apiHeader {String} Authorization
  *
  * @apiParam {ObjectId} _id
  *
- * @apiParam {String} firstname="Jean"
- * @apiParam {String} lastname="Dupont"
- * @apiParam {String} email="jean-dupont@email.Fr"
- * @apiParam {String} password="123456789"
- * @apiParam {String} phone="0322325669"
- * @apiParam {Boolean} newsletter="true"
- * @apiParam {Boolean} status="true"
- * @apiParam {String} ref="152GD15J"
- *
- * @apiSuccess {String} message Utilisateur modifié !.
+ * @apiSuccess {String} message Token créé.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": 'Utilisateur modifié !',
+ *       "message": 'Token créé !',
  *     }
  *
- * @apiError ServerError Utilisateur non modifié.
+ * @apiError ServerError Token non créé.
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 400 Not Found
  *     {
- *       "error": "Utilisateur non modifié !"
+ *       "error": "Token non créé !"
  *     }
  */
 const forgotPass = (req, res) => {
@@ -431,7 +429,7 @@ const forgotPass = (req, res) => {
 
 //CHECK RESEST PASSWORD TOKEN
 /**
- * @api {get} /user/check/:token Récupérer un utilisateur
+ * @api {get} /api/user/check/:token Vérifier le token utilisateur
  * @apiName checkResetToken
  * @apiGroup User
  *
