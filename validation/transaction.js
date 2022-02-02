@@ -1,8 +1,6 @@
 import { body, validationResult } from 'express-validator'
 
 export default (req, res, next) => {
-	// body('phonePro').is
-	// body('phonePro').is
 	body('id_agent').isMongoId()
 	body('amount').isInt()
 	body('date').isDate()

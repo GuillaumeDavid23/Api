@@ -1,10 +1,12 @@
 import Agent from '../models/Agent.js'
 import Appointment from '../models/Appointment.js'
+import Transaction from '../models/Transaction.js'
 
 //CREATE AGENT
 const create = (req, res) => {
+	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 	const ag = new Agent({
-		...req.body,
+		...datas,
 	})
 
 	ag.save()
@@ -40,9 +42,9 @@ const getAllAgents = (req, res) => {
 //GET ONE AGENT
 const getAgent = async (req, res) => {
 	try {
-		const user = await User.findById(req.params._id)
-		if (user) {
-			res.status(200).json(user)
+		const agent = await Agent.findById(req.params._id)
+		if (agent) {
+			res.status(200).json(agent)
 		} else {
 			res.status(204).json({ message: 'Aucun utilisateur' })
 		}
@@ -54,14 +56,16 @@ const getAgent = async (req, res) => {
 
 //Check AVAILABILITIES OF AGENT
 const checkAvailabilities = async (req, res) => {
+	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
+
 	try {
-		let begin = new Date(req.body.date)
-		let end = new Date(req.body.date)
+		let begin = new Date(datas.date)
+		let end = new Date(datas.date)
 		begin.setUTCHours(8)
 		end.setUTCHours(19)
 
 		let appointments = await Appointment.find({
-			id_agent: req.body.id_agent,
+			id_agent: datas.id_agent,
 		}).sort({ dateBegin: 'asc' })
 
 		let availableArray = [
@@ -116,4 +120,28 @@ const checkAvailabilities = async (req, res) => {
 	}
 }
 
-export { create, getAllAgents, getAgent, checkAvailabilities }
+//MAKE ONE TRANSACTION
+const makeTransaction = (req, res) => {
+	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
+
+	const transaction = new Transaction({
+		...datas,
+	})
+
+	transaction
+		.save()
+		.then(() => {
+			res.status(201).json({
+				status_code: 201,
+				message: 'Transaction enregistré !',
+			})
+		})
+		.catch((error) => {
+			res.status(400).json({
+				status_code: 400,
+				message: error,
+			})
+		})
+}
+
+export { create, getAllAgents, getAgent, checkAvailabilities, makeTransaction }
