@@ -1,5 +1,35 @@
 import Transaction from '../models/Transaction.js'
 
+/**
+ * @api {post} /api/transaction/ Créer une transaction
+ * @apiName create
+ * @apiGroup Transaction
+ *
+ * @apiHeader {String} Authorization Token d'authentification
+ *
+ * @apiBody {Array} lst_buyer Liste des ID acheteurs
+ * @apiBody {Array} lst_seller Liste des ID vendeurs
+ * @apiBody {ObjectId} id_agent ID de l'agent
+ * @apiBody {Number} amount Montant de la transaction
+ * @apiBody {Date} date Date de la transaction
+ * @apiBody {Boolean} status="true" Status actif ou non
+ *
+ * @apiSuccess {String} message Message de complétion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": 'Transaction enregistrée !',
+ *     }
+ *
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Transaction non créée !"
+ *     }
+ */
 const create = (req, res) => {
 	const transaction = new Transaction({
 		...req.body,
@@ -18,6 +48,36 @@ const create = (req, res) => {
 		)
 }
 
+/**
+ * @api {put} /api/agent/transaction/:_id Modifier une transaction
+ * @apiName update
+ * @apiGroup Transaction
+ *
+ * @apiHeader {String} Authorization Token d'authentification
+ *
+ * @apiBody {Array} lst_buyer Liste des ID acheteurs
+ * @apiBody {Array} lst_seller Liste des ID vendeurs
+ * @apiBody {ObjectId} id_agent ID de l'agent
+ * @apiBody {Number} amount Montant de la transaction
+ * @apiBody {Date} date Date de la transaction
+ * @apiBody {Boolean} status="true" Status actif ou non
+ *
+ * @apiSuccess {String} message Message de complétion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Transaction modifiée !',
+ *     }
+ *
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Transaction non modifiée !"
+ *     }
+ */
 const update = (req, res) => {
 	Transaction.updateOne(
 		{
@@ -29,7 +89,7 @@ const update = (req, res) => {
 		}
 	)
 		.then(() =>
-			res.status(200).json({
+			res.status(201).json({
 				message: 'Transaction modifiée !',
 			})
 		)
@@ -40,6 +100,29 @@ const update = (req, res) => {
 		)
 }
 
+/**
+ * @api {DELETE} /api/transaction/:_id Supprimer une transaction
+ * @apiName erase
+ * @apiGroup Utilisateur
+ **
+ * @apiHeader {String} Authorization Token d'authentification
+ * @apiSuccess {String} message Transaction supprimée !.
+ *
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *      "message": 'Transaction supprimée !',
+ *     }
+ *
+ * @apiError UserNotFound Aucune transaction.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Impossible de supprimer cette transaction !"
+ *     }
+ */
 const erase = async (req, res) => {
 	try {
 		// On check la transaction a supprimer:
@@ -64,6 +147,30 @@ const erase = async (req, res) => {
 	}
 }
 
+/**
+ * @api {get} /api/transaction/ Récupérer toutes les transactions
+ * @apiName getAll
+ * @apiGroup Transaction
+ * 
+ * @apiHeader {String} Authorization Token d'authentification
+ *
+ * @apiSuccess {Transaction} transaction Objet Transaction.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      "message": 'Transaction récupéré !',
+		"data": transactions,
+ *     }
+ *
+ * @apiError TransactionNotFound Aucune Transaction.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Aucune Transaction trouvée !"
+ *     }
+ */
 const getAll = (req, res) => {
 	Transaction.find()
 		.then((transactions) => res.status(200).json(transactions))
@@ -74,6 +181,32 @@ const getAll = (req, res) => {
 		)
 }
 
+/**
+ * @api {get} /api/transaction/:_id Récupérer une transaction
+ * @apiName getOne
+ * @apiGroup Transaction
+ * 
+ * @apiHeader {String} Authorization Token d'authentification
+ *
+ * @apiParam {Number} _id ID de la transaction.
+ *
+ * @apiSuccess {Transaction} transaction Objet Transaction.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      "message": 'Transaction récupéré !',
+		"data": transaction,
+ *     }
+ *
+ * @apiError TransactionNotFound Aucune Transaction.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Transaction non trouvé !"
+ *     }
+ */
 const getOne = async (req, res) => {
 	try {
 		let transaction = await Transaction.findById(req.body._id)
