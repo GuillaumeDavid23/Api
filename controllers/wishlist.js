@@ -1,5 +1,12 @@
 import Wishlist from '../models/Wishlist.js'
 
+/**
+ * @api {post} /api/whishlist Créer une liste de souhait
+ * @apiName create
+ * @apiGroup ListeSouhait
+ *
+ * @apiBody {ObjectId} id_buyer
+ */
 const create = (req, res) => {
 	const wishlist = new Wishlist({
 		...req.body,
@@ -19,13 +26,15 @@ const create = (req, res) => {
 }
 
 const update = (req, res) => {
+	let data = Object.keys(req.params).length === 0 ? req.query : req.params
+
 	Wishlist.updateOne(
 		{
-			_id: req.params.id,
+			_id: data._id,
 		},
 		{
 			...req.body,
-			_id: req.params.id,
+			_id: data._id,
 		}
 	)
 		.then(() =>
