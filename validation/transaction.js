@@ -1,14 +1,12 @@
-import { body, validationResult } from 'express-validator'
+import { body } from 'express-validator'
 
-export default (req, res, next) => {
-	body('id_agent').notEmpty().isMongoId()
-	body('amount').notEmpty().isInt()
-	body('date').notEmpty().isDate()
-	body('status').notEmpty().isBoolean()
-
-	if (!validationResult(req).isEmpty()) {
-		return res.status(400).json({ errors: errors.array() })
-	} else {
-		next()
-	}
+export default () => {
+	return [
+		body('lst_buyer').notEmpty().isArray(),
+		body('lst_seller').notEmpty().isArray(),
+		body('id_agent').notEmpty().isMongoId(),
+		body('amount').notEmpty().isInt(),
+		body('date').notEmpty().isDate(),
+		body('status').notEmpty().isBoolean(),
+	]
 }

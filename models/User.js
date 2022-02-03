@@ -11,9 +11,7 @@ const userSchema = mongoose.Schema(
 		newsletter: { type: Boolean, required: false, default: 0 },
 		status: { type: Boolean, required: true, default: true },
 		ref: { type: String, required: false },
-		__t: { type: String, required: false },
 	},
-	{ discriminatorKey: 'kind' },
 	{ timestamps: true }
 )
 

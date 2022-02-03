@@ -1,5 +1,6 @@
-import { body, validationResult } from 'express-validator'
-const userValidationRules = () => {
+import { body } from 'express-validator'
+
+export default () => {
 	return [
 		body('firstname').notEmpty().isAlpha(),
 		body('lastname').notEmpty().isAlpha(),
@@ -18,18 +19,3 @@ const userValidationRules = () => {
 			.isLength({ min: 10, max: 10 }),
 	]
 }
-
-const validation = (req, res, next) => {
-	const errors = validationResult(req)
-	if (errors.isEmpty()) {
-		return next()
-	}
-	const extractedErrors = []
-	errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }))
-
-	return res.status(422).json({
-		errors: extractedErrors,
-	})
-}
-
-export { userValidationRules, validation }

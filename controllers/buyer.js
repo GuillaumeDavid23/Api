@@ -96,7 +96,7 @@ const create = async (req, res) => {
  *     }
  */
 const getAll = (req, res) => {
-	Buyer.find()
+	Buyer.find({ __t: 'Buyer' })
 		.then((buyers) => res.status(200).json(buyers))
 		.catch((error) => {
 			console.log(error)
