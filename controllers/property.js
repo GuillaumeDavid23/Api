@@ -9,23 +9,23 @@ import fs from 'fs'
  *
  * @apiHeader {String} Authorization
  *
- * @apiBody {String} title="Super Maison"
- * @apiBody {String} description="Vraiment super !"
- * @apiBody {Number} amount="300000"
- * @apiBody {String} location="Amiens"
- * @apiBody {String} propertyType="Maison"
- * @apiBody {Number} surface="100"
- * @apiBody {Number} roomNumber="5"
- * @apiBody {String} transactionType="Achat"
+ * @apiBody {String} title="Super Maison" Titre du bien
+ * @apiBody {String} description="Vraiment super !" Description du bien
+ * @apiBody {Number} amount="300000" Montant du bien
+ * @apiBody {String} location="Amiens" Localisation du bien
+ * @apiBody {String} propertyType="Maison" Type de bien
+ * @apiBody {Number} surface="100" Surface du bien
+ * @apiBody {Number} roomNumber="5" Nombre de pièce du bien
+ * @apiBody {String} transactionType="Achat" Type de transaction du bien
  *
- * @apiBody {Array} lst_equipments={murs:4},{toit:1}
- * @apiBody {Array} lst_heater={hp:30},{hc:50}
- * @apiBody {Array} lst_water={hot:40},{cold:10}
- * @apiBody {String} electricMeterRef="azertyuiop"
- * @apiBody {String} gasMeterRef="azertyuiop2"
+ * @apiBody {Array} lst_equipments={murs:4},{toit:1} Liste des équipements du bien
+ * @apiBody {Array} lst_heater={hp:30},{hc:50} Liste des mesures de chauffage du bien
+ * @apiBody {Array} lst_water={hot:40},{cold:10} Liste des mesures d'eau du bien
+ * @apiBody {String} electricMeterRef="azertyuiop" Référence du compteur électrique du bien
+ * @apiBody {String} gasMeterRef="azertyuiop2" Référence du compteur de gaz du bien
  *
- * @apiBody {Boolean} isToSell="true"
- * @apiBody {String} propertyRef="azertyuiop0"
+ * @apiBody {Boolean} isToSell="true" Le bien est-il en vente ?
+ * @apiBody {String} propertyRef="azertyuiop0" Référence du bien
  *
  * @apiSuccess {String} message Message de completion.
  *
