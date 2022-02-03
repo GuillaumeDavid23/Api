@@ -102,13 +102,9 @@ const create = async (req, res) => {
  *       "error": "Utilisateur non modifié !"
  *     }
  */
-const update = async (req, res) => {
+const update = (req, res) => {
 	let datas = req.body
-	await User.findOneAndUpdate(
-		{ _id: req.params._id },
-		{ kind: 'Seller' },
-		{ new: true }
-	)
+
 	User.updateOne(
 		{
 			_id: req.params._id,
@@ -494,6 +490,253 @@ const unsetNewsletter = async (req, res) => {
 	}
 }
 
+//GET ALL AGENTS
+/**
+ * @api {get} /api/user/agents Récupérer tous les agents
+ * @apiName getAgents
+ * @apiGroup Utilisateur
+ * 
+ * @apiHeader {String} Authorization Token d'Authentification
+ *
+ * @apiSuccess {User} datas Objet Agents.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      "message": 'Tous les agents : récupérés !',
+		"datas": {...},
+ *     }
+ *
+ * @apiError UserNotFound Aucun utilisateur.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Aucun agent trouvé !"
+ *     }
+ */
+const getAgents = (req, res) => {
+	User.find({ role: 'Agent' })
+		.then((agents) =>
+			res.status(200).json({
+				status_code: 200,
+				datas: agents,
+			})
+		)
+		.catch((error) =>
+			res.status(400).json({
+				status_code: 400,
+				error,
+			})
+		)
+}
+
+//Check AVAILABILITIES OF AGENT
+/**
+ * @api {post} /api/user/agentAvailabilities Vérifier ses disponibilités
+ * @apiName checkAgentAvailabilities
+ * @apiGroup Utilisateur
+ *
+ * @apiHeader {String} Authorization Token d'Authentification
+ *
+ * @apiBody {Date} date Date de test des disponibilités
+ * @apiBody {ObjectId} id_agent Id de l'agent
+ *
+ * @apiSuccess {String} message Message de complétion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "Availabilities": availableArray,
+ *     }
+ *
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": error
+ *     }
+ */
+const checkAgentAvailabilities = async (req, res) => {
+	let datas = req.body
+
+	try {
+		let begin = new Date(datas.date)
+		let end = new Date(datas.date)
+		begin.setUTCHours(8)
+		end.setUTCHours(19)
+
+		let appointments = await Appointment.find({
+			id_agent: datas.id_agent,
+		}).sort({ dateBegin: 'asc' })
+
+		let availableArray = [
+			'9h-9h30',
+			'9h30-10h',
+			'10h-10h30',
+			'10h30-11h',
+			'11h-11h30',
+			'11h30-12h',
+			'12h-12h30',
+			'12h30-13h',
+			'13h-13h30',
+			'13h30-14h',
+			'14h-14h30',
+			'14h30-15h',
+			'15h-15h30',
+			'15h30-16h',
+			'16h-16h30',
+			'16h30-17h',
+			'17h-17h30',
+			'17h30-18h',
+			'18h-18h30',
+			'18h30-19h',
+		]
+		let index = 0
+		appointments.forEach((appoint) => {
+			if (appoint.dateBegin >= begin && appoint.dateEnd <= end) {
+				let hourBegin = appoint.dateBegin.getUTCHours()
+				let hourEnd = appoint.dateEnd.getUTCHours()
+				while (hourBegin < hourEnd) {
+					let slot = hourBegin + 0.5
+					if (hourBegin % 1 === 0) {
+						slot -= 0.5
+						let result = hourBegin + 'h-' + slot + 'h30'
+						index = availableArray.indexOf(result)
+					} else {
+						index = availableArray.indexOf(
+							hourBegin - 0.5 + 'h30-' + slot + 'h'
+						)
+					}
+					availableArray.splice(index, 1)
+					hourBegin += 0.5
+				}
+			}
+		})
+		res.status(200).json({
+			Availabilities: availableArray,
+		})
+	} catch (error) {
+		console.log(error)
+		res.status(400).json(error)
+	}
+}
+
+//GET ALL BUYERS
+/**
+ * @api {get} /api/user/buyers Récupérer tous les acheteurs
+ * @apiName getBuyers
+ * @apiGroup Utilisateur
+ * 
+ * @apiHeader {String} Authorization Token d'Authentification
+ *
+ * @apiSuccess {User} user Objet Buyers.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      "message": 'Tous les acheteurs : récupérés !',
+		"datas": {...},
+ *     }
+ *
+ * @apiError UserNotFound Aucun utilisateur.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Aucun acheteur trouvé !"
+ *     }
+ */
+const getBuyers = (req, res) => {
+	User.find({ role: 'Buyer' })
+		.then((buyers) =>
+			res.status(200).json({
+				status_code: 200,
+				datas: buyers,
+			})
+		)
+		.catch((error) =>
+			res.status(400).json({
+				status_code: 400,
+				error,
+			})
+		)
+}
+
+const addToWishlist = async (req, res) => {
+	try {
+		const wishlist = await User.findById(req.auth).wishlist
+		wishlist.push(req.body.idProperty)
+		User.updateOne({ _id: req.auth }, { wishlist }).then(() => {
+			res.status(200).json({
+				status_code: 200,
+				message: 'Propriété ajouté à la wishlist !',
+			})
+		})
+	} catch (error) {
+		console.log(error)
+		res.status(400).json(error)
+	}
+}
+
+const removeOfWishlist = (req, res) => {
+	try {
+		const wishlist = await User.findById(req.auth).wishlist
+		wishlist = wishlist.filter((wish) => wish !== req.body.idProperty)
+		User.updateOne({ _id: req.auth }, { wishlist }).then(() => {
+			res.status(200).json({
+				status_code: 200,
+				message: 'Propriété retiré à la wishlist !',
+			})
+		})
+	} catch (error) {
+		console.log(error)
+		res.status(400).json(error)
+	}
+}
+
+//GET ALL SELLERS
+/**
+ * @api {get} /api/user/sellers Récupérer tous les vendeurs
+ * @apiName getSellers
+ * @apiGroup Utilisateur
+ * 
+ * @apiHeader {String} Authorization Token d'Authentification
+ *
+ * @apiSuccess {User} user Objet Sellers.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      "message": 'Tous les vendeurs : récupérés !',
+		"data": {...},
+ *     }
+ *
+ * @apiError UserNotFound Aucun utilisateur.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 400 Not Found
+ *     {
+ *       "error": "Aucun vendeur trouvé !"
+ *     }
+ */
+const getSellers = (req, res) => {
+	User.find({ role: 'Seller' })
+		.then((sellers) =>
+			res.status(200).json({
+				status_code: 200,
+				datas: sellers,
+			})
+		)
+		.catch((error) =>
+			res.status(400).json({
+				status_code: 400,
+				error,
+			})
+		)
+}
+
 export {
 	getOne,
 	getAll,
@@ -506,4 +749,10 @@ export {
 	checkResetToken,
 	setNewsletter,
 	unsetNewsletter,
+	getAgents,
+	checkAgentAvailabilities,
+	getBuyers,
+	addToWishlist,
+	removeOfWishlist,
+	getSellers,
 }
