@@ -49,7 +49,7 @@ const create = (req, res) => {
 }
 
 /**
- * @api {put} /api/agent/transaction/:_id Modifier une transaction
+ * @api {put} /api/transaction/:_id Modifier une transaction
  * @apiName update
  * @apiGroup Transaction
  *
