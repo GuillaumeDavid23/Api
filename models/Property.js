@@ -1,4 +1,5 @@
 import Mongoose from '../db/db.js'
+import uniqueValidator from 'mongoose-unique-validator'
 
 const propertySchema = Mongoose.Schema(
 	{
@@ -16,10 +17,16 @@ const propertySchema = Mongoose.Schema(
 		electricMeterRef: { type: String, required: true },
 		gasMeterRef: { type: String, required: true },
 		isToSell: { type: Boolean, required: true },
-		propertyRef: { type: String, required: true, unique: true },
+		propertyRef: {
+			type: String,
+			required: true,
+			unique: true,
+		},
 		imageUrl: { type: String, required: false },
 	},
 	{ timestamps: true }
 )
+
+propertySchema.plugin(uniqueValidator)
 
 export default Mongoose.model('Property', propertySchema)

@@ -1,5 +1,8 @@
 import Property from '../models/Property.js'
+import Buyer from '../models/Buyer.js'
+import nodemailer from 'nodemailer'
 import fs from 'fs'
+import { asyncForEach } from '../util/functions.js'
 
 // CREATE
 /**
@@ -57,6 +60,7 @@ const createProperty = (req, res) => {
 	newProperty
 		.save()
 		.then(() => {
+			sendAlert(datas)
 			res.status(201).json({
 				status_code: 201,
 				message: 'Propriété enregistrée !',
@@ -271,6 +275,55 @@ const deleteProperty = async (req, res) => {
 			status_code: 400,
 			message: error,
 		})
+	}
+}
+
+// SENDALERT (Intervient dans create)
+const sendAlert = async (datas) => {
+	try {
+		const buyers = await Buyer.find()
+
+		await asyncForEach(buyers, async (buyer) => {
+			if (
+				(buyer.budgetMin ||
+					buyer.budgetMax ||
+					buyer.city ||
+					buyer.surfaceMin ||
+					buyer.surfaceMax ||
+					buyer.type) &&
+				(!buyer.budgetMin || buyer.budgetMin <= datas.amount) &&
+				(!buyer.budgetMax || buyer.budgetMax >= datas.amount) &&
+				(!buyer.city || buyer.city === datas.localisation) &&
+				(!buyer.surfaceMin || buyer.surfaceMin <= datas.surface) &&
+				(!buyer.surfaceMax || buyer.surfaceMax >= datas.surface) &&
+				(!buyer.type || buyer.type === datas.propertyType)
+			) {
+				// create reusable transporter object using the default SMTP transport
+				let transporter = nodemailer.createTransport({
+					host: 'smtp.gmail.com',
+					port: 465,
+					secure: true, // true for 465, false for other ports
+					auth: {
+						user: 'mancheronv@gmail.com', // generated ethereal user
+						pass: '#fg3rTxFninqL!TnrBdPjXoC$Poi38K5habrtq8G', // generated ethereal password
+					},
+				})
+
+				// send mail with defined transport object
+				let info = await transporter.sendMail({
+					from: '"Fred Foo 👻" <mancheronv@gmail.com>', // sender address
+					to: 'vmancheron@yahoo.fr', // list of receivers
+					subject: 'Hello ✔', // Subject line
+					text: 'Hello world?', // plain text body
+					html: '<b>Hello world?</b>', // html body
+				})
+
+				console.log('Message sent: %s', info.messageId)
+				// Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+			}
+		})
+	} catch (error) {
+		console.log(error)
 	}
 }
 
