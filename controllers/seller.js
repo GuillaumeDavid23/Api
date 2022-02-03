@@ -62,7 +62,7 @@ const create = (req, res) => {
  * @apiGroup Vendeur
  * 
  * @apiHeader {String} Authorization Token d'authentification
- * @apiParam {Number} _id ID de l'acheteur.
+ * @apiParam {ObjectId} _id ID de l'acheteur.
  *
  * @apiSuccess {Seller} seller Objet Vendeur.
  *
@@ -83,10 +83,13 @@ const create = (req, res) => {
  */
 const getOne = async (req, res) => {
 	try {
-		const seller = await Seller.findById(req.params._id)
+		const seller = await Seller.findById(req.params.id)
+		console.log(seller)
 		if (seller) {
 			res.status(200).json(seller)
 		} else {
+			console.log('yes')
+
 			res.status(204).json({ message: 'Aucun utilisateur' })
 		}
 	} catch (error) {

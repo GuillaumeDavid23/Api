@@ -6,7 +6,7 @@ import validation from '../validation/seller.js'
 const router = express.Router()
 
 router.post('/', auth, create)
-router.get('/:id', auth, getOne)
+router.get('/:id', getOne)
 router.get('/', getAll)
 
 export default router
