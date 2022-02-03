@@ -19,7 +19,7 @@ import { body, validationResult } from 'express-validator'
 const router = express.Router()
 
 router.post('/login', validation, login)
-router.post('/signup', validation, signup)
+router.post('/signup', userValidationRules(), validation, signup)
 router.post('/forgot', validation, forgotPass)
 
 router.post('/', auth, userValidationRules(), validation, create)
