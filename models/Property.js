@@ -24,10 +24,10 @@ const propertySchema = Mongoose.Schema(
 		},
 		imageUrl: { type: String, required: false },
 
-		wishlists: [
+		buyers: [
 			{
 				type: Mongoose.Schema.Types.ObjectId,
-				ref: 'Wishlist',
+				ref: 'Buyer',
 			},
 		],
 	},

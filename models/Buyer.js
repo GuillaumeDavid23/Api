@@ -11,6 +11,11 @@ const Buyer = User.discriminator(
 			surfaceMin: { type: Number, required: false },
 			surfaceMax: { type: Number, required: false },
 			type: { type: String, required: false },
+
+			wishlist: {
+				type: Mongoose.Schema.Types.ObjectId,
+				ref: 'Property',
+			},
 		},
 		{ discriminatorKey: 'kind' }
 	)
