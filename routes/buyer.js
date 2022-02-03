@@ -6,7 +6,7 @@ import validation from '../validation/buyer.js'
 const router = express.Router()
 
 router.post('/', auth, validation, create)
-router.get('/', auth, getAll)
+router.get('/', getAll)
 router.get('/:_id', auth, getOne)
 router.get('/:_id/wishlist', getWishlist)
 

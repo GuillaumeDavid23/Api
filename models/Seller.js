@@ -7,7 +7,6 @@ const sellerModel = User.discriminator(
 		{
 			isSelling: { type: Boolean, required: true },
 		},
-		{ discriminatorKey: 'kind' }
 	)
 )
 

@@ -26,7 +26,7 @@ router.post('/', auth, userValidationRules(), validation, create)
 router.put('/:_id', auth, validation, update)
 router.delete('/:_id', auth, deleteOne)
 router.get('/:_id', auth, getOne)
-router.get('/', auth, getAll)
+router.get('/', getAll)
 router.get('/check/:token', checkResetToken)
 
 router.get('/setNewsletter/:_id', auth, setNewsletter)
