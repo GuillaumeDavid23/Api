@@ -28,6 +28,35 @@ const create = (req, res) => {
 		)
 }
 
+/**
+ * @api {get} /api/wishlist/all/:_id Créer une liste de souhait
+ * @apiName create
+ * @apiGroup ListeSouhait
+ *
+ * @apiHeader {String} Authorization Token d'Authentification
+ *
+ * @apiBody {ObjectId} id_buyer="61f93c440e15ba1e37772e03" ID de l'acheteur.
+ *
+ */
+const getAllPropertiesFromBuyer = async (req, res) => {
+	let data = Object.keys(req.params).length === 0 ? req.query : req.params
+
+	try {
+		const wish = Wishlist.findOne({ id_buyer: data.id_buyer })
+
+		res.status(200).json({
+			message: "Wishlist d'utilisateur trouvé",
+			data: wish.properties,
+		})
+	} catch (error) {
+		console.log(error)
+		res.status(400).json({
+			message: 'Erreur serveur',
+			error: error,
+		})
+	}
+}
+
 const update = (req, res) => {
 	let data = Object.keys(req.params).length === 0 ? req.query : req.params
 

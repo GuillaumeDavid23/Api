@@ -145,4 +145,35 @@ const getOne = async () => {
 	}
 }
 
-export { getAll, getOne, create }
+/**
+ * @api {get} /api/buyer/:_id/wishlist Récupère la liste de souhait d'un acheteur
+ * @apiName getWishlist
+ * @apiGroup Acheteur
+ *
+ * @apiHeader {String} Authorization Token d'Authentification
+ *
+ * @apiParam {ObjectId} _id="61f93c440e15ba1e37772e03" ID de l'acheteur.
+ *
+ */
+const getWishlist = async (req, res) => {
+	let data = Object.keys(req.params).length === 0 ? req.query : req.params
+	console.log(data)
+
+	try {
+		const buyer = await Buyer.findById(data._id).exec()
+		console.log(buyer)
+
+		res.status(200).json({
+			message: "Wishlist d'utilisateur trouvé",
+			data: buyer.wishlist,
+		})
+	} catch (error) {
+		console.log(error)
+		res.status(500).json({
+			message: 'Erreur serveur',
+			error: error.message,
+		})
+	}
+}
+
+export { getAll, getOne, create, getWishlist }
