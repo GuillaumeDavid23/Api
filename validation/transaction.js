@@ -1,6 +1,6 @@
 import { body } from 'express-validator'
 
-export default (req, res, next) => {
+export default () => {
 	return [
 		body('lst_buyer').notEmpty().isArray(),
 		body('lst_seller').notEmpty().isArray(),
