@@ -102,9 +102,13 @@ const create = async (req, res) => {
  *       "error": "Utilisateur non modifié !"
  *     }
  */
-const update = (req, res) => {
-	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
-
+const update = async (req, res) => {
+	let datas = req.body
+	await User.findOneAndUpdate(
+		{ _id: req.params._id },
+		{ kind: 'Seller' },
+		{ new: true }
+	)
 	User.updateOne(
 		{
 			_id: req.params._id,

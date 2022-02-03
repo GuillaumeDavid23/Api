@@ -95,14 +95,15 @@ const create = async (req, res) => {
  *       "error": "Aucun Acheteur trouvé !"
  *     }
  */
-const getAll = () => {
+const getAll = (req, res) => {
 	Buyer.find()
 		.then((buyers) => res.status(200).json(buyers))
-		.catch((error) =>
+		.catch((error) => {
+			console.log(error)
 			res.status(400).json({
 				error,
 			})
-		)
+		})
 }
 
 /**
