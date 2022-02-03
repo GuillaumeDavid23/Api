@@ -8,8 +8,11 @@ export default () => {
 		body('password').notEmpty().matches(process.env.passwordRegex),
 		body('token').if(body('token').notEmpty()).isAlphanumeric(),
 		body('phone').if(body('phone').notEmpty()).isMobilePhone(['fr-FR', []]),
-		body('newsletter').notEmpty().isBoolean(),
-		body('status').isBoolean(),
+		body('newsletter')
+			.if(body('newsletter').notEmpty())
+			.notEmpty()
+			.isBoolean(),
+		body('status').if(body('status').notEmpty()).isBoolean(),
 		body('ref')
 			.if(body('ref').notEmpty())
 			.isAlphanumeric()
