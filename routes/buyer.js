@@ -9,6 +9,6 @@ const router = express.Router()
 router.post('/', auth, buyerValidationRules(), validation, create)
 router.get('/', auth, getAll)
 router.get('/:_id', auth, getOne)
-router.get('/:_id/wishlist', getWishlist)
+router.get('/:_id/wishlist', auth, getWishlist)
 
 export default router

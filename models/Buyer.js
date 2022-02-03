@@ -17,7 +17,6 @@ const Buyer = User.discriminator(
 				ref: 'Property',
 			},
 		},
-		{ discriminatorKey: 'kind' }
 	)
 )
 
