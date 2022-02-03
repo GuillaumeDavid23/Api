@@ -1,39 +1,13 @@
-// import { body, validationResult } from 'express-validator'
+import { body } from 'express-validator'
 
-
-// 	export default (req, res, next) => {
-// 		body('firstname').isAlpha()
-
-// 		const errors = validationResult(req)
-// 		if (!errors.isEmpty()) {
-// 			return res.status(400).json({ errors: errors.array() })
-// 		}
-// 		return next
-// 	}
-
-	// body('lastname').notEmpty().isAlpha()
-	// body('email').notEmpty().isEmail()
-	// body('password').notEmpty().matches(process.env.passwordRegex)
-	// body('token').notEmpty().isAlphanumeric()
-	// body('phone').notEmpty().isMobilePhone(['fr-FR', []])
-	// body('newsletter').notEmpty().isBoolean()
-	// body('status').notEmpty().isBoolean()
-	// body('ref').notEmpty().isAlphanumeric().isLength({ min: 10, max: 10 })
-
-	// if (!validationResult(req).isEmpty()) {
-	// 	return res.status(400).json({ errors: errors.array() })
-	// } else {
-	// 	next()
-	// }
-import { body, validationResult } from 'express-validator'
-const userValidationRules = () => {
+export default () => {
 	return [
 		body('firstname').notEmpty().isAlpha(),
 		body('lastname').notEmpty().isAlpha(),
 		body('email').notEmpty().isEmail(),
 		body('password').notEmpty().matches(process.env.passwordRegex),
 		body('token').if(body('token').notEmpty()).isAlphanumeric(),
-		body('phone').isMobilePhone(['fr-FR', []]),
+		body('phone').if(body('phone').notEmpty()).isMobilePhone(['fr-FR', []]),
 		body('newsletter').notEmpty().isBoolean(),
 		body('status').isBoolean(),
 		body('ref')
@@ -41,22 +15,4 @@ const userValidationRules = () => {
 			.isAlphanumeric()
 			.isLength({ min: 10, max: 10 }),
 	]
-}
-
-const validation = (req, res, next) => {
-	const errors = validationResult(req)
-	if (errors.isEmpty()) {
-		return next()
-	}
-	const extractedErrors = []
-	errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }))
-
-	return res.status(422).json({
-		errors: extractedErrors,
-	})
-}
-
-export {
-	userValidationRules,
-	validation,
 }

@@ -1,16 +1,12 @@
-import { body, validationResult } from 'express-validator'
+import { body } from 'express-validator'
 
-export default (req, res, next) => {
-	body('budgetMin').isInt()
-	body('budgetMax').isInt()
-	body('city').isAlpha()
-	body('surfaceMin').isInt()
-	body('surfaceMax').isInt()
-	body('type').isAlpha()
-
-	if (!validationResult(req).isEmpty()) {
-		return res.status(400).json({ errors: errors.array() })
-	} else {
-		next()
-	}
+export default () => {
+	return [
+		body('budgetMin').if(body('budgetMin').notEmpty()).isInt(),
+		body('budgetMax').if(body('budgetMax').notEmpty()).isInt(),
+		body('city').if(body('city').notEmpty()).isAlpha(),
+		body('surfaceMin').if(body('surfaceMin').notEmpty()).isInt(),
+		body('surfaceMax').if(body('surfaceMax').notEmpty()).isInt(),
+		body('type').if(body('type').notEmpty()).isAlpha(),
+	]
 }

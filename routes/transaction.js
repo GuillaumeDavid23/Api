@@ -7,12 +7,13 @@ import {
 	getOne,
 } from '../controllers/transaction.js'
 import auth from '../middleware/auth.js'
-import validation from '../validation/transaction.js'
+import transactionValidationRules from '../validation/transaction.js'
+import { validation } from '../util/functions.js'
 
 const router = express.Router()
 
-router.post('/', auth, validation, create)
-router.put('/:_id', auth, validation, update)
+router.post('/', auth, transactionValidationRules(), validation, create)
+router.put('/:_id', auth, transactionValidationRules(), validation, update)
 router.delete('/:_id', auth, erase)
 router.get('/', auth, getAll)
 router.get('/:_id', auth, getOne)

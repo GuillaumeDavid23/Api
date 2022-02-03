@@ -4,18 +4,16 @@ import {
 	getAgent,
 	getAllAgents,
 	checkAvailabilities,
-	makeTransaction,
 } from '../controllers/agent.js'
 import auth from '../middleware/auth.js'
-import validationAg from '../validation/agent.js'
-import validationTr from '../validation/transaction.js'
+import agentValidationRules from '../validation/agent.js'
+import { validation } from '../util/functions.js'
 
 const router = express.Router()
 
 router.get('/', getAllAgents)
 router.get('/:_id', getAgent)
-router.post('/', auth, validationAg, create)
-router.post('/transaction', auth, validationTr, makeTransaction)
+router.post('/', auth, agentValidationRules(), validation, create)
 router.post('/availabilities', checkAvailabilities)
 
 export default router
