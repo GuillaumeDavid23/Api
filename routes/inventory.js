@@ -8,12 +8,13 @@ import {
 	getAllForOneUser,
 } from '../controllers/inventory.js'
 import auth from '../middleware/auth.js'
-import validation from '../validation/inventory.js'
+import inventoryValidationRules from '../validation/inventory.js'
+import { validation } from '../util/functions.js'
 
 const router = express.Router()
 
-router.post('/', auth, validation, create)
-router.put('/:_id', auth, validation, update)
+router.post('/', auth, inventoryValidationRules(), validation, create)
+router.put('/:_id', auth, inventoryValidationRules(), validation, update)
 router.delete('/:_id', auth, erase)
 router.get('/', auth, getAll)
 router.get('/:_id', auth, getOne)
