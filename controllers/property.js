@@ -307,11 +307,6 @@ const deleteProperty = async (req, res) => {
 	}
 }
 
-<<<<<<< HEAD
-// Sending Alert
-const sendAlert = (req, res) => {
-	// Récupération des alertes
-=======
 // SENDALERT (Intervient dans create)
 const sendAlert = async (datas) => {
 	try {
@@ -359,7 +354,6 @@ const sendAlert = async (datas) => {
 	} catch (error) {
 		console.log(error)
 	}
->>>>>>> Vincent
 }
 
 export {
