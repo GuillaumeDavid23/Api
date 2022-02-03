@@ -8,7 +8,7 @@ const userSchema = mongoose.Schema(
 		password: { type: String, required: true },
 		token: { type: String, required: false },
 		phone: { type: String, required: false },
-		newsletter: { type: Boolean, required: false },
+		newsletter: { type: Boolean, required: false, default: 0 },
 		status: { type: Boolean, required: true, default: true },
 		ref: { type: String, required: false },
 		__t: { type: String, required: false },
