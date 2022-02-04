@@ -17,7 +17,6 @@ export default () => {
 			.if(body('ref').notEmpty())
 			.isAlphanumeric()
 			.isLength({ min: 10, max: 10 }),
-		body('role').notEmpty().isAlpha(),
 
 		// Agent:
 		body('phonePro')

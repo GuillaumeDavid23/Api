@@ -1,6 +1,6 @@
 import mongoose from '../db/db.js'
 const Schema = mongoose.Schema
-import Agent from './Agent.js'
+import User from './User.js'
 
 const transactionShema = Schema(
 	{
@@ -8,7 +8,7 @@ const transactionShema = Schema(
 		lst_seller: { type: Array, required: true },
 		id_agent: {
 			type: Schema.Types.ObjectId,
-			ref: Agent,
+			ref: User,
 			required: true,
 		},
 		amount: { type: Number, required: true },

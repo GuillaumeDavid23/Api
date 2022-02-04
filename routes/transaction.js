@@ -12,7 +12,7 @@ import { validation } from '../util/functions.js'
 
 const router = express.Router()
 
-router.post('/', auth, transactionValidationRules(), validation, create)
+router.post('/', transactionValidationRules(), validation, create)
 router.put('/:_id', auth, transactionValidationRules(), validation, update)
 router.delete('/:_id', auth, erase)
 router.get('/', auth, getAll)

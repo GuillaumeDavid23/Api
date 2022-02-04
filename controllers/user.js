@@ -20,6 +20,7 @@ dotenv.config()
  * @apiBody {Boolean} newsletter="false" Accord des newsletters de l'utilisateur
  * @apiBody {Boolean} status="true" Status actif ou non
  * @apiBody {String} [ref] Référence client
+ * @apiBody {Object} [buyer] Informations de l'acheteur
  *
  * @apiSuccess {String} message Message de complétion.
  *
@@ -680,7 +681,7 @@ const addToWishlist = async (req, res) => {
 	}
 }
 
-const removeOfWishlist = (req, res) => {
+const removeOfWishlist = async (req, res) => {
 	try {
 		const wishlist = await User.findById(req.auth).wishlist
 		wishlist = wishlist.filter((wish) => wish !== req.body.idProperty)

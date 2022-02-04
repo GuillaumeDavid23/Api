@@ -9,9 +9,7 @@ const router = express.Router()
 
 router.post(
 	'/',
-	auth,
-	propertyValidationRules(),
-	validation,
+
 	multer,
 	PC.createProperty
 )
