@@ -1,5 +1,4 @@
 import Property from '../models/Property.js'
-import Buyer from '../models/Buyer.js'
 import nodemailer from 'nodemailer'
 import fs from 'fs'
 import { asyncForEach } from '../util/functions.js'
@@ -59,7 +58,7 @@ const createProperty = (req, res) => {
 	newProperty
 		.save()
 		.then(() => {
-			sendAlert(datas)
+			sendAlert(req.body)
 			res.status(201).json({
 				status_code: 201,
 				message: 'Propriété enregistrée !',

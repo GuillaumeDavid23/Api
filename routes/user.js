@@ -28,7 +28,7 @@ router.post('/login', userValidationRules(), validation, login)
 router.post('/signup', userValidationRules(), validation, signup)
 router.post('/forgot', userValidationRules(), validation, forgotPass)
 
-router.post('/', auth, userValidationRules(), validation, create)
+router.post('/', userValidationRules(), validation, create)
 router.put('/:_id', auth, userValidationRules(), validation, update)
 router.delete('/:_id', auth, deleteOne)
 router.get('/:_id', auth, getOne)

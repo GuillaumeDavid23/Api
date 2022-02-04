@@ -1,4 +1,5 @@
 import mongoose from '../db/db.js'
+import Property from './Property.js'
 
 const userSchema = mongoose.Schema(
 	{
@@ -12,27 +13,30 @@ const userSchema = mongoose.Schema(
 		newsletter: { type: Boolean, required: false, default: 0 },
 		status: { type: Boolean, required: true, default: true },
 		ref: { type: String, required: false },
-		role: { type: String, required: true },
 
-		// Agent:
-		pro_phone_number: { type: String, required: false, unique: true },
+		//Roles:
+		buyer: {
+			wishlist: [
+				{
+					type: mongoose.Schema.Types.ObjectId,
+					ref: Property,
+				},
+			],
+			budgetMin: { type: Number, required: false },
+			budgetMax: { type: Number, required: false },
+			city: { type: String, required: false },
+			surfaceMin: { type: Number, required: false },
+			surfaceMax: { type: Number, required: false },
+			type: { type: String, required: false },
+		},
 
-		// Buyer:
-		budgetMin: { type: Number, required: false },
-		budgetMax: { type: Number, required: false },
-		city: { type: String, required: false },
-		surfaceMin: { type: Number, required: false },
-		surfaceMax: { type: Number, required: false },
-		type: { type: String, required: false },
+		agent: {
+			pro_phone_number: { type: String, required: false, unique: true },
+		},
 
-		wishlist: { type: Array, required: false },
-		// wishlist: {
-		// 	type: Mongoose.Schema.Types.ObjectId,
-		// 	ref: 'Property',
-		// },
-
-		// Seller:
-		isSelling: { type: Boolean, required: false },
+		seller: {
+			isSelling: { type: Boolean, required: false },
+		},
 	},
 	{ timestamps: true }
 )
