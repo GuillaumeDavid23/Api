@@ -17,5 +17,29 @@ export default () => {
 			.if(body('ref').notEmpty())
 			.isAlphanumeric()
 			.isLength({ min: 10, max: 10 }),
+		body('role').notEmpty().isAlpha(),
+
+		// Agent:
+		body('phonePro')
+			.if(body('phonePro').exists())
+			.notEmpty()
+			.isMobilePhone(['fr-FR', []]),
+
+		// Buyer:
+		body('budgetMin').if(body('budgetMin').exists()).isInt(),
+		body('budgetMax').if(body('budgetMax').exists()).isInt(),
+		body('city').if(body('city').exists()).isAlpha(),
+		body('surfaceMin').if(body('surfaceMin').exists()).isInt(),
+		body('surfaceMax').if(body('surfaceMax').exists()).isInt(),
+		body('type').if(body('type').exists()).isAlpha(),
+
+		// // Wishlist (A revoir)
+		// body('idProperty')
+		// 	.if(body('idProperty').exists())
+		// 	.notEmpty()
+		// 	.isMongoId(),
+
+		// Seller:
+		body('isSelling').if(body('isSelling').exists()).notEmpty().isBoolean(),
 	]
 }
