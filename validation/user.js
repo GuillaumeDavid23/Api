@@ -2,13 +2,10 @@ import { body } from 'express-validator'
 
 export default () => {
 	return [
-		body('firstname').if(body('firstname').notEmpty()).notEmpty().isAlpha(),
-		body('lastname').if(body('lastname').notEmpty()).notEmpty().isAlpha(),
-		body('email').if(body('email').notEmpty()).notEmpty().isEmail(),
-		body('password')
-			.if(body('password').notEmpty())
-			.notEmpty()
-			.matches(process.env.passwordRegex),
+		body('firstname').if(body('firstname').exists()).notEmpty().isAlpha(),
+		body('lastname').if(body('lastname').exists()).notEmpty().isAlpha(),
+		body('email').notEmpty().isEmail(),
+		body('password').notEmpty().matches(process.env.passwordRegex),
 		body('token').if(body('token').notEmpty()).isAlphanumeric(),
 		body('phone').if(body('phone').notEmpty()).isMobilePhone(['fr-FR', []]),
 		body('newsletter')

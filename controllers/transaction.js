@@ -38,11 +38,13 @@ const create = (req, res) => {
 		.save()
 		.then(() =>
 			res.status(201).json({
+				status_code: 201,
 				message: 'Transaction enregistrée !',
 			})
 		)
 		.catch((error) =>
 			res.status(400).json({
+				status_code: 400,
 				error,
 			})
 		)
@@ -90,11 +92,13 @@ const update = (req, res) => {
 	)
 		.then(() =>
 			res.status(201).json({
+				status_code: 201,
 				message: 'Transaction modifiée !',
 			})
 		)
 		.catch((error) =>
 			res.status(400).json({
+				status_code: 400,
 				error,
 			})
 		)
@@ -129,21 +133,25 @@ const erase = async (req, res) => {
 		let transaction = await Transaction.findOne({ _id: req.params.id })
 		if (!transaction) {
 			return res.status(404).json({
-				error: new Error('Transaction non trouvée !'),
+				status_code: 404,
+				error: 'Transaction non trouvée !',
 			})
 		}
 		if (transaction.userId !== req.auth.userId) {
 			return res.status(401).json({
-				error: new Error('Requête non autorisée !'),
+				status_code: 401,
+				error: 'Requête non autorisée !',
 			})
 		}
 
 		// On éxecute:
 		Transaction.deleteOne({ _id: req.params.id }).then(() =>
-			res.status(200).json({ message: 'Transaction supprimée !' })
+			res
+				.status(200)
+				.json({ status_code: 200, message: 'Transaction supprimée !' })
 		)
 	} catch (error) {
-		res.status(400).json({ error })
+		res.status(400).json({ status_code: 400, error })
 	}
 }
 
@@ -173,9 +181,15 @@ const erase = async (req, res) => {
  */
 const getAll = (req, res) => {
 	Transaction.find()
-		.then((transactions) => res.status(200).json(transactions))
+		.then((transactions) =>
+			res.status(200).json({
+				status_code: 200,
+				datas: transactions,
+			})
+		)
 		.catch((error) =>
 			res.status(400).json({
+				status_code: 400,
 				error,
 			})
 		)
@@ -209,14 +223,23 @@ const getAll = (req, res) => {
  */
 const getOne = async (req, res) => {
 	try {
-		let transaction = await Transaction.findById(req.body._id)
+		let transaction = await Transaction.findById(req.params._id)
 		if (transaction) {
-			res.status(200).json(transaction)
+			res.status(200).json({
+				status_code: 200,
+				data: transaction,
+			})
 		} else {
-			res.status(204).json({ message: 'Aucune transaction' })
+			res.status(204).json({
+				status_code: 204,
+				message: 'Aucune transaction',
+			})
 		}
 	} catch (error) {
-		res.status(400).json(error)
+		res.status(400).json({
+			status_code: 400,
+			error,
+		})
 	}
 }
 
