@@ -39,11 +39,13 @@ const create = (req, res) => {
 		.save()
 		.then(() =>
 			res.status(201).json({
+				status_code: 201,
 				message: 'Etat des lieux enregistrée !',
 			})
 		)
 		.catch((error) =>
 			res.status(400).json({
+				status_code: 400,
 				error,
 			})
 		)
@@ -82,21 +84,18 @@ const create = (req, res) => {
  */
 const update = (req, res) => {
 	Inventory.updateOne(
-		{
-			_id: req.params.id,
-		},
-		{
-			...req.body,
-			_id: req.params.id,
-		}
+		{ _id: req.params.id },
+		{ ...req.body, _id: req.params.id }
 	)
 		.then(() => {
 			res.status(200).json({
+				status_code: 200,
 				message: 'Etat des lieux modifiée !',
 			})
 		})
 		.catch((error) =>
 			res.status(400).json({
+				status_code: 400,
 				error,
 			})
 		)
@@ -108,23 +107,26 @@ const erase = async (req, res) => {
 		let inventory = await Inventory.findOne({ _id: req.params.id })
 		if (!inventory) {
 			return res.status(404).json({
-				error: new Error('Etat des lieux non trouvé !'),
+				status_code: 404,
+				error: 'Etat des lieux non trouvé !',
 			})
 		}
 		if (inventory.userId !== req.auth.userId) {
 			return res.status(401).json({
-				error: new Error('Requête non autorisée !'),
+				status_code: 401,
+				error: 'Requête non autorisée !',
 			})
 		}
 
 		// On éxecute:
-		inventory
-			.deleteOne({ _id: req.params.id })
-			.then(() =>
-				res.status(200).json({ message: 'Etat des lieux supprimée !' })
-			)
+		inventory.deleteOne({ _id: req.params.id }).then(() =>
+			res.status(200).json({
+				status_code: 200,
+				message: 'Etat des lieux supprimée !',
+			})
+		)
 	} catch (error) {
-		res.status(400).json({ error })
+		res.status(400).json({ status_code: 400, error })
 	}
 }
 
@@ -157,6 +159,7 @@ const getAll = () => {
 		.then((inventories) => res.status(200).json(inventories))
 		.catch((error) =>
 			res.status(400).json({
+				status_code: 400,
 				error,
 			})
 		)
@@ -188,23 +191,38 @@ const getAll = () => {
  */
 const getOne = async (req, res) => {
 	try {
-		let inventory = await Inventory.find()
+		let inventory = await Inventory.findById(req.params._id)
 		if (inventory) {
-			res.status(200).json(inventory)
+			res.status(200).json({
+				status_code: 200,
+				data: inventory,
+			})
 		} else {
-			res.status(204).json({ message: 'Aucun Etat des lieux' })
+			res.status(204).json({
+				status_code: 204,
+				message: 'Aucun Etat des lieux',
+			})
 		}
 	} catch (error) {
-		res.status(400).json(error)
+		res.status(400).json({
+			status_code: 400,
+			error,
+		})
 	}
 }
 
 // /!\ Réussir à recupérer la condition:
 const getAllForOneUser = () => {
 	Inventory.find({})
-		.then((inventories) => res.status(200).json(inventories))
+		.then((inventories) =>
+			res.status(200).json({
+				status_code: 200,
+				datas: inventories,
+			})
+		)
 		.catch((error) =>
 			res.status(400).json({
+				status_code: 400,
 				error,
 			})
 		)

@@ -2,8 +2,8 @@ import { body } from 'express-validator'
 
 export default () => {
 	return [
-		body('firstname').notEmpty().isAlpha(),
-		body('lastname').notEmpty().isAlpha(),
+		body('firstname').if(body('firstname').exists()).notEmpty().isAlpha(),
+		body('lastname').if(body('lastname').exists()).notEmpty().isAlpha(),
 		body('email').notEmpty().isEmail(),
 		body('password').notEmpty().matches(process.env.passwordRegex),
 		body('token').if(body('token').notEmpty()).isAlphanumeric(),

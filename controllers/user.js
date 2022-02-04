@@ -66,7 +66,6 @@ const create = async (req, res) => {
 			)
 		})
 	} catch (error) {
-		console.log(error)
 		res.status(400).json({
 			status_code: 400,
 			error,
@@ -124,7 +123,7 @@ const update = (req, res) => {
 		.catch((error) =>
 			res.status(400).json({
 				status_code: 400,
-				error: error.message,
+				error,
 			})
 		)
 }
@@ -179,7 +178,6 @@ const getOne = async (req, res) => {
 			})
 		}
 	} catch (error) {
-		console.log(error)
 		res.status(500).json({
 			status_code: 500,
 			message: 'Erreur serveur.',
@@ -213,15 +211,23 @@ const getOne = async (req, res) => {
  */
 const getAll = async (req, res) => {
 	try {
-		const user = await User.find({ status: true })
-		if (user) {
-			res.status(200).json(user)
+		const users = await User.find({ status: true })
+		if (users) {
+			res.status(200).json({
+				status_code: 200,
+				datas: users,
+			})
 		} else {
-			res.status(204).json({ message: 'Aucun utilisateur' })
+			res.status(204).json({
+				status_code: 204,
+				message: 'Aucun utilisateur',
+			})
 		}
 	} catch (error) {
-		console.log(error)
-		res.status(400).json(error)
+		res.status(400).json({
+			status_code: 400,
+			error,
+		})
 	}
 }
 
@@ -256,13 +262,15 @@ const deleteOne = async (req, res) => {
 			status: 0,
 		}
 	)
-		.then((response) => {
+		.then(() => {
 			res.status(201).json({
+				status_code: 201,
 				message: 'Utilisateur désactivé !',
 			})
 		})
 		.catch((error) =>
 			res.status(400).json({
+				status_code: 400,
 				error,
 			})
 		)
@@ -312,23 +320,26 @@ const signup = (req, res) => {
 				user.save()
 					.then(() =>
 						res.status(201).json({
+							status_code: 201,
 							message: 'Compte créé !',
 						})
 					)
 					.catch((error) =>
 						res.status(400).json({
+							status_code: 400,
 							error,
 						})
 					)
 			})
 			.catch((error) => {
-				console.log(error)
 				res.status(500).json({
+					status_code: 500,
 					error,
 				})
 			})
 	} else {
 		res.status(400).json({
+			status_code: 400,
 			message: 'Mot de passe incorrect',
 		})
 	}
@@ -355,12 +366,14 @@ const login = async (req, res) => {
 		const user = await User.findOne({ email: datas.email })
 		if (user.status == false) {
 			return res.status(403).json({
+				status_code: 403,
 				error: 'Compte utilisateur désactivé !',
 			})
 		}
 		bcrypt.compare(datas.password, user.password).then(async (valid) => {
 			if (!valid) {
 				return res.status(401).json({
+					status_code: 401,
 					error: 'Mot de passe incorrect !',
 				})
 			}
@@ -371,14 +384,15 @@ const login = async (req, res) => {
 			)
 			await User.updateOne({ _id: user._id }, { token: token })
 			res.status(200).json({
+				status_code: 200,
 				userId: user._id,
 				token: token,
 				message: 'Utilisateur connecté !',
 			})
 		})
 	} catch (error) {
-		console.log(error)
 		return res.status(401).json({
+			status_code: 401,
 			error: 'Utilisateur non trouvé !',
 		})
 	}
@@ -414,6 +428,7 @@ const forgotPass = (req, res) => {
 		.then((user) => {
 			if (user.status == false) {
 				return res.status(403).json({
+					status_code: 403,
 					error: 'Compte utilisateur désactivé !',
 				})
 			}
@@ -428,7 +443,12 @@ const forgotPass = (req, res) => {
 				}
 			)
 		})
-		.catch((error) => res.status(500).json({ error }))
+		.catch((error) =>
+			res.status(500).json({
+				status_code: 500,
+				error,
+			})
+		)
 }
 
 //CHECK RESEST PASSWORD TOKEN
@@ -460,12 +480,21 @@ const checkResetToken = async (req, res) => {
 	try {
 		const user = await User.findOne({ token: req.params.token })
 		if (user) {
-			res.status(200).json(user)
+			res.status(200).json({
+				status_code: 200,
+				data: user,
+			})
 		} else {
-			res.status(204).json({ message: 'Aucun utilisateur' })
+			res.status(204).json({
+				status_code: 204,
+				message: 'Aucun utilisateur',
+			})
 		}
 	} catch (error) {
-		res.status(500).json({ error })
+		res.status(500).json({
+			status_code: 500,
+			error,
+		})
 	}
 }
 
@@ -508,19 +537,25 @@ const setNewsletter = async (req, res) => {
 	try {
 		const user = await User.findById(req.params._id)
 		if (!user)
-			return res.status(400).json({ message: 'Utilisateur inexistant' })
+			return res
+				.status(400)
+				.json({ status_code: 400, message: 'Utilisateur inexistant' })
 		if (user.newsletter)
 			return res.status(200).json({
 				status_code: 200,
 				message: 'Vous êtes déjà inscrit à la newsletter.',
 			})
 		User.updateOne({ _id: req.params._id }, { newsletter: true }).then(
-			res
-				.status(200)
-				.json({ message: 'Utilisateur inscrit à la newsletter !' })
+			res.status(200).json({
+				status_code: 200,
+				message: 'Utilisateur inscrit à la newsletter !',
+			})
 		)
 	} catch (error) {
-		res.status(500).json({ error })
+		res.status(500).json({
+			status_code: 500,
+			error,
+		})
 	}
 }
 
@@ -563,19 +598,25 @@ const unsetNewsletter = async (req, res) => {
 	try {
 		const user = await User.findById(req.params._id)
 		if (!user)
-			return res.status(400).json({ message: 'Utilisateur inexistant' })
+			return res
+				.status(400)
+				.json({ status_code: 400, message: 'Utilisateur inexistant' })
 		if (!user.newsletter)
 			return res.status(200).json({
 				status_code: 200,
 				message: "Vous n'êtes pas inscrit à la newsletter.",
 			})
 		User.updateOne({ _id: req.params._id }, { newsletter: false }).then(
-			res
-				.status(200)
-				.json({ message: 'Utilisateur désinscrit à la newsletter !' })
+			res.status(200).json({
+				status_code: 200,
+				message: 'Utilisateur désinscrit à la newsletter !',
+			})
 		)
 	} catch (error) {
-		res.status(500).json({ error })
+		res.status(500).json({
+			status_code: 500,
+			error,
+		})
 	}
 }
 
@@ -704,11 +745,14 @@ const checkAgentAvailabilities = async (req, res) => {
 			}
 		})
 		res.status(200).json({
+			status_code: 200,
 			Availabilities: availableArray,
 		})
 	} catch (error) {
-		console.log(error)
-		res.status(400).json(error)
+		res.status(400).json({
+			status_code: 400,
+			error,
+		})
 	}
 }
 
@@ -764,8 +808,10 @@ const addToWishlist = async (req, res) => {
 			})
 		})
 	} catch (error) {
-		console.log(error)
-		res.status(400).json(error)
+		res.status(400).json({
+			status_code: 400,
+			error,
+		})
 	}
 }
 
@@ -780,8 +826,10 @@ const removeOfWishlist = async (req, res) => {
 			})
 		})
 	} catch (error) {
-		console.log(error)
-		res.status(400).json(error)
+		res.status(400).json({
+			status_code: 400,
+			error,
+		})
 	}
 }
 

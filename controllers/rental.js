@@ -8,11 +8,13 @@ const create = (req, res, next) => {
 		.save()
 		.then(() =>
 			res.status(201).json({
+				status_code: 201,
 				message: 'Location enregistrée !',
 			})
 		)
 		.catch((error) =>
 			res.status(400).json({
+				status_code: 400,
 				error,
 			})
 		)
@@ -30,11 +32,13 @@ const update = (req, res, next) => {
 	)
 		.then(() =>
 			res.status(200).json({
+				status_code: 200,
 				message: 'Location modifiée !',
 			})
 		)
 		.catch((error) =>
 			res.status(400).json({
+				status_code: 400,
 				error,
 			})
 		)
@@ -46,12 +50,14 @@ const erase = (req, res, next) => {
 	}).then((rental) => {
 		if (!rental) {
 			return res.status(404).json({
-				error: new Error('Location non trouvée !'),
+				status_code: 404,
+				error: 'Location non trouvée !',
 			})
 		}
 		if (rental.userId !== req.auth.userId) {
 			return res.status(401).json({
-				error: new Error('Requête non autorisée !'),
+				status_code: 401,
+				error: 'Requête non autorisée !',
 			})
 		}
 		Rental.deleteOne({
@@ -59,11 +65,13 @@ const erase = (req, res, next) => {
 		})
 			.then(() =>
 				res.status(200).json({
+					status_code: 200,
 					message: 'Location supprimée !',
 				})
 			)
 			.catch((error) =>
 				res.status(400).json({
+					status_code: 400,
 					error,
 				})
 			)
@@ -72,24 +80,40 @@ const erase = (req, res, next) => {
 
 const getAll = (req, res, next) => {
 	Rental.find()
-		.then((rentals) => res.status(200).json(rentals))
+		.then((rentals) =>
+			res.status(200).json({
+				status_code: 200,
+				datas: rentals,
+			})
+		)
 		.catch((error) =>
 			res.status(400).json({
+				status_code: 400,
 				error,
 			})
 		)
 }
 
-const getOne = (req, res, next) => {
-	Rental.findOne({
-		_id: req.params.id,
-	})
-		.then((rental) => res.status(200).json(rental))
-		.catch((error) =>
-			res.status(400).json({
-				error,
+const getOne = async (req, res, next) => {
+	try {
+		let rental = await Rental.findById(req.params._id)
+		if (rental) {
+			res.status(200).json({
+				status_code: 200,
+				datas: rental,
 			})
-		)
+		} else {
+			res.status(204).json({
+				status_code: 204,
+				message: 'Location inexistante',
+			})
+		}
+	} catch (error) {
+		res.status(400).json({
+			status_code: 400,
+			error,
+		})
+	}
 }
 
 export { create, update, erase, getAll, getOne }
