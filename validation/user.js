@@ -35,12 +35,6 @@ export default () => {
 		body('surfaceMax').if(body('surfaceMax').exists()).isInt(),
 		body('type').if(body('type').exists()).isAlpha(),
 
-		// // Wishlist (A revoir)
-		// body('idProperty')
-		// 	.if(body('idProperty').exists())
-		// 	.notEmpty()
-		// 	.isMongoId(),
-
 		// Seller:
 		body('isSelling').if(body('isSelling').exists()).notEmpty().isBoolean(),
 	]

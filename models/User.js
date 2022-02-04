@@ -16,12 +16,15 @@ const userSchema = mongoose.Schema(
 
 		//Roles:
 		buyer: {
-			wishlist: [
-				{
-					type: mongoose.Schema.Types.ObjectId,
-					ref: Property,
-				},
-			],
+			wishlist: {
+				type: [
+					{
+						type: mongoose.Schema.Types.ObjectId,
+						ref: 'Property',
+					},
+				],
+				default: undefined,
+			},
 			budgetMin: { type: Number, required: false },
 			budgetMax: { type: Number, required: false },
 			city: { type: String, required: false },
@@ -35,12 +38,15 @@ const userSchema = mongoose.Schema(
 		},
 
 		seller: {
-			propertiesList: [
-				{
-					type: mongoose.Schema.Types.ObjectId,
-					ref: Property,
-				},
-			],
+			propertiesList: {
+				type: [
+					{
+						type: mongoose.Schema.Types.ObjectId,
+						ref: 'Property',
+					},
+				],
+				default: undefined,
+			},
 		},
 	},
 	{ timestamps: true }
