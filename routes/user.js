@@ -11,6 +11,12 @@ import {
 	checkResetToken,
 	setNewsletter,
 	unsetNewsletter,
+	getAgents,
+	checkAgentAvailabilities,
+	getBuyers,
+	addToWishlist,
+	removeOfWishlist,
+	getSellers,
 } from '../controllers/user.js'
 import auth from '../middleware/auth.js'
 import userValidationRules from '../validation/user.js'
@@ -31,5 +37,12 @@ router.get('/check/:token', checkResetToken)
 
 router.get('/setNewsletter/:_id', auth, setNewsletter)
 router.get('/unsetNewsletter/:_id', auth, unsetNewsletter)
+
+router.get('/agents', auth, getAgents)
+router.get('/agentAvailabilities', auth, checkAgentAvailabilities)
+router.get('/buyers', auth, getBuyers)
+router.post('/wishlist/add', auth, addToWishlist)
+router.post('/wishlist/remove', auth, removeOfWishlist)
+router.get('/sellers', auth, getSellers)
 
 export default router
