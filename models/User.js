@@ -9,19 +9,22 @@ const userSchema = mongoose.Schema(
 		email: { type: String, required: true, unique: true },
 		password: { type: String, required: true },
 		token: { type: String, required: false },
-		phone: { type: String, required: false, unique: true },
+		phone: { type: String, required: false },
 		newsletter: { type: Boolean, required: false, default: 0 },
 		status: { type: Boolean, required: true, default: true },
 		ref: { type: String, required: false },
 
 		//Roles:
 		buyer: {
-			wishlist: [
-				{
-					type: mongoose.Schema.Types.ObjectId,
-					ref: Property,
-				},
-			],
+			wishlist: {
+				type: [
+					{
+						type: mongoose.Schema.Types.ObjectId,
+						ref: 'Property',
+					},
+				],
+				default: undefined,
+			},
 			budgetMin: { type: Number, required: false },
 			budgetMax: { type: Number, required: false },
 			city: { type: String, required: false },
@@ -31,11 +34,19 @@ const userSchema = mongoose.Schema(
 		},
 
 		agent: {
-			pro_phone_number: { type: String, required: false, unique: true },
+			pro_phone_number: { type: String, required: false },
 		},
 
 		seller: {
-			isSelling: { type: Boolean, required: false },
+			propertiesList: {
+				type: [
+					{
+						type: mongoose.Schema.Types.ObjectId,
+						ref: 'Property',
+					},
+				],
+				default: undefined,
+			},
 		},
 	},
 	{ timestamps: true }
