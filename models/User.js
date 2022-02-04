@@ -9,7 +9,7 @@ const userSchema = mongoose.Schema(
 		email: { type: String, required: true, unique: true },
 		password: { type: String, required: true },
 		token: { type: String, required: false },
-		phone: { type: String, required: false, unique: true },
+		phone: { type: String, required: false },
 		newsletter: { type: Boolean, required: false, default: 0 },
 		status: { type: Boolean, required: true, default: true },
 		ref: { type: String, required: false },
@@ -31,7 +31,7 @@ const userSchema = mongoose.Schema(
 		},
 
 		agent: {
-			pro_phone_number: { type: String, required: false, unique: true },
+			pro_phone_number: { type: String, required: false },
 		},
 
 		seller: {

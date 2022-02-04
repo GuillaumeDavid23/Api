@@ -60,11 +60,12 @@ const create = async (req, res) => {
 					message: 'Utilisateur créé !',
 				})
 			)
-			.catch((error) =>
+			.catch((error) => {
+				console.log(error)
 				res.status(400).json({
 					error,
 				})
-			)
+			})
 	})
 }
 
@@ -132,7 +133,7 @@ const update = (req, res) => {
  * @apiName getOne
  * @apiGroup Utilisateur
  *
- * @apiParam {Number} _id ID de l'utilisateur.
+ * @apiParam {ObjectId} _id ID de l'utilisateur.
  *
  * @apiSuccess {User} user Objet Utilisateur.
  *
@@ -160,7 +161,9 @@ const getOne = async (req, res) => {
 				data: user,
 			})
 		} else {
-			res.status(204).json({ message: 'Aucun utilisateur' })
+			res.status(204).json({
+				message: 'Aucun utilisateur',
+			})
 		}
 	} catch (error) {
 		console.log(error)
