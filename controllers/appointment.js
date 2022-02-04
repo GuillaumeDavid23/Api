@@ -1,6 +1,4 @@
 import Appointment from '../models/Appointment.js'
-import Buyer from '../models/Buyer.js'
-import Agent from '../models/Agent.js'
 
 // CREATE
 /**

@@ -1,8 +1,6 @@
 import mongoose from '../db/db.js'
 const Schema = mongoose.Schema
-
-import Buyer from './Buyer.js'
-import Agent from './Agent.js'
+import User from './User.js'
 
 const appointmentShema = Schema(
 	{
@@ -12,12 +10,12 @@ const appointmentShema = Schema(
 		outdoor: { type: Boolean, required: true },
 		id_buyer: {
 			type: Schema.Types.ObjectId,
-			ref: Buyer,
+			ref: User,
 			required: true,
 		},
 		id_agent: {
 			type: Schema.Types.ObjectId,
-			ref: Agent,
+			ref: User,
 			required: true,
 		},
 	},
