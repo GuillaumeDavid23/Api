@@ -40,11 +40,15 @@ const create = (req, res) => {
 		.save()
 		.then(() =>
 			res.status(201).json({
+				status: 'Success',
+				status_code: 201,
 				message: 'Rendez-vous enregistré !',
 			})
 		)
 		.catch((error) =>
-			res.status(400).json({
+			res.status(500).json({
+				status: 'Server Error',
+				status_code: 500,
 				error,
 			})
 		)
@@ -85,21 +89,20 @@ const create = (req, res) => {
  */
 const update = (req, res) => {
 	Appointment.updateOne(
-		{
-			_id: req.params.id,
-		},
-		{
-			...req.body,
-			_id: req.params.id,
-		}
+		{ _id: req.params.id },
+		{ ...req.body, _id: req.params.id }
 	)
 		.then(() =>
 			res.status(200).json({
+				status: 'Success',
+				status_code: 200,
 				message: 'Rendez-vous modifié !',
 			})
 		)
 		.catch((error) =>
-			res.status(400).json({
+			res.status(500).json({
+				status: 'Server Error',
+				status_code: 500,
 				error,
 			})
 		)
