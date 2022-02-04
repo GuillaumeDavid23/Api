@@ -104,27 +104,49 @@ const create = async (req, res) => {
  *       "error": "Utilisateur non modifié !"
  *     }
  */
-const update = (req, res) => {
+const update = async (req, res) => {
 	let datas = req.body
 
-	User.updateOne(
-		{
-			_id: req.params._id,
-		},
-		{
-			...datas,
-		}
-	)
-		.then((response) => {
-			res.status(201).json({
-				message: 'Utilisateur modifié !',
-			})
-		})
-		.catch((error) =>
-			res.status(400).json({
-				error: error.message,
-			})
+	try {
+		await User.updateOne(
+			{
+				_id: req.params._id,
+			},
+			{
+				...datas,
+			},
+			{ new: true }
 		)
+		if (datas.buyer == null) {
+			await User.updateOne(
+				{ _id: req.params._id },
+				{ $unset: { buyer: '' } },
+				{ new: true }
+			)
+		}
+		if (datas.seller == null) {
+			await User.updateOne(
+				{ _id: req.params._id },
+				{ $unset: { seller: '' } },
+				{ new: true }
+			)
+		}
+		if (datas.agent == null) {
+			await User.updateOne(
+				{ _id: req.params._id },
+				{ $unset: { agent: '' } },
+				{ new: true }
+			)
+		}
+		res.status(201).json({
+			message: 'Utilisateur modifié !',
+		})
+	} catch (error) {
+		console.log(error)
+		res.status(400).json({
+			error: error.message,
+		})
+	}
 }
 
 //GET ONE USER

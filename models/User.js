@@ -35,7 +35,12 @@ const userSchema = mongoose.Schema(
 		},
 
 		seller: {
-			isSelling: { type: Boolean, required: false },
+			propertiesList: [
+				{
+					type: mongoose.Schema.Types.ObjectId,
+					ref: Property,
+				},
+			],
 		},
 	},
 	{ timestamps: true }
