@@ -47,7 +47,7 @@ describe('Le model User', () => {
 	})
 
 	afterEach((done) => {
-		mongoose.connection.user_default.users.drop(() => done())
+		mongoose.connection.collections.users.drop(() => done())
 	})
 
 	// Success Functions
