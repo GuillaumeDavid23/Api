@@ -19,8 +19,11 @@ import {
 	getSellers,
 } from '../controllers/user.js'
 import auth from '../middleware/auth.js'
-import userValidationRules from '../validation/user.js'
-import { validation } from '../util/functions.js'
+import userValidationRules from '../middleware/validation/user.js'
+import {
+	validateParamId,
+	validation,
+} from '../middleware/validation/validation.js'
 
 const router = express.Router()
 
@@ -29,14 +32,32 @@ router.post('/signup', userValidationRules(), validation, signup)
 router.post('/forgot', userValidationRules(), validation, forgotPass)
 
 router.post('/', userValidationRules(), validation, create)
-router.put('/:_id', userValidationRules(), validation, update)
-router.delete('/:_id', auth, deleteOne)
-router.get('/:_id', auth, getOne)
+router.put(
+	'/:_id',
+	validateParamId(),
+	userValidationRules(),
+	validation,
+	update
+)
+router.delete('/:_id', auth, validateParamId(), validation, deleteOne)
+router.get('/:_id', auth, validateParamId(), validation, getOne)
 router.get('/', getAll)
 router.get('/check/:token', checkResetToken)
 
-router.get('/setNewsletter/:_id', auth, setNewsletter)
-router.get('/unsetNewsletter/:_id', auth, unsetNewsletter)
+router.get(
+	'/setNewsletter/:_id',
+	auth,
+	validateParamId(),
+	validation,
+	setNewsletter
+)
+router.get(
+	'/unsetNewsletter/:_id',
+	auth,
+	validateParamId(),
+	validation,
+	unsetNewsletter
+)
 
 router.get('/agents', auth, getAgents)
 router.get('/agentAvailabilities', auth, checkAgentAvailabilities)

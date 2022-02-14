@@ -45,7 +45,7 @@ const create = (req, res) => {
 		.catch((error) =>
 			res.status(500).json({
 				status_code: 500,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -84,22 +84,20 @@ const create = (req, res) => {
  *     }
  */
 const update = (req, res) => {
-	Appointment.updateOne(
-		{ _id: req.params.id },
-		{ ...req.body, _id: req.params.id }
-	)
+	console.log(req.params._id, req.body)
+	Appointment.updateOne({ _id: req.params._id }, { ...req.body })
 		.then(() =>
 			res.status(200).json({
 				status_code: 200,
 				message: 'Rendez-vous modifié !',
 			})
 		)
-		.catch((error) =>
+		.catch((error) => {
 			res.status(500).json({
 				status_code: 500,
-				error,
+				error: error.message,
 			})
-		)
+		})
 }
 
 // DELETE
@@ -152,7 +150,7 @@ const erase = async (req, res) => {
 				.json({ status_code: 200, message: 'Rendez-vous supprimé !' })
 		)
 	} catch (error) {
-		res.status(400).json({ status_code: 400, error })
+		res.status(400).json({ status_code: 400, error: error.message })
 	}
 }
 
@@ -185,7 +183,7 @@ const getAll = (req, res) => {
 		.catch((error) =>
 			res.status(400).json({
 				status_code: 400,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -232,7 +230,7 @@ const getOne = async (req, res) => {
 	} catch (error) {
 		res.status(400).json({
 			status_code: 400,
-			error,
+			error: error.message,
 		})
 	}
 }
@@ -275,7 +273,7 @@ const getParticipants = async (req, res) => {
 	} catch (error) {
 		res.status(400).json({
 			status_code: 400,
-			error,
+			error: error.message,
 		})
 	}
 }

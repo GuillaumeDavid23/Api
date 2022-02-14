@@ -15,7 +15,7 @@ const create = (req, res, next) => {
 		.catch((error) =>
 			res.status(400).json({
 				status_code: 400,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -39,7 +39,7 @@ const update = (req, res, next) => {
 		.catch((error) =>
 			res.status(400).json({
 				status_code: 400,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -72,7 +72,7 @@ const erase = (req, res, next) => {
 			.catch((error) =>
 				res.status(400).json({
 					status_code: 400,
-					error,
+					error: error.message,
 				})
 			)
 	})
@@ -89,7 +89,7 @@ const getAll = (req, res, next) => {
 		.catch((error) =>
 			res.status(400).json({
 				status_code: 400,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -111,7 +111,7 @@ const getOne = async (req, res, next) => {
 	} catch (error) {
 		res.status(400).json({
 			status_code: 400,
-			error,
+			error: error.message,
 		})
 	}
 }

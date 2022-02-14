@@ -67,7 +67,7 @@ const createProperty = (req, res) => {
 		.catch((error) => {
 			res.status(400).json({
 				status_code: 400,
-				message: error,
+				error: error.message,
 			})
 		})
 }
@@ -102,7 +102,7 @@ const getAllProperties = (req, res) => {
 		.catch((error) => {
 			res.status(500).json({
 				status_code: 500,
-				message: error,
+				error: error.message,
 			})
 		})
 }
@@ -152,7 +152,7 @@ const getPropertyById = async (req, res) => {
 	} catch (error) {
 		res.status(400).json({
 			status_code: 400,
-			message: error,
+			error: error.message,
 		})
 	}
 }
@@ -227,10 +227,9 @@ const updateProperty = (req, res) => {
 			})
 		})
 		.catch((error) => {
-			console.log(error)
 			res.status(400).json({
 				status_code: 400,
-				message: error,
+				error: error.message,
 			})
 		})
 }
@@ -298,10 +297,9 @@ const deleteProperty = async (req, res) => {
 			})
 		}
 	} catch (error) {
-		console.log(error)
 		return res.status(400).json({
 			status_code: 400,
-			message: error,
+			error: error.message,
 		})
 	}
 }

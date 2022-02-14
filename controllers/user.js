@@ -68,7 +68,7 @@ const create = async (req, res) => {
 	} catch (error) {
 		res.status(400).json({
 			status_code: 400,
-			error,
+			error: error.message,
 		})
 	}
 }
@@ -123,7 +123,7 @@ const update = async (req, res) => {
 		.catch((error) =>
 			res.status(400).json({
 				status_code: 400,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -181,7 +181,7 @@ const getOne = async (req, res) => {
 		res.status(500).json({
 			status_code: 500,
 			message: 'Erreur serveur.',
-			error,
+			error: error.message,
 		})
 	}
 }
@@ -226,7 +226,7 @@ const getAll = async (req, res) => {
 	} catch (error) {
 		res.status(400).json({
 			status_code: 400,
-			error,
+			error: error.message,
 		})
 	}
 }
@@ -271,7 +271,7 @@ const deleteOne = async (req, res) => {
 		.catch((error) =>
 			res.status(400).json({
 				status_code: 400,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -327,14 +327,14 @@ const signup = (req, res) => {
 					.catch((error) =>
 						res.status(400).json({
 							status_code: 400,
-							error,
+							error: error.message,
 						})
 					)
 			})
 			.catch((error) => {
 				res.status(500).json({
 					status_code: 500,
-					error,
+					error: error.message,
 				})
 			})
 	} else {
@@ -446,7 +446,7 @@ const forgotPass = (req, res) => {
 		.catch((error) =>
 			res.status(500).json({
 				status_code: 500,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -493,7 +493,7 @@ const checkResetToken = async (req, res) => {
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error,
+			error: error.message,
 		})
 	}
 }
@@ -554,7 +554,7 @@ const setNewsletter = async (req, res) => {
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error,
+			error: error.message,
 		})
 	}
 }
@@ -615,7 +615,7 @@ const unsetNewsletter = async (req, res) => {
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error,
+			error: error.message,
 		})
 	}
 }
@@ -656,7 +656,7 @@ const getAgents = (req, res) => {
 		.catch((error) =>
 			res.status(400).json({
 				status_code: 400,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -751,7 +751,7 @@ const checkAgentAvailabilities = async (req, res) => {
 	} catch (error) {
 		res.status(400).json({
 			status_code: 400,
-			error,
+			error: error.message,
 		})
 	}
 }
@@ -792,7 +792,7 @@ const getBuyers = (req, res) => {
 		.catch((error) =>
 			res.status(400).json({
 				status_code: 400,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -810,7 +810,7 @@ const addToWishlist = async (req, res) => {
 	} catch (error) {
 		res.status(400).json({
 			status_code: 400,
-			error,
+			error: error.message,
 		})
 	}
 }
@@ -828,7 +828,7 @@ const removeOfWishlist = async (req, res) => {
 	} catch (error) {
 		res.status(400).json({
 			status_code: 400,
-			error,
+			error: error.message,
 		})
 	}
 }
@@ -869,7 +869,7 @@ const getSellers = (req, res) => {
 		.catch((error) =>
 			res.status(400).json({
 				status_code: 400,
-				error,
+				error: error.message,
 			})
 		)
 }

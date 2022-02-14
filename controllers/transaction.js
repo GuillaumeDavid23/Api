@@ -45,7 +45,7 @@ const create = (req, res) => {
 		.catch((error) =>
 			res.status(400).json({
 				status_code: 400,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -99,7 +99,7 @@ const update = (req, res) => {
 		.catch((error) =>
 			res.status(400).json({
 				status_code: 400,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -151,7 +151,7 @@ const erase = async (req, res) => {
 				.json({ status_code: 200, message: 'Transaction supprimée !' })
 		)
 	} catch (error) {
-		res.status(400).json({ status_code: 400, error })
+		res.status(400).json({ status_code: 400, error: error.message })
 	}
 }
 
@@ -190,7 +190,7 @@ const getAll = (req, res) => {
 		.catch((error) =>
 			res.status(400).json({
 				status_code: 400,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -238,7 +238,7 @@ const getOne = async (req, res) => {
 	} catch (error) {
 		res.status(400).json({
 			status_code: 400,
-			error,
+			error: error.message,
 		})
 	}
 }
