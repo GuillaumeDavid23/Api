@@ -1,4 +1,5 @@
 import Mongoose from '../db/db.js'
+
 import uniqueValidator from 'mongoose-unique-validator'
 
 const propertySchema = Mongoose.Schema(
@@ -26,10 +27,11 @@ const propertySchema = Mongoose.Schema(
 
 		buyers: [
 			{
-				type: Mongoose.Schema.Types.ObjectId,
+				type: 'ObjectId',
 				ref: 'Buyer',
 			},
 		],
+		wishers: [{ type: 'ObjectId', ref: 'User' }],
 	},
 	{ timestamps: true }
 )

@@ -1,14 +1,25 @@
 import mongoose from '../db/db.js'
+
 const Schema = mongoose.Schema
-import User from './User.js'
 
 const transactionShema = Schema(
 	{
-		lst_buyer: { type: Array, required: true },
-		lst_seller: { type: Array, required: true },
 		id_agent: {
-			type: Schema.Types.ObjectId,
-			ref: User,
+			type: 'ObjectId',
+			ref: 'User',
+			required: true,
+		},
+		id_property: {
+			type: 'ObjectId',
+			ref: 'Property',
+			required: true,
+		},
+		lst_buyer: {
+			type: [{ type: 'ObjectId', ref: 'User' }],
+			required: true,
+		},
+		lst_seller: {
+			type: [{ type: 'ObjectId', ref: 'User' }],
 			required: true,
 		},
 		amount: { type: Number, required: true },
