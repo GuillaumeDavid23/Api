@@ -47,7 +47,7 @@ describe('Le model User', () => {
 	})
 
 	afterEach((done) => {
-		mongoose.connection.collections.users.drop(() => done())
+		mongoose.connection.user_default.users.drop(() => done())
 	})
 
 	// Success Functions
@@ -127,7 +127,7 @@ describe('Le model User', () => {
 		})
 	})
 
-	// Throwing Errors
+	// Errors Functions
 	describe('ne peut pas', () => {
 		it("créer d'utilisateur basique sans prénom", (done) => {
 			const u = new User({ ...user_default, firstname: '' })
@@ -185,8 +185,23 @@ describe('Le model User', () => {
 			})
 		})
 
+		it("créer d'utilisateur basique avec email en doublon", (done) => {
+			const u = new User({ ...user_default })
+
+			u.save()
+				.then(() => {
+					User.find().then((liste) => {
+						done()
+					})
+				})
+				.catch((error) => {
+					expect(error).to.exist
+					done(new Error(error))
+				})
+		})
+
 		it("créer d'utilisateur basique sans statut", (done) => {
-			const u = new User({ ...user_default, status: '' })
+			const u = new User({ ...user_default, status: null })
 
 			u.save((error) => {
 				expect(error)
@@ -194,6 +209,20 @@ describe('Le model User', () => {
 					.and.have.property(
 						'message',
 						'User validation failed: status: Path `status` is required.'
+					)
+				done()
+			})
+		})
+
+		it("créer d'utilisateur basique sans statut booléen", (done) => {
+			const u = new User({ ...user_default, status: '' })
+
+			u.save((error) => {
+				expect(error)
+					.to.exist.and.be.instanceof(Error)
+					.and.have.property(
+						'message',
+						'User validation failed: status: Cast to Boolean failed for value "" (type string) at path "status"'
 					)
 				done()
 			})
