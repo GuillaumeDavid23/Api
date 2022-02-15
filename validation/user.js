@@ -22,20 +22,23 @@ export default () => {
 			.isLength({ min: 10, max: 10 }),
 
 		// Agent:
-		body('phonePro')
-			.if(body('phonePro').exists())
+		body('agent.phonePro')
+			.if(body('agent.phonePro').exists())
 			.notEmpty()
 			.isMobilePhone(['fr-FR', []]),
 
 		// Buyer:
-		body('budgetMin').if(body('budgetMin').exists()).isInt(),
-		body('budgetMax').if(body('budgetMax').exists()).isInt(),
-		body('city').if(body('city').exists()).isAlpha(),
-		body('surfaceMin').if(body('surfaceMin').exists()).isInt(),
-		body('surfaceMax').if(body('surfaceMax').exists()).isInt(),
-		body('type').if(body('type').exists()).isAlpha(),
+		body('buyer.budgetMin').if(body('buyer.budgetMin').exists()).isInt(),
+		body('buyer.budgetMax').if(body('buyer.budgetMax').exists()).isInt(),
+		body('buyer.city').if(body('buyer.city').exists()).isAlpha(),
+		body('buyer.surfaceMin').if(body('buyer.surfaceMin').exists()).isInt(),
+		body('buyer.surfaceMax').if(body('buyer.surfaceMax').exists()).isInt(),
+		body('buyer.type').if(body('buyer.type').exists()).isAlpha(),
 
 		// Seller:
-		body('isSelling').if(body('isSelling').exists()).notEmpty().isBoolean(),
+		body('seller.isSelling')
+			.if(body('seller.isSelling').exists())
+			.notEmpty()
+			.isBoolean(),
 	]
 }

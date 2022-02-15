@@ -27,7 +27,7 @@ const propertySchema = Mongoose.Schema(
 		buyers: [
 			{
 				type: Mongoose.Schema.Types.ObjectId,
-				ref: 'Buyer',
+				ref: 'User',
 			},
 		],
 	},

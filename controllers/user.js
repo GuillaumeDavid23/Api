@@ -25,53 +25,48 @@ dotenv.config()
  * @apiSuccess {String} message Message de complétion.
  *
  * @apiSuccessExample Success-Response:
- *     HTTP/1.1 201 OK
+ *     HTTP/1.1 200 OK
  *     {
- * 		 "status"_code: 201,
- *       "message": 'Utilisateur créé !',
+ *       "message": 'Utilisateur enregistrée !',
  *     }
  *
  * @apiError ServerError Erreur serveur.
  * @apiError UserAlreadyExists Un compte avec cette adresse email existe déjà !
  *
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 403 Not Found
+ *     HTTP/1.1 400 Not Found
  *     {
- * 		 "status"_code: 403,
- *       "error": "Un compte avec cette adresse email existe déjà !"
+ *       "error": "Utilisateur non crée !"
  *     }
  */
 const create = async (req, res) => {
-	try {
-		const saltRounds = 10
-		let datas = req.body
-
-		const user = new User({
-			...datas,
+	const saltRounds = 10
+	let datas = req.body
+	console.log(datas)
+	const user = new User({
+		...datas,
+	})
+	const mailCheck = await User.findOne({ email: user.email })
+	if (mailCheck) {
+		return res.status(403).json({
+			error: 'Un compte avec cette adresse email existe déjà !',
 		})
-		const mailCheck = await User.findOne({ email: user.email })
-		if (mailCheck) {
-			return res.status(403).json({
-				status_code: 403,
-				error: 'Un compte avec cette adresse email existe déjà !',
-			})
-		}
-		bcrypt.hash(user.password, saltRounds, function (err, hash) {
-			user.password = hash
-			user.save().then(() =>
+	}
+	bcrypt.hash(user.password, saltRounds, function (err, hash) {
+		user.password = hash
+		user.save()
+			.then(() =>
 				res.status(201).json({
-					status_code: 201,
 					message: 'Utilisateur créé !',
 				})
 			)
-		})
-	} catch (error) {
-		console.log(error)
-		res.status(400).json({
-			status_code: 400,
-			error,
-		})
-	}
+			.catch((error) => {
+				console.log(error)
+				res.status(400).json({
+					error,
+				})
+			})
+	})
 }
 
 //UPDATE USER
@@ -96,9 +91,8 @@ const create = async (req, res) => {
  * @apiSuccess {String} message Utilisateur modifié !.
  *
  * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
+ *     HTTP/1.1 201 OK
  *     {
- * 		 "status_code": 200,
  *       "message": 'Utilisateur modifié !',
  *     }
  *
@@ -107,26 +101,58 @@ const create = async (req, res) => {
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 400 Not Found
  *     {
- * 		 "status_code": 400,
- *       "error": "error"
+ *       "error": "Utilisateur non modifié !"
  *     }
  */
 const update = async (req, res) => {
 	let datas = req.body
 
-	User.updateOne({ _id: req.params._id }, { ...datas })
-		.then(() => {
-			res.status(201).json({
-				status_code: 201,
-				message: 'Utilisateur modifié !',
-			})
-		})
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
+	try {
+		await User.findOneAndUpdate(
+			{
+				_id: req.params._id,
+			},
+			{
+				...datas,
+			},
+			{ returnDocument: 'after' }
 		)
+		let buyer = await User.find({ buyer: null })
+		buyer.forEach(async (element) => {
+			await User.updateOne(
+				{ _id: element._id },
+				{ $unset: { buyer: '' } },
+				{ new: true }
+			)
+		})
+
+		let seller = await User.find({ seller: null })
+		seller.forEach(async (element) => {
+			await User.updateOne(
+				{ _id: element._id },
+				{ $unset: { seller: '' } },
+				{ new: true }
+			)
+		})
+
+		let agent = await User.find({ agent: null })
+		seller.forEach(async (element) => {
+			await User.updateOne(
+				{ _id: element._id },
+				{ $unset: { agent: '' } },
+				{ new: true }
+			)
+		})
+
+		res.status(201).json({
+			message: 'Utilisateur modifié !',
+		})
+	} catch (error) {
+		console.log(error)
+		res.status(400).json({
+			error: error.message,
+		})
+	}
 }
 
 //GET ONE USER
@@ -138,20 +164,12 @@ const update = async (req, res) => {
  * @apiParam {ObjectId} _id ID de l'utilisateur.
  *
  * @apiSuccess {User} user Objet Utilisateur.
- * @apiSuccess {User} user Aucun Utilisateur.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- * 		"status_code": 200,
  *      "message": 'Utilisateur récupéré !',
 		"data": user,
- *     }
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 204 OK
- *     {
- * 		"status_code": 204,
- *      "message": 'Aucun utilisateur'
  *     }
  *
  * @apiError UserNotFound Aucun utilisateur.
@@ -159,7 +177,6 @@ const update = async (req, res) => {
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 400 Not Found
  *     {
- * 		 "status_code": 400,
  *       "error": "Utilisateur non trouvé !"
  *     }
  */
@@ -168,22 +185,19 @@ const getOne = async (req, res) => {
 		const user = await User.findById(req.params._id)
 		if (user) {
 			res.status(200).json({
-				status_code: 200,
-				message: 'Utilisateur récupéré !',
+				message: 'Utilissateur récupéré !',
 				data: user,
 			})
 		} else {
 			res.status(204).json({
-				status_code: 204,
 				message: 'Aucun utilisateur',
 			})
 		}
 	} catch (error) {
 		console.log(error)
-		res.status(500).json({
-			status_code: 500,
-			message: 'Erreur serveur.',
-			error,
+		res.status(400).json({
+			error: error,
+			message: 'Utilisateur non trouvé !',
 		})
 	}
 }
@@ -358,24 +372,31 @@ const login = async (req, res) => {
 				error: 'Compte utilisateur désactivé !',
 			})
 		}
-		bcrypt.compare(datas.password, user.password).then(async (valid) => {
-			if (!valid) {
-				return res.status(401).json({
-					error: 'Mot de passe incorrect !',
+		bcrypt
+			.compare(datas.password, user.password)
+			.then(async (valid) => {
+				if (!valid) {
+					return res.status(401).json({
+						error: 'Mot de passe incorrect !',
+					})
+				}
+				const token = jwt.sign(
+					{ userId: user._id },
+					process.env.SECRET_TOKEN,
+					{ expiresIn: '24h' }
+				)
+				await User.updateOne({ _id: user._id }, { token: token })
+				res.status(200).json({
+					userId: user._id,
+					token: token,
+					message: 'Utilisateur connecté !',
 				})
-			}
-			const token = jwt.sign(
-				{ userId: user._id },
-				process.env.SECRET_TOKEN,
-				{ expiresIn: '24h' }
-			)
-			await User.updateOne({ _id: user._id }, { token: token })
-			res.status(200).json({
-				userId: user._id,
-				token: token,
-				message: 'Utilisateur connecté !',
 			})
-		})
+			.catch((error) =>
+				res.status(500).json({
+					error,
+				})
+			)
 	} catch (error) {
 		console.log(error)
 		return res.status(401).json({
@@ -470,50 +491,11 @@ const checkResetToken = async (req, res) => {
 }
 
 // SETNEWSLETTER
-/**
- * @api {put} /api/user/:_id Mettre à jour un utilisateur
- * @apiName update
- * @apiGroup Utilisateur
- *
- * @apiHeader {String} Authorization
- *
- * @apiParam {ObjectId} _id
- *
- * @apiBody {String} firstname Prénom de l'utilisateur
- * @apiBody {String} lastname Nom de l'utilisateur
- * @apiBody {String} email Email de l'utilisateur
- * @apiBody {String} password Mot de passe de l'utilisateur
- * @apiBody {String} [phone] Numéro de téléphone de l'utilisateur
- * @apiBody {Boolean} newsletter="false" Accord des newsletters de l'utilisateur
- * @apiBody {Boolean} status="true" Status actif ou non
- * @apiBody {String} [ref] Référence client
- *
- * @apiSuccess {String} message Utilisateur modifié !.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 201 OK
- *     {
- *       "message": 'Utilisateur modifié !',
- *     }
- *
- * @apiError ServerError Utilisateur non modifié.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
- *     {
- *       "error": "Utilisateur non modifié !"
- *     }
- */
 const setNewsletter = async (req, res) => {
 	try {
-		const user = await User.findById(req.params._id)
+		const user = await findById(req.params._id)
 		if (!user)
 			return res.status(400).json({ message: 'Utilisateur inexistant' })
-		if (user.newsletter)
-			return res.status(200).json({
-				status_code: 200,
-				message: 'Vous êtes déjà inscrit à la newsletter.',
-			})
 		User.updateOne({ _id: req.params._id }, { newsletter: true }).then(
 			res
 				.status(200)
@@ -525,50 +507,11 @@ const setNewsletter = async (req, res) => {
 }
 
 // UNSETNEWSLETTER
-/**
- * @api {put} /api/user/:_id Mettre à jour un utilisateur
- * @apiName update
- * @apiGroup Utilisateur
- *
- * @apiHeader {String} Authorization
- *
- * @apiParam {ObjectId} _id
- *
- * @apiBody {String} firstname Prénom de l'utilisateur
- * @apiBody {String} lastname Nom de l'utilisateur
- * @apiBody {String} email Email de l'utilisateur
- * @apiBody {String} password Mot de passe de l'utilisateur
- * @apiBody {String} [phone] Numéro de téléphone de l'utilisateur
- * @apiBody {Boolean} newsletter="false" Accord des newsletters de l'utilisateur
- * @apiBody {Boolean} status="true" Status actif ou non
- * @apiBody {String} [ref] Référence client
- *
- * @apiSuccess {String} message Utilisateur modifié !.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 201 OK
- *     {
- *       "message": 'Utilisateur modifié !',
- *     }
- *
- * @apiError ServerError Utilisateur non modifié.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
- *     {
- *       "error": "Utilisateur non modifié !"
- *     }
- */
 const unsetNewsletter = async (req, res) => {
 	try {
-		const user = await User.findById(req.params._id)
+		const user = await findById(req.params._id)
 		if (!user)
 			return res.status(400).json({ message: 'Utilisateur inexistant' })
-		if (!user.newsletter)
-			return res.status(200).json({
-				status_code: 200,
-				message: "Vous n'êtes pas inscrit à la newsletter.",
-			})
 		User.updateOne({ _id: req.params._id }, { newsletter: false }).then(
 			res
 				.status(200)
@@ -737,20 +680,18 @@ const checkAgentAvailabilities = async (req, res) => {
  *       "error": "Aucun acheteur trouvé !"
  *     }
  */
-const getBuyers = (req, res) => {
-	User.find({ role: 'Buyer' })
-		.then((buyers) =>
-			res.status(200).json({
-				status_code: 200,
-				datas: buyers,
-			})
-		)
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error,
-			})
-		)
+const getBuyers = async (req, res) => {
+	try {
+		const user = await User.find({ status: true })
+		if (user) {
+			res.status(200).json(user)
+		} else {
+			res.status(204).json({ message: 'Aucun utilisateur' })
+		}
+	} catch (error) {
+		console.log(error)
+		res.status(400).json(error)
+	}
 }
 
 const addToWishlist = async (req, res) => {
