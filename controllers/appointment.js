@@ -32,24 +32,20 @@ import Appointment from '../models/Appointment.js'
  *     }
  */
 const create = (req, res) => {
-	const appointment = new Appointment({
-		...req.body,
-	})
+	const appointment = new Appointment({ ...req.body })
 
 	appointment
 		.save()
 		.then(() =>
 			res.status(201).json({
-				status: 'Success',
 				status_code: 201,
 				message: 'Rendez-vous enregistré !',
 			})
 		)
 		.catch((error) =>
 			res.status(500).json({
-				status: 'Server Error',
 				status_code: 500,
-				error,
+				error: error.message,
 			})
 		)
 }
@@ -88,24 +84,20 @@ const create = (req, res) => {
  *     }
  */
 const update = (req, res) => {
-	Appointment.updateOne(
-		{ _id: req.params.id },
-		{ ...req.body, _id: req.params.id }
-	)
+	console.log(req.params._id, req.body)
+	Appointment.updateOne({ _id: req.params._id }, { ...req.body })
 		.then(() =>
 			res.status(200).json({
-				status: 'Success',
 				status_code: 200,
 				message: 'Rendez-vous modifié !',
 			})
 		)
-		.catch((error) =>
+		.catch((error) => {
 			res.status(500).json({
-				status: 'Server Error',
 				status_code: 500,
-				error,
+				error: error.message,
 			})
-		)
+		})
 }
 
 // DELETE
@@ -140,21 +132,25 @@ const erase = async (req, res) => {
 		let appointment = await Appointment.findOne({ _id: req.params.id })
 		if (!appointment) {
 			return res.status(404).json({
-				error: new Error('Rendez-vous non trouvé !'),
+				status_code: 404,
+				error: 'Rendez-vous non trouvé !',
 			})
 		}
 		if (appointment.userId !== req.auth.userId) {
 			return res.status(401).json({
-				error: new Error('Requête non autorisée !'),
+				status_code: 401,
+				error: 'Requête non autorisée !',
 			})
 		}
 
 		// On éxecute:
 		Appointment.deleteOne({ _id: req.params.id }).then(() =>
-			res.status(200).json({ message: 'Rendez-vous supprimé !' })
+			res
+				.status(200)
+				.json({ status_code: 200, message: 'Rendez-vous supprimé !' })
 		)
 	} catch (error) {
-		res.status(400).json({ error })
+		res.status(400).json({ status_code: 400, error: error.message })
 	}
 }
 
@@ -186,7 +182,8 @@ const getAll = (req, res) => {
 		.then((appointments) => res.status(200).json(appointments))
 		.catch((error) =>
 			res.status(400).json({
-				error,
+				status_code: 400,
+				error: error.message,
 			})
 		)
 }
@@ -218,14 +215,23 @@ const getAll = (req, res) => {
  */
 const getOne = async (req, res) => {
 	try {
-		let appointment = await Appointment.find()
+		let appointment = await Appointment.findById(req.params._id)
 		if (appointment) {
-			res.status(200).json(appointment)
+			res.status(200).json({
+				status_code: 200,
+				datas: appointment,
+			})
 		} else {
-			res.status(204).json({ message: 'Aucun rendez-vous' })
+			res.status(204).json({
+				status_code: 204,
+				message: 'Aucun rendez-vous',
+			})
 		}
 	} catch (error) {
-		res.status(400).json(error)
+		res.status(400).json({
+			status_code: 400,
+			error: error.message,
+		})
 	}
 }
 
@@ -260,11 +266,15 @@ const getParticipants = async (req, res) => {
 		let buyer = await Buyer.findOne({ _id: appointment.id_buyer })
 		let agent = await Agent.findOne({ _id: appointment.id_agent })
 		res.status(200).json({
+			status_code: 200,
 			buyer: buyer,
 			agent: agent,
 		})
 	} catch (error) {
-		res.status(400).json(error)
+		res.status(400).json({
+			status_code: 400,
+			error: error.message,
+		})
 	}
 }
 

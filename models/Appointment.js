@@ -6,7 +6,7 @@ const appointmentShema = Schema(
 	{
 		dateBegin: { type: Date, required: true },
 		dateEnd: { type: Date, required: true },
-		adress: { type: String, required: true },
+		address: { type: String, required: true },
 		outdoor: { type: Boolean, required: true },
 		id_buyer: {
 			type: Schema.Types.ObjectId,

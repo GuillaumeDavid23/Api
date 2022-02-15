@@ -7,15 +7,18 @@ import {
 	getOne,
 } from '../controllers/transaction.js'
 import auth from '../middleware/auth.js'
-import transactionValidationRules from '../validation/transaction.js'
-import { validation } from '../util/functions.js'
+import transactionValidationRules from '../middleware/validation/transaction.js'
+import {
+	validateParamId,
+	validation,
+} from '../middleware/validation/validation.js'
 
 const router = express.Router()
 
 router.post('/', transactionValidationRules(), validation, create)
 router.put('/:_id', auth, transactionValidationRules(), validation, update)
-router.delete('/:_id', auth, erase)
+router.delete('/:_id', auth, validateParamId(), validation, erase)
 router.get('/', auth, getAll)
-router.get('/:_id', auth, getOne)
+router.get('/:_id', auth, validateParamId(), validation, getOne)
 
 export default router

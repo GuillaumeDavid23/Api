@@ -20,7 +20,7 @@ const userSchema = mongoose.Schema(
 				type: [
 					{
 						type: mongoose.Schema.Types.ObjectId,
-						ref: 'Property',
+						ref: Property,
 					},
 				],
 				default: undefined,
@@ -42,7 +42,7 @@ const userSchema = mongoose.Schema(
 				type: [
 					{
 						type: mongoose.Schema.Types.ObjectId,
-						ref: 'Property',
+						ref: Property,
 					},
 				],
 				default: undefined,
