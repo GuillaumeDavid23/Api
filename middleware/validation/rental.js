@@ -1,6 +1,7 @@
-import { body } from 'express-validator'
+import { body, param } from 'express-validator'
+import Rental from '../../models/Rental.js'
 
-export default () => {
+const checkRentalBody = () => {
 	return [
 		body('startDate')
 			.notEmpty()
@@ -23,12 +24,33 @@ export default () => {
 			.withMessage(
 				'La date de fin doit être au format date (YYYY-MM-DD).'
 			),
+		// On check si la date de début est bien antérieure à la date de fin:
+		body('endDate')
+			.if(body('endDate').notEmpty().isDate())
+			.custom((endDate, { req }) => {
+				if (endDate <= req.body.startDate)
+					return Promise.reject(
+						'Date de fin antérieure à la date de début.'
+					)
+				return true
+			}),
 
 		body('effectiveEndDate')
+			.if(body('endDate').notEmpty())
 			.isDate()
 			.withMessage(
 				'La date de fin effective doit être au format date (YYYY-MM-DD).'
 			),
+		// On check si la date de début est bien antérieure à la date de fin effective:
+		body('endDate')
+			.if(body('endDate').notEmpty().isDate())
+			.custom((endDate, { req }) => {
+				if (endDate <= req.body.startDate)
+					return Promise.reject(
+						'Date de fin effective antérieure à la date de début.'
+					)
+				return true
+			}),
 
 		body('amount')
 			.notEmpty()
@@ -37,9 +59,9 @@ export default () => {
 			),
 		body('amount')
 			.if(body('amount').notEmpty())
-			.isInt()
+			.isInt({ min: 0 })
 			.withMessage(
-				'Le montant mensuel de la location doit-être une valeur numérique entière.'
+				'Le montant mensuel de la location doit-être une valeur numérique entière positive.'
 			),
 
 		body('status')
@@ -59,9 +81,30 @@ export default () => {
 			),
 		body('keysNumber')
 			.if(body('keysNumber').notEmpty())
-			.isInt()
+			.isInt({ min: 1 })
 			.withMessage(
-				'Le nombre de clés fourni au nouveau locataire doit-être une valeur numérique entière.'
+				'Le nombre de clés fourni au nouveau locataire doit-être une valeur numérique entière positive.'
 			),
 	]
 }
+
+const checkRentalExistence = () => {
+	return [
+		param('_id')
+			.notEmpty()
+			.withMessage("Vous devez indiquer l'identifiant en paramètres."),
+		param('_id')
+			.if(param('_id').notEmpty())
+			.isMongoId()
+			.withMessage("L'identifiant renseigné doit-être de type MongoId."),
+		param('_id')
+			.if(param('_id').notEmpty().isMongoId())
+			.custom(async (_id) => {
+				let rental = await Rental.findOne({ _id })
+				if (!rental) return Promise.reject('Rendez-vous non trouvé !')
+				return true
+			}),
+	]
+}
+
+export { checkRentalBody, checkRentalExistence }

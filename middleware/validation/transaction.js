@@ -1,6 +1,7 @@
-import { body } from 'express-validator'
+import { body, param } from 'express-validator'
+import Transaction from '../../models/Transaction.js'
 
-export default () => {
+const checkTransactionBody = () => {
 	return [
 		body('lst_buyer')
 			.notEmpty()
@@ -57,3 +58,25 @@ export default () => {
 			),
 	]
 }
+
+const checkTransactionExistence = () => {
+	return [
+		param('_id')
+			.notEmpty()
+			.withMessage("Vous devez indiquer l'identifiant en paramètres."),
+		param('_id')
+			.if(param('_id').notEmpty())
+			.isMongoId()
+			.withMessage("L'identifiant renseigné doit-être de type MongoId."),
+		param('_id')
+			.if(param('_id').notEmpty().isMongoId())
+			.custom(async (_id) => {
+				let transaction = await Transaction.findOne({ _id })
+				if (!transaction)
+					return Promise.reject('Rendez-vous non trouvé !')
+				return true
+			}),
+	]
+}
+
+export { checkTransactionBody, checkTransactionExistence }

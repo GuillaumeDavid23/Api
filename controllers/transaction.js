@@ -126,21 +126,6 @@ const update = async (req, res) => {
  */
 const erase = async (req, res) => {
 	try {
-		// On check la transaction a supprimer:
-		let transaction = await Transaction.findOne({ _id: req.params.id })
-		if (!transaction) {
-			return res.status(404).json({
-				status_code: 404,
-				error: 'Transaction non trouvée !',
-			})
-		}
-		if (transaction.userId !== req.auth.userId) {
-			return res.status(401).json({
-				status_code: 401,
-				error: 'Requête non autorisée !',
-			})
-		}
-
 		// On éxecute:
 		await Transaction.deleteOne({ _id: req.params.id })
 		res.status(200).json({

@@ -1,13 +1,14 @@
-import { body } from 'express-validator'
+import { body, param } from 'express-validator'
+import Property from '../../models/Property.js'
 
-export default () => {
+const checkPropertyBody = () => {
 	return [
 		body('title')
 			.notEmpty()
 			.withMessage('Vous devez indiquer le titre de la propriété.'),
 		body('title')
 			.if(body('title').notEmpty())
-			.isAlphanumeric()
+			.isString()
 			.withMessage(
 				'Le titre de la propriété ne doit contenir que des lettres et des chiffres.'
 			),
@@ -27,8 +28,10 @@ export default () => {
 			.withMessage('Vous devez indiquer le prix de la propriété.'),
 		body('amount')
 			.if(body('amount').notEmpty())
-			.isInt()
-			.withMessage('Le prix doit être une valeur numérique entière.'),
+			.isInt({ min: 0 })
+			.withMessage(
+				'Le prix doit être une valeur numérique entière positive.'
+			),
 
 		body('localisation')
 			.notEmpty()
@@ -57,8 +60,10 @@ export default () => {
 			.withMessage('Vous devez indiquer la surface de la propriété.'),
 		body('surface')
 			.if(body('surface').notEmpty())
-			.isInt()
-			.withMessage('La surface doit être une valeur numérique entière.'),
+			.isInt({ min: 1 })
+			.withMessage(
+				'La surface doit être une valeur numérique entière positive.'
+			),
 
 		body('roomNumber')
 			.notEmpty()
@@ -67,9 +72,9 @@ export default () => {
 			),
 		body('roomNumber')
 			.if(body('roomNumber').notEmpty())
-			.isInt()
+			.isInt({ min: 1 })
 			.withMessage(
-				'Le nombre de pièces doit être une valeur numérique entière.'
+				'Le nombre de pièces doit être une valeur numérique entière positive.'
 			),
 
 		body('transactionType')
@@ -160,11 +165,31 @@ export default () => {
 				'La référence de la propriété ne doit contenir que des lettres et des chiffres.'
 			),
 		body('propertyRef')
-			.if(body('propertyRef').notEmpty())
-			.if(body('propertyRef').isAlphanumeric())
+			.if(body('propertyRef').notEmpty().isAlphanumeric())
 			.isLength({ min: 10, max: 10 })
 			.withMessage(
 				'La référence de la propriété doit faire exactement 10 caractères.'
 			),
 	]
 }
+
+const checkPropertyExistence = () => {
+	return [
+		param('_id')
+			.notEmpty()
+			.withMessage("Vous devez indiquer l'identifiant en paramètres."),
+		param('_id')
+			.if(param('_id').notEmpty())
+			.isMongoId()
+			.withMessage("L'identifiant renseigné doit-être de type MongoId."),
+		param('_id')
+			.if(param('_id').notEmpty().isMongoId())
+			.custom(async (_id) => {
+				let property = await Property.findOne({ _id })
+				if (!property) return Promise.reject('Propriété non trouvé !')
+				return true
+			}),
+	]
+}
+
+export { checkPropertyBody, checkPropertyExistence }

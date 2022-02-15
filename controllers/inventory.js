@@ -100,23 +100,7 @@ const update = async (req, res) => {
 
 const erase = async (req, res) => {
 	try {
-		// On check la Etat des lieux a supprimer:
-		let inventory = await Inventory.findOne({ _id: req.params.id })
-		if (!inventory) {
-			return res.status(404).json({
-				status_code: 404,
-				error: 'Etat des lieux non trouvé !',
-			})
-		}
-		if (inventory.userId !== req.auth.userId) {
-			return res.status(401).json({
-				status_code: 401,
-				error: 'Requête non autorisée !',
-			})
-		}
-
-		// On éxecute:
-		await inventory.deleteOne({ _id: req.params.id })
+		await Inventory.deleteOne({ _id: req.params.id })
 		res.status(200).json({
 			status_code: 200,
 			message: 'Etat des lieux supprimée !',

@@ -553,10 +553,6 @@ const checkResetToken = async (req, res) => {
 const setNewsletter = async (req, res) => {
 	try {
 		const user = await findById(req.params._id)
-		if (!user)
-			return res
-				.status(400)
-				.json({ status_code: 400, message: 'Utilisateur inexistant' })
 		if (user.newsletter)
 			return res.status(200).json({
 				status_code: 200,
@@ -579,10 +575,6 @@ const setNewsletter = async (req, res) => {
 const unsetNewsletter = async (req, res) => {
 	try {
 		const user = await findById(req.params._id)
-		if (!user)
-			return res
-				.status(400)
-				.json({ status_code: 400, message: 'Utilisateur inexistant' })
 		if (!user.newsletter)
 			return res.status(200).json({
 				status_code: 200,
@@ -779,9 +771,9 @@ const getBuyers = async (req, res) => {
 
 const addToWishlist = async (req, res) => {
 	try {
-		const wishlist = await User.findById(req.auth).wishlist
+		const wishlist = await User.findById(req.auth.user.id).wishlist
 		wishlist.push(req.body.idProperty)
-		await User.updateOne({ _id: req.auth }, { wishlist })
+		await User.updateOne({ _id: req.auth.user.id }, { wishlist })
 		res.status(200).json({
 			status_code: 200,
 			message: 'Propriété ajouté à la wishlist !',
@@ -796,9 +788,9 @@ const addToWishlist = async (req, res) => {
 
 const removeOfWishlist = async (req, res) => {
 	try {
-		const wishlist = await User.findById(req.auth).wishlist
+		const wishlist = await User.findById(req.auth.user.id).wishlist
 		wishlist = wishlist.filter((wish) => wish !== req.body.idProperty)
-		await User.updateOne({ _id: req.auth }, { wishlist })
+		await User.updateOne({ _id: req.auth.user.id }, { wishlist })
 		res.status(200).json({
 			status_code: 200,
 			message: 'Propriété retiré à la wishlist !',
@@ -848,7 +840,7 @@ const getSellers = async (req, res) => {
 			res.status(204).json({ message: 'Aucun utilisateur' })
 		}
 	} catch (error) {
-		res.status(400).json(error)
+		res.status(500).json({ error: error.message })
 	}
 }
 

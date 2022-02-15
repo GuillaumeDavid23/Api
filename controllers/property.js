@@ -262,14 +262,6 @@ const deleteProperty = async (req, res) => {
 		// On récupère la propriété avec son Id
 		let property = await Property.findById({ _id: data._id })
 
-		// Si pas de propriété trouvée
-		if (!property) {
-			return res.status(404).json({
-				status_code: 404,
-				message: 'Propriété non trouvée !',
-			})
-		}
-
 		// Si image existante, on supprime tout: (unlink need callback)
 		if (property.imageUrl) {
 			fs.unlink(
