@@ -30,24 +30,22 @@ import Transaction from '../models/Transaction.js'
  *       "error": "Transaction non créée !"
  *     }
  */
-const create = (req, res) => {
-	const transaction = new Transaction({
-		...req.body,
-	})
-	transaction
-		.save()
-		.then(() =>
-			res.status(201).json({
-				status_code: 201,
-				message: 'Transaction enregistrée !',
-			})
-		)
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
-		)
+const create = async (req, res) => {
+	try {
+		const transaction = new Transaction({
+			...req.body,
+		})
+		transaction.save()
+		res.status(201).json({
+			status_code: 201,
+			message: 'Transaction enregistrée !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 /**
@@ -80,28 +78,27 @@ const create = (req, res) => {
  *       "error": "Transaction non modifiée !"
  *     }
  */
-const update = (req, res) => {
-	Transaction.updateOne(
-		{
-			_id: req.params.id,
-		},
-		{
-			...req.body,
-			_id: req.params.id,
-		}
-	)
-		.then(() =>
-			res.status(201).json({
-				status_code: 201,
-				message: 'Transaction modifiée !',
-			})
+const update = async (req, res) => {
+	try {
+		await Transaction.updateOne(
+			{
+				_id: req.params.id,
+			},
+			{
+				...req.body,
+				_id: req.params.id,
+			}
 		)
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
-		)
+		res.status(201).json({
+			status_code: 201,
+			message: 'Transaction modifiée !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 /**
@@ -145,13 +142,13 @@ const erase = async (req, res) => {
 		}
 
 		// On éxecute:
-		Transaction.deleteOne({ _id: req.params.id }).then(() =>
-			res
-				.status(200)
-				.json({ status_code: 200, message: 'Transaction supprimée !' })
-		)
+		await Transaction.deleteOne({ _id: req.params.id })
+		res.status(200).json({
+			status_code: 200,
+			message: 'Transaction supprimée !',
+		})
 	} catch (error) {
-		res.status(400).json({ status_code: 400, error: error.message })
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -179,20 +176,19 @@ const erase = async (req, res) => {
  *       "error": "Aucune Transaction trouvée !"
  *     }
  */
-const getAll = (req, res) => {
-	Transaction.find()
-		.then((transactions) =>
-			res.status(200).json({
-				status_code: 200,
-				datas: transactions,
-			})
-		)
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
-		)
+const getAll = async (req, res) => {
+	try {
+		let transactions = await Transaction.find()
+		res.status(200).json({
+			status_code: 200,
+			datas: transactions,
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 /**
@@ -236,8 +232,8 @@ const getOne = async (req, res) => {
 			})
 		}
 	} catch (error) {
-		res.status(400).json({
-			status_code: 400,
+		res.status(500).json({
+			status_code: 500,
 			error: error.message,
 		})
 	}

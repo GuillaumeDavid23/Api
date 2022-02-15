@@ -31,24 +31,22 @@ import Inventory from '../models/Inventory.js'
  *       "error": "Etat des lieux non crée !"
  *     }
  */
-const create = (req, res) => {
-	const inventory = new Inventory({
-		...req.body,
-	})
-	inventory
-		.save()
-		.then(() =>
-			res.status(201).json({
-				status_code: 201,
-				message: 'Etat des lieux enregistrée !',
-			})
-		)
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
-		)
+const create = async (req, res) => {
+	try {
+		const inventory = new Inventory({
+			...req.body,
+		})
+		await inventory.save()
+		res.status(201).json({
+			status_code: 201,
+			message: 'Etat des lieux enregistrée !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 /**
@@ -82,23 +80,22 @@ const create = (req, res) => {
  *       "error": "Etat des lieux non modifiée !"
  *     }
  */
-const update = (req, res) => {
-	Inventory.updateOne(
-		{ _id: req.params.id },
-		{ ...req.body, _id: req.params.id }
-	)
-		.then(() => {
-			res.status(200).json({
-				status_code: 200,
-				message: 'Etat des lieux modifiée !',
-			})
-		})
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
+const update = async (req, res) => {
+	try {
+		await Inventory.updateOne(
+			{ _id: req.params.id },
+			{ ...req.body, _id: req.params.id }
 		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'Etat des lieux modifiée !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 const erase = async (req, res) => {
@@ -119,14 +116,13 @@ const erase = async (req, res) => {
 		}
 
 		// On éxecute:
-		inventory.deleteOne({ _id: req.params.id }).then(() =>
-			res.status(200).json({
-				status_code: 200,
-				message: 'Etat des lieux supprimée !',
-			})
-		)
+		await inventory.deleteOne({ _id: req.params.id })
+		res.status(200).json({
+			status_code: 200,
+			message: 'Etat des lieux supprimée !',
+		})
 	} catch (error) {
-		res.status(400).json({ status_code: 400, error: error.message })
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -154,15 +150,16 @@ const erase = async (req, res) => {
  *       "error": "Aucune Inventory trouvée !"
  *     }
  */
-const getAll = () => {
-	Inventory.find()
-		.then((inventories) => res.status(200).json(inventories))
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
-		)
+const getAll = async () => {
+	try {
+		let inventories = await Inventory.find()
+		res.status(200).json(inventories)
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 /**
@@ -204,28 +201,29 @@ const getOne = async (req, res) => {
 			})
 		}
 	} catch (error) {
-		res.status(400).json({
-			status_code: 400,
+		res.status(500).json({
+			status_code: 500,
 			error: error.message,
 		})
 	}
 }
 
 // /!\ Réussir à recupérer la condition:
-const getAllForOneUser = () => {
-	Inventory.find({})
-		.then((inventories) =>
-			res.status(200).json({
-				status_code: 200,
-				datas: inventories,
-			})
-		)
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
-		)
+const getAllForOneUser = async (req, res) => {
+	try {
+		let inventories = await Inventory.find({
+			where: { id_buyer: req.params.id },
+		})
+		res.status(200).json({
+			status_code: 200,
+			datas: inventories,
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 export { create, update, erase, getAll, getOne, getAllForOneUser }

@@ -31,23 +31,20 @@ import Appointment from '../models/Appointment.js'
  *       "error": "Rendez-vous non crée !"
  *     }
  */
-const create = (req, res) => {
-	const appointment = new Appointment({ ...req.body })
-
-	appointment
-		.save()
-		.then(() =>
-			res.status(201).json({
-				status_code: 201,
-				message: 'Rendez-vous enregistré !',
-			})
-		)
-		.catch((error) =>
-			res.status(500).json({
-				status_code: 500,
-				error: error.message,
-			})
-		)
+const create = async (req, res) => {
+	try {
+		const appointment = new Appointment({ ...req.body })
+		await appointment.save()
+		res.status(201).json({
+			status_code: 201,
+			message: 'Rendez-vous enregistré !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 // UPDATE
@@ -83,21 +80,19 @@ const create = (req, res) => {
  *       "error": "Rendez-vous non modifié !"
  *     }
  */
-const update = (req, res) => {
-	console.log(req.params._id, req.body)
-	Appointment.updateOne({ _id: req.params._id }, { ...req.body })
-		.then(() =>
-			res.status(200).json({
-				status_code: 200,
-				message: 'Rendez-vous modifié !',
-			})
-		)
-		.catch((error) => {
-			res.status(500).json({
-				status_code: 500,
-				error: error.message,
-			})
+const update = async (req, res) => {
+	try {
+		await Appointment.updateOne({ _id: req.params._id }, { ...req.body })
+		res.status(200).json({
+			status_code: 200,
+			message: 'Rendez-vous modifié !',
 		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 // DELETE
@@ -144,13 +139,13 @@ const erase = async (req, res) => {
 		}
 
 		// On éxecute:
-		Appointment.deleteOne({ _id: req.params.id }).then(() =>
-			res
-				.status(200)
-				.json({ status_code: 200, message: 'Rendez-vous supprimé !' })
-		)
+		await Appointment.deleteOne({ _id: req.params.id })
+		res.status(200).json({
+			status_code: 200,
+			message: 'Rendez-vous supprimé !',
+		})
 	} catch (error) {
-		res.status(400).json({ status_code: 400, error: error.message })
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -177,15 +172,19 @@ const erase = async (req, res) => {
  *       "error": "Erreur serveur !"
  *     }
  */
-const getAll = (req, res) => {
-	Appointment.find()
-		.then((appointments) => res.status(200).json(appointments))
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
-		)
+const getAll = async (req, res) => {
+	try {
+		let appointments = await Appointment.find()
+		res.status(200).json({
+			status_code: 200,
+			appointments,
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 // READ ONE
@@ -228,8 +227,8 @@ const getOne = async (req, res) => {
 			})
 		}
 	} catch (error) {
-		res.status(400).json({
-			status_code: 400,
+		res.status(500).json({
+			status_code: 500,
 			error: error.message,
 		})
 	}
@@ -271,8 +270,8 @@ const getParticipants = async (req, res) => {
 			agent: agent,
 		})
 	} catch (error) {
-		res.status(400).json({
-			status_code: 400,
+		res.status(500).json({
+			status_code: 500,
 			error: error.message,
 		})
 	}

@@ -46,30 +46,27 @@ import { asyncForEach } from '../util/functions.js'
  *       "error": "Propriété non crée !"
  *     }
  */
-const createProperty = (req, res) => {
-	const newProperty = new Property({
-		...req.body,
-		isToSell: req.body.isToSell == 'on' ? true : false,
-		imageUrl: `${req.protocol}://${req.get('host')}/uploads/${
-			req.body.propertyRef
-		}`,
-	})
-
-	newProperty
-		.save()
-		.then(() => {
-			sendAlert(req.body)
-			res.status(201).json({
-				status_code: 201,
-				message: 'Propriété enregistrée !',
-			})
+const createProperty = async (req, res) => {
+	try {
+		const newProperty = new Property({
+			...req.body,
+			isToSell: req.body.isToSell == 'on' ? true : false,
+			imageUrl: `${req.protocol}://${req.get('host')}/uploads/${
+				req.body.propertyRef
+			}`,
 		})
-		.catch((error) => {
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
+		await newProperty.save()
+		await sendAlert(req.body)
+		res.status(201).json({
+			status_code: 201,
+			message: 'Propriété enregistrée !',
 		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 // READ
@@ -90,21 +87,20 @@ const createProperty = (req, res) => {
  * @apiError ServerError Erreur Serveur
  *
  */
-const getAllProperties = (req, res) => {
-	Property.find()
-		.then((properties) => {
-			res.status(200).json({
-				status_code: 200,
-				message: 'Liste des propriétés récupérée !',
-				data: properties,
-			})
+const getAllProperties = async (req, res) => {
+	try {
+		let properties = await Property.find()
+		res.status(200).json({
+			status_code: 200,
+			message: 'Liste des propriétés récupérée !',
+			data: properties,
 		})
-		.catch((error) => {
-			res.status(500).json({
-				status_code: 500,
-				error: error.message,
-			})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
 		})
+	}
 }
 
 // READ ONE
@@ -150,8 +146,8 @@ const getPropertyById = async (req, res) => {
 			})
 		}
 	} catch (error) {
-		res.status(400).json({
-			status_code: 400,
+		res.status(500).json({
+			status_code: 500,
 			error: error.message,
 		})
 	}
@@ -202,36 +198,35 @@ const getPropertyById = async (req, res) => {
  *       "error": "Propriété non crée !"
  *     }
  */
-const updateProperty = (req, res) => {
+const updateProperty = async (req, res) => {
 	let datas = Object.keys(req.params).length === 0 ? req.query : req.params
-	console.log(datas)
-	const property = req.file
-		? {
-				...JSON.parse(req.body),
-				imageUrl: `${req.protocol}://${req.get('host')}/uploads/${
-					req.file.filename
-				}`,
-		  }
-		: { ...req.body }
 
-	Property.updateOne(
-		{ _id: datas._id },
-		{
-			...req.body,
-		}
-	)
-		.then(() => {
-			res.status(200).json({
-				status_code: 200,
-				message: 'Propriété modifiée !',
-			})
+	try {
+		const property = req.file
+			? {
+					...JSON.parse(req.body),
+					imageUrl: `${req.protocol}://${req.get('host')}/uploads/${
+						req.file.filename
+					}`,
+			  }
+			: { ...req.body }
+
+		await Property.updateOne(
+			{ _id: datas._id },
+			{
+				...req.body,
+			}
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'Propriété modifiée !',
 		})
-		.catch((error) => {
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
 		})
+	}
 }
 
 // DELETE
@@ -279,26 +274,24 @@ const deleteProperty = async (req, res) => {
 		if (property.imageUrl) {
 			fs.unlink(
 				'uploads/' + property.imageUrl.split('/uploads/')[1],
-				() => {
-					Property.deleteOne({ _id: req.params._id }).then(() => {
-						return res.status(200).json({
-							status_code: 200,
-							message: 'Propriété et ses images supprimées !',
-						})
+				async () => {
+					await Property.deleteOne({ _id: req.params._id })
+					return res.status(200).json({
+						status_code: 200,
+						message: 'Propriété et ses images supprimées !',
 					})
 				}
 			)
 		} else {
-			Property.deleteOne({ _id: req.params._id }).then(() => {
-				return res.status(200).json({
-					status_code: 200,
-					message: 'Propriété supprimée !',
-				})
+			await Property.deleteOne({ _id: req.params._id })
+			return res.status(200).json({
+				status_code: 200,
+				message: 'Propriété supprimée !',
 			})
 		}
 	} catch (error) {
-		return res.status(400).json({
-			status_code: 400,
+		return res.status(500).json({
+			status_code: 500,
 			error: error.message,
 		})
 	}

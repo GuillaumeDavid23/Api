@@ -56,18 +56,17 @@ const create = async (req, res) => {
 				error: 'Un compte avec cette adresse email existe déjà !',
 			})
 		}
-		bcrypt.hash(user.password, saltRounds, function (err, hash) {
+		bcrypt.hash(user.password, saltRounds, async function (err, hash) {
 			user.password = hash
-			user.save().then(() =>
-				res.status(201).json({
-					status_code: 201,
-					message: 'Utilisateur créé !',
-				})
-			)
+			await user.save()
+			res.status(201).json({
+				status_code: 201,
+				message: 'Utilisateur créé !',
+			})
 		})
 	} catch (error) {
-		res.status(400).json({
-			status_code: 400,
+		res.status(500).json({
+			status_code: 500,
 			error: error.message,
 		})
 	}
@@ -113,19 +112,18 @@ const create = async (req, res) => {
 const update = async (req, res) => {
 	let datas = req.body
 
-	User.updateOne({ _id: req.params._id }, { ...datas })
-		.then(() => {
-			res.status(201).json({
-				status_code: 201,
-				message: 'Utilisateur modifié !',
-			})
+	try {
+		User.updateOne({ _id: req.params._id }, { ...datas })
+		res.status(201).json({
+			status_code: 201,
+			message: 'Utilisateur modifié !',
 		})
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
-		)
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 //GET ONE USER
@@ -180,7 +178,6 @@ const getOne = async (req, res) => {
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			message: 'Erreur serveur.',
 			error: error.message,
 		})
 	}
@@ -224,8 +221,8 @@ const getAll = async (req, res) => {
 			})
 		}
 	} catch (error) {
-		res.status(400).json({
-			status_code: 400,
+		res.status(500).json({
+			status_code: 500,
 			error: error.message,
 		})
 	}
@@ -254,26 +251,25 @@ const getAll = async (req, res) => {
  *     }
  */
 const deleteOne = async (req, res) => {
-	User.updateOne(
-		{
-			_id: req.params._id,
-		},
-		{
-			status: 0,
-		}
-	)
-		.then(() => {
-			res.status(201).json({
-				status_code: 201,
-				message: 'Utilisateur désactivé !',
-			})
-		})
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
+	try {
+		await User.updateOne(
+			{
+				_id: req.params._id,
+			},
+			{
+				status: 0,
+			}
 		)
+		res.status(201).json({
+			status_code: 201,
+			message: 'Utilisateur désactivé !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 //SIGNUP USER
@@ -306,40 +302,31 @@ const deleteOne = async (req, res) => {
  *       "error": "Compte non crée !"
  *     }
  */
-const signup = (req, res) => {
+const signup = async (req, res) => {
 	let datas = req.body
 
 	if (datas.password != null) {
-		bcrypt
-			.hash(datas.password, 10)
-			.then((hash) => {
-				const user = new User({
-					...datas,
-					password: hash,
-				})
-				user.save()
-					.then(() =>
-						res.status(201).json({
-							status_code: 201,
-							message: 'Compte créé !',
-						})
-					)
-					.catch((error) =>
-						res.status(400).json({
-							status_code: 400,
-							error: error.message,
-						})
-					)
+		try {
+			let hash = await bcrypt.hash(datas.password, 10)
+			const user = new User({
+				...datas,
+				password: hash,
 			})
-			.catch((error) => {
-				res.status(500).json({
-					status_code: 500,
-					error: error.message,
+			await user.save().then(() =>
+				res.status(201).json({
+					status_code: 201,
+					message: 'Compte créé !',
 				})
+			)
+		} catch (error) {
+			res.status(500).json({
+				status_code: 500,
+				error: error.message,
 			})
+		}
 	} else {
-		res.status(400).json({
-			status_code: 400,
+		res.status(500).json({
+			status_code: 500,
 			message: 'Mot de passe incorrect',
 		})
 	}
@@ -364,36 +351,38 @@ const login = async (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 	try {
 		const user = await User.findOne({ email: datas.email })
+		if (!user)
+			return res.status(401).json({
+				status_code: 401,
+				error: 'Utilisateur non trouvé !',
+			})
 		if (user.status == false) {
 			return res.status(403).json({
 				status_code: 403,
 				error: 'Compte utilisateur désactivé !',
 			})
 		}
-		bcrypt.compare(datas.password, user.password).then(async (valid) => {
-			if (!valid) {
-				return res.status(401).json({
-					status_code: 401,
-					error: 'Mot de passe incorrect !',
-				})
-			}
-			const token = jwt.sign(
-				{ userId: user._id },
-				process.env.SECRET_TOKEN,
-				{ expiresIn: '24h' }
-			)
-			await User.updateOne({ _id: user._id }, { token: token })
-			res.status(200).json({
-				status_code: 200,
-				userId: user._id,
-				token: token,
-				message: 'Utilisateur connecté !',
+		let valid = await bcrypt.compare(datas.password, user.password)
+		if (!valid) {
+			return res.status(401).json({
+				status_code: 401,
+				error: 'Mot de passe incorrect !',
 			})
+		}
+		const token = jwt.sign({ userId: user._id }, process.env.SECRET_TOKEN, {
+			expiresIn: '24h',
+		})
+		await User.updateOne({ _id: user._id }, { token: token })
+		res.status(200).json({
+			status_code: 200,
+			userId: user._id,
+			token: token,
+			message: 'Utilisateur connecté !',
 		})
 	} catch (error) {
-		return res.status(401).json({
-			status_code: 401,
-			error: 'Utilisateur non trouvé !',
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
 		})
 	}
 }
@@ -422,33 +411,32 @@ const login = async (req, res) => {
  *       "error": "Token non créé !"
  *     }
  */
-const forgotPass = (req, res) => {
+const forgotPass = async (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
-	User.findOne({ email: datas.email })
-		.then((user) => {
-			if (user.status == false) {
-				return res.status(403).json({
-					status_code: 403,
-					error: 'Compte utilisateur désactivé !',
-				})
-			}
-			User.updateOne(
-				{ _id: user.id },
-				{
-					token: jwt.sign(
-						{ userId: user._id },
-						process.env.SECRET_TOKEN,
-						{ expiresIn: '5h' }
-					),
-				}
-			)
-		})
-		.catch((error) =>
-			res.status(500).json({
-				status_code: 500,
-				error: error.message,
+	try {
+		let user = await User.findOne({ email: datas.email })
+		if (user.status == false) {
+			return res.status(403).json({
+				status_code: 403,
+				error: 'Compte utilisateur désactivé !',
 			})
+		}
+		User.updateOne(
+			{ _id: user.id },
+			{
+				token: jwt.sign(
+					{ userId: user._id },
+					process.env.SECRET_TOKEN,
+					{ expiresIn: '5h' }
+				),
+			}
 		)
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 //CHECK RESEST PASSWORD TOKEN
@@ -545,12 +533,11 @@ const setNewsletter = async (req, res) => {
 				status_code: 200,
 				message: 'Vous êtes déjà inscrit à la newsletter.',
 			})
-		User.updateOne({ _id: req.params._id }, { newsletter: true }).then(
-			res.status(200).json({
-				status_code: 200,
-				message: 'Utilisateur inscrit à la newsletter !',
-			})
-		)
+		await User.updateOne({ _id: req.params._id }, { newsletter: true })
+		res.status(200).json({
+			status_code: 200,
+			message: 'Utilisateur inscrit à la newsletter !',
+		})
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
@@ -606,12 +593,11 @@ const unsetNewsletter = async (req, res) => {
 				status_code: 200,
 				message: "Vous n'êtes pas inscrit à la newsletter.",
 			})
-		User.updateOne({ _id: req.params._id }, { newsletter: false }).then(
-			res.status(200).json({
-				status_code: 200,
-				message: 'Utilisateur désinscrit à la newsletter !',
-			})
-		)
+		await User.updateOne({ _id: req.params._id }, { newsletter: false })
+		res.status(200).json({
+			status_code: 200,
+			message: 'Utilisateur désinscrit à la newsletter !',
+		})
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
@@ -645,20 +631,19 @@ const unsetNewsletter = async (req, res) => {
  *       "error": "Aucun agent trouvé !"
  *     }
  */
-const getAgents = (req, res) => {
-	User.find({ role: 'Agent' })
-		.then((agents) =>
-			res.status(200).json({
-				status_code: 200,
-				datas: agents,
-			})
-		)
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
-		)
+const getAgents = async (req, res) => {
+	try {
+		let agents = await User.find({ role: 'Agent' })
+		res.status(200).json({
+			status_code: 200,
+			datas: agents,
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 //Check AVAILABILITIES OF AGENT
@@ -749,8 +734,8 @@ const checkAgentAvailabilities = async (req, res) => {
 			Availabilities: availableArray,
 		})
 	} catch (error) {
-		res.status(400).json({
-			status_code: 400,
+		res.status(500).json({
+			status_code: 500,
 			error: error.message,
 		})
 	}
@@ -781,35 +766,33 @@ const checkAgentAvailabilities = async (req, res) => {
  *       "error": "Aucun acheteur trouvé !"
  *     }
  */
-const getBuyers = (req, res) => {
-	User.find({ role: 'Buyer' })
-		.then((buyers) =>
-			res.status(200).json({
-				status_code: 200,
-				datas: buyers,
-			})
-		)
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
-		)
+const getBuyers = async (req, res) => {
+	try {
+		let buyers = await User.find({ role: 'Buyer' })
+		res.status(200).json({
+			status_code: 200,
+			datas: buyers,
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 const addToWishlist = async (req, res) => {
 	try {
 		const wishlist = await User.findById(req.auth).wishlist
 		wishlist.push(req.body.idProperty)
-		User.updateOne({ _id: req.auth }, { wishlist }).then(() => {
-			res.status(200).json({
-				status_code: 200,
-				message: 'Propriété ajouté à la wishlist !',
-			})
+		await User.updateOne({ _id: req.auth }, { wishlist })
+		res.status(200).json({
+			status_code: 200,
+			message: 'Propriété ajouté à la wishlist !',
 		})
 	} catch (error) {
-		res.status(400).json({
-			status_code: 400,
+		res.status(500).json({
+			status_code: 500,
 			error: error.message,
 		})
 	}
@@ -819,15 +802,14 @@ const removeOfWishlist = async (req, res) => {
 	try {
 		const wishlist = await User.findById(req.auth).wishlist
 		wishlist = wishlist.filter((wish) => wish !== req.body.idProperty)
-		User.updateOne({ _id: req.auth }, { wishlist }).then(() => {
-			res.status(200).json({
-				status_code: 200,
-				message: 'Propriété retiré à la wishlist !',
-			})
+		await User.updateOne({ _id: req.auth }, { wishlist })
+		res.status(200).json({
+			status_code: 200,
+			message: 'Propriété retiré à la wishlist !',
 		})
 	} catch (error) {
-		res.status(400).json({
-			status_code: 400,
+		res.status(500).json({
+			status_code: 500,
 			error: error.message,
 		})
 	}
@@ -858,20 +840,19 @@ const removeOfWishlist = async (req, res) => {
  *       "error": "Aucun vendeur trouvé !"
  *     }
  */
-const getSellers = (req, res) => {
-	User.find({ role: 'Seller' })
-		.then((sellers) =>
-			res.status(200).json({
-				status_code: 200,
-				datas: sellers,
-			})
-		)
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
-		)
+const getSellers = async (req, res) => {
+	try {
+		let sellers = await User.find({ role: 'Seller' })
+		res.status(200).json({
+			status_code: 200,
+			datas: sellers,
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
 }
 
 export {
