@@ -386,38 +386,40 @@ const login = async (req, res) => {
 				error: 'Compte utilisateur désactivé !',
 			})
 		}
-		bcrypt.compare(datas.password, user.password).then(async (valid) => {
-			if (!valid) {
-				return res.status(401).json({
-					status_code: 401,
-					error: 'Mot de passe incorrect !',
+		bcrypt
+			.compare(datas.password, user.password)
+			.then(async (valid) => {
+				if (!valid) {
+					return res.status(401).json({
+						status_code: 401,
+						error: 'Mot de passe incorrect !',
+					})
+				}
+				const token = jwt.sign(
+					{ userId: user._id },
+					process.env.SECRET_TOKEN,
+					{ expiresIn: '24h' }
+				)
+				await User.updateOne({ _id: user._id }, { token: token })
+				res.status(200).json({
+					status_code: 200,
+					userId: user._id,
+					token: token,
+					message: 'Utilisateur connecté !',
 				})
-			}
-			const token = jwt.sign(
-				{ userId: user._id },
-				process.env.SECRET_TOKEN,
-				{ expiresIn: '24h' }
+			})
+			.catch((error) =>
+				res.status(500).json({
+					error,
+				})
 			)
-			await User.updateOne({ _id: user._id }, { token: token })
-			res.status(200).json({
-				status_code: 200,
-				userId: user._id,
-				token: token,
-				message: 'Utilisateur connecté !',
-			})
-		})
-		.catch((error) =>
-			res.status(500).json({
-				error,
-			})
-		)
 	} catch (error) {
 		return res.status(401).json({
 			status_code: 401,
 			error: 'Utilisateur non trouvé !',
 		})
 	}
-
+}
 //USER FORGOT PASSWORD
 /**
  * @api {post} /api/forgot Créer un token de réinitilisation
@@ -734,9 +736,8 @@ const checkAgentAvailabilities = async (req, res) => {
  *     }
  */
 const getBuyers = async (req, res) => {
-	console.log('YESS');
 	try {
-		const user = await User.find({ status: true })
+		const user = await User.find({ status: true, buyer: { $exists: true } })
 		if (user) {
 			res.status(200).json(user)
 		} else {
@@ -809,20 +810,21 @@ const removeOfWishlist = async (req, res) => {
  *       "error": "Aucun vendeur trouvé !"
  *     }
  */
-const getSellers = (req, res) => {
-	User.find({ role: 'Seller' })
-		.then((sellers) =>
-			res.status(200).json({
-				status_code: 200,
-				datas: sellers,
-			})
-		)
-		.catch((error) =>
-			res.status(400).json({
-				status_code: 400,
-				error: error.message,
-			})
-		)
+const getSellers = async (req, res) => {
+	try {
+		const user = await User.find({
+			status: true,
+			seller: { $exists: true },
+		})
+		if (user) {
+			res.status(200).json(user)
+		} else {
+			res.status(204).json({ message: 'Aucun utilisateur' })
+		}
+	} catch (error) {
+		console.log(error)
+		res.status(400).json(error)
+	}
 }
 
 export {
