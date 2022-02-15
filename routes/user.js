@@ -61,7 +61,6 @@ router.get(
 
 router.get('/agents', auth, getAgents)
 router.get('/agentAvailabilities', auth, checkAgentAvailabilities)
-router.get('/buyers', auth, getBuyers)
 router.post('/wishlist', auth, addToWishlist)
 router.delete('/wishlist', auth, removeOfWishlist)
 router.get('/sellers', auth, getSellers)

@@ -8,11 +8,11 @@ const userSchema = mongoose.Schema(
 		lastname: { type: String, required: true },
 		email: { type: String, required: true, unique: true },
 		password: { type: String, required: true },
-		token: { type: String, required: false },
-		phone: { type: String, required: false },
-		newsletter: { type: Boolean, required: false, default: 0 },
+		token: { type: String },
+		phone: { type: String },
+		newsletter: { type: Boolean, default: 0 },
 		status: { type: Boolean, required: true, default: true },
-		ref: { type: String, required: false },
+		ref: { type: String },
 
 		//Roles:
 		buyer: {
@@ -25,16 +25,16 @@ const userSchema = mongoose.Schema(
 				],
 				default: undefined,
 			},
-			budgetMin: { type: Number, required: false },
-			budgetMax: { type: Number, required: false },
-			city: { type: String, required: false },
-			surfaceMin: { type: Number, required: false },
-			surfaceMax: { type: Number, required: false },
-			type: { type: String, required: false },
+			budgetMin: { type: Number },
+			budgetMax: { type: Number },
+			city: { type: String },
+			surfaceMin: { type: Number },
+			surfaceMax: { type: Number },
+			type: { type: String },
 		},
 
 		agent: {
-			pro_phone_number: { type: String, required: false },
+			pro_phone_number: { type: String },
 		},
 
 		seller: {
