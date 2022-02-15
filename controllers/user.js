@@ -20,23 +20,30 @@ dotenv.config()
  * @apiBody {Boolean} newsletter="false" Accord des newsletters de l'utilisateur
  * @apiBody {Boolean} status="true" Status actif ou non
  * @apiBody {String} [ref] Référence client
- * @apiBody {Object} [buyer] Informations de l'acheteur
+ * @apiBody {Object} [buyer] Informations de l'acheteur ({Object} wishlist, {Number} budgetMin, {Number} budgetMax, {String} city, {Number} surfaceMin, {Number} surfaceMax, {String} type)
+ * @apiBody {Object} [seller] Informations du vendeur ({Object} propertiesList)
+ * @apiBody {Object} [agent] Informations de l'agent ({String} pro_phone_tel)
  *
  * @apiSuccess {String} message Message de complétion.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": 'Utilisateur enregistrée !',
+ *       "message": 'Utilisateur enregistré !',
  *     }
  *
  * @apiError ServerError Erreur serveur.
  * @apiError UserAlreadyExists Un compte avec cette adresse email existe déjà !
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
+ * @apiErrorExample ServerError:
+ *     HTTP/1.1 500 Not Found
  *     {
- *       "error": "Utilisateur non crée !"
+ *       "error": "Utilisateur non créé !"
+ *     }
+ * @apiErrorExample UserAlreadyExists:
+ *     HTTP/1.1 403 Forbidden
+ *     {
+ *       "error": "Un compte avec cette adresse email existe déjà !"
  *     }
  */
 const create = async (req, res) => {
@@ -86,6 +93,9 @@ const create = async (req, res) => {
  * @apiBody {Boolean} newsletter="false" Accord des newsletters de l'utilisateur
  * @apiBody {Boolean} status="true" Status actif ou non
  * @apiBody {String} [ref] Référence client
+ * @apiBody {Object} [buyer] Informations de l'acheteur ({Object} wishlist, {Number} budgetMin, {Number} budgetMax, {String} city, {Number} surfaceMin, {Number} surfaceMax, {String} type)
+ * @apiBody {Object} [seller] Informations du vendeur ({Object} propertiesList)
+ * @apiBody {Object} [agent] Informations de l'agent ({String} pro_phone_tel)
  *
  * @apiSuccess {String} message Utilisateur modifié !.
  *
@@ -97,8 +107,8 @@ const create = async (req, res) => {
  *
  * @apiError ServerError Utilisateur non modifié.
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
+ * @apiErrorExample ServerError:
+ *     HTTP/1.1 500 Internal Server Error
  *     {
  *       "error": "Utilisateur non modifié !"
  *     }
@@ -107,7 +117,7 @@ const update = async (req, res) => {
 	let datas = req.body
 
 	try {
-		await User.findOneAndUpdate(
+		let user = await User.findOneAndUpdate(
 			{
 				_id: req.params._id,
 			},
@@ -116,39 +126,49 @@ const update = async (req, res) => {
 			},
 			{ returnDocument: 'after' }
 		)
-		let buyer = await User.find({ buyer: null })
-		buyer.forEach(async (element) => {
-			await User.updateOne(
-				{ _id: element._id },
-				{ $unset: { buyer: '' } },
-				{ new: true }
-			)
-		})
 
-		let seller = await User.find({ seller: null })
-		seller.forEach(async (element) => {
-			await User.updateOne(
-				{ _id: element._id },
-				{ $unset: { seller: '' } },
-				{ new: true }
-			)
-		})
+		console.log(user.$isEmpty('agent'))
+		//CHECK SI DES PROPERTIES VIDE EXISTENT
+		async function checkEmptyFields(user) {
+			let buyer = await User.find({
+				$or: [{ buyer: {} }, { buyer: null }],
+			})
+			buyer.forEach(async (element) => {
+				await User.updateOne(
+					{ _id: element._id },
+					{ $unset: { buyer: '' } },
+					{ new: true }
+				)
+			})
 
-		let agent = await User.find({ agent: null })
-		seller.forEach(async (element) => {
-			await User.updateOne(
-				{ _id: element._id },
-				{ $unset: { agent: '' } },
-				{ new: true }
-			)
-		})
+			let seller = await User.find({
+				$or: [{ seller: {} }, { seller: null }],
+			})
+			seller.forEach(async (element) => {
+				await User.updateOne(
+					{ _id: element._id },
+					{ $unset: { seller: '' } },
+					{ new: true }
+				)
+			})
 
+			let agent = await User.find({
+				$or: [{ agent: {} }, { agent: null }],
+			})
+			agent.forEach(async (element) => {
+				await User.updateOne(
+					{ _id: element._id },
+					{ $unset: { agent: '' } },
+					{ new: true }
+				)
+			})
+		}
+		// checkEmptyFields(user)
 		res.status(201).json({
 			message: 'Utilisateur modifié !',
 		})
 	} catch (error) {
-		console.log(error)
-		res.status(400).json({
+		res.status(500).json({
 			error: error.message,
 		})
 	}
@@ -172,11 +192,17 @@ const update = async (req, res) => {
  *     }
  *
  * @apiError UserNotFound Aucun utilisateur.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
+ * @apiError ServerError Erreur serveur.
+ * 
+ * @apiErrorExample UserNotFound:
+ *     HTTP/1.1 204 Internal Server Error
  *     {
- *       "error": "Utilisateur non trouvé !"
+ *       "message": "Aucun utilisateur"
+ *     }
+ * @apiErrorExample ServerError:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "message": "Erreur Serveur."
  *     }
  */
 const getOne = async (req, res) => {
@@ -216,11 +242,18 @@ const getOne = async (req, res) => {
  *     }
  *
  * @apiError UserNotFound Aucun utilisateur.
+ * @apiError ServerError Erreur serveur.
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 500 Not Found
+ * @apiErrorExample UserNotFound:
+ *     HTTP/1.1 204 No Content
  *     {
  *       "error": "Aucun utilisateur trouvé !"
+ *     }
+ * 
+ * @apiErrorExample ServerError:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "error": "Erreur serveur !"
  *     }
  */
 const getAll = async (req, res) => {
@@ -260,11 +293,18 @@ const getAll = async (req, res) => {
  *     }
  *
  * @apiError UserNotFound Aucun utilisateur.
+ * @apiError ServerError Erreur serveur.
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
+ * @apiErrorExample UserNotFound:
+ *     HTTP/1.1 204 No Content
  *     {
- *       "error": "Impossible de désactiver cet utilisateur !"
+ *       "error": "Action impossible !"
+ *     }
+ *
+ * @apiErrorExample ServerError:
+ *     HTTP/1.1 500 Internal Server Error
+ *     {
+ *       "error": "Erreur serveur !"
  *     }
  */
 const deleteOne = async (req, res) => {
@@ -301,6 +341,8 @@ const deleteOne = async (req, res) => {
  * @apiBody {String} password Mot de passe de l'utilisateur
  * @apiBody {String} [phone] Numéro de téléphone de l'utilisateur
  * @apiBody {Boolean} newsletter="false" Accord des newsletters de l'utilisateur
+ * @apiBody {Object} [buyer] Informations de l'acheteur ({Object} wishlist, {Number} budgetMin, {Number} budgetMax, {String} city, {Number} surfaceMin, {Number} surfaceMax, {String} type)
+ * @apiBody {Object} [seller] Informations du vendeur ({Object} propertiesList)
  *
  * @apiSuccess {String} message Message de complétion.
  *
@@ -313,10 +355,15 @@ const deleteOne = async (req, res) => {
  * @apiError ServerError Erreur serveur.
  * @apiError UserAlreadyExists Un compte avec cette adresse email existe déjà !
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
+ * @apiErrorExample ServerError:
+ *     HTTP/1.1 500 Not Found
  *     {
- *       "error": "Compte non crée !"
+ *       "error": "Utilisateur non créé !"
+ *     }
+ * @apiErrorExample UserAlreadyExists:
+ *     HTTP/1.1 403 Forbidden
+ *     {
+ *       "error": "Un compte avec cette adresse email existe déjà !"
  *     }
  */
 const signup = async (req, res) => {
@@ -344,7 +391,7 @@ const signup = async (req, res) => {
 	} else {
 		res.status(400).json({
 			status_code: 400,
-			message: 'Mot de passe incorrect',
+			message: 'Mot de passe vide',
 		})
 	}
 }
@@ -386,7 +433,7 @@ const login = async (req, res) => {
 				error: 'Mot de passe incorrect !',
 			})
 		}
-		const token = jwt.sign({ userId: user._id }, process.env.SECRET_TOKEN, {
+		const token = jwt.sign({ user: user._id }, process.env.SECRET_TOKEN, {
 			expiresIn: '24h',
 		})
 		await User.updateOne({ _id: user._id }, { token: token })
@@ -605,7 +652,7 @@ const getAgents = async (req, res) => {
  * @apiBody {Date} date Date de test des disponibilités
  * @apiBody {ObjectId} id_agent Id de l'agent
  *
- * @apiSuccess {String} message Message de complétion.
+ * @apiSuccess {Array} Availabilities Tableau des créneaux disponibles.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -801,7 +848,6 @@ const getSellers = async (req, res) => {
 			res.status(204).json({ message: 'Aucun utilisateur' })
 		}
 	} catch (error) {
-		console.log(error)
 		res.status(400).json(error)
 	}
 }
