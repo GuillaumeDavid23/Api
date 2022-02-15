@@ -734,6 +734,7 @@ const checkAgentAvailabilities = async (req, res) => {
  *     }
  */
 const getBuyers = async (req, res) => {
+	console.log('YESS');
 	try {
 		const user = await User.find({ status: true })
 		if (user) {
