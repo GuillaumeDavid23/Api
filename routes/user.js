@@ -62,8 +62,8 @@ router.get('/agents', auth, getAgents)
 router.get('/agentAvailabilities', auth, checkAgentAvailabilities)
 router.post('/wishlist', auth, addToWishlist)
 router.delete('/wishlist', auth, removeOfWishlist)
-router.get('/buyers', getBuyers)
-router.get('/sellers', getSellers)
+router.get('/buyers', auth, getBuyers)
+router.get('/sellers', auth, getSellers)
 router.get('/:_id', auth, validateParamId(), validation, getOne)
 
 export default router
