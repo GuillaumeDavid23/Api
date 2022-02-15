@@ -116,7 +116,7 @@ const update = async (req, res) => {
 	let datas = req.body
 
 	try {
-		await User.findOneAndUpdate(
+		let user = await User.findOneAndUpdate(
 			{
 				_id: req.params._id,
 			},
@@ -125,33 +125,44 @@ const update = async (req, res) => {
 			},
 			{ returnDocument: 'after' }
 		)
-		let buyer = await User.find({ buyer: null })
-		buyer.forEach(async (element) => {
-			await User.updateOne(
-				{ _id: element._id },
-				{ $unset: { buyer: '' } },
-				{ new: true }
-			)
-		})
 
-		let seller = await User.find({ seller: null })
-		seller.forEach(async (element) => {
-			await User.updateOne(
-				{ _id: element._id },
-				{ $unset: { seller: '' } },
-				{ new: true }
-			)
-		})
+		console.log(user.$isEmpty('agent'))
+		//CHECK SI DES PROPERTIES VIDE EXISTENT
+		async function checkEmptyFields(user) {
+			let buyer = await User.find({
+				$or: [{ buyer: {} }, { buyer: null }],
+			})
+			buyer.forEach(async (element) => {
+				await User.updateOne(
+					{ _id: element._id },
+					{ $unset: { buyer: '' } },
+					{ new: true }
+				)
+			})
 
-		let agent = await User.find({ agent: null })
-		agent.forEach(async (element) => {
-			await User.updateOne(
-				{ _id: element._id },
-				{ $unset: { agent: '' } },
-				{ new: true }
-			)
-		})
+			let seller = await User.find({
+				$or: [{ seller: {} }, { seller: null }],
+			})
+			seller.forEach(async (element) => {
+				await User.updateOne(
+					{ _id: element._id },
+					{ $unset: { seller: '' } },
+					{ new: true }
+				)
+			})
 
+			let agent = await User.find({
+				$or: [{ agent: {} }, { agent: null }],
+			})
+			agent.forEach(async (element) => {
+				await User.updateOne(
+					{ _id: element._id },
+					{ $unset: { agent: '' } },
+					{ new: true }
+				)
+			})
+		}
+		// checkEmptyFields(user)
 		res.status(201).json({
 			message: 'Utilisateur modifié !',
 		})
@@ -430,7 +441,7 @@ const login = async (req, res) => {
 					})
 				}
 				const token = jwt.sign(
-					{ userId: user._id },
+					{ user: user },
 					process.env.SECRET_TOKEN,
 					{ expiresIn: '24h' }
 				)
@@ -859,60 +870,6 @@ const getSellers = async (req, res) => {
 	}
 }
 
-//CHECK ADMIN ACCESS
-/**
- * @api {get} /api/user/checkAccess/:_id Vérifier les droits
- * @apiName checkAccess
- * @apiGroup Utilisateur
- *
- * @apiParam {ObjectId} _id ID de l'utilisateur.
- *
- * @apiSuccess role role de l'utilisateur.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *      "role" : "Agent"
- *     }
- *
- * @apiError message Message de retour associé.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
- *     {
- *       message: "Aucun utilisateur"
- *     }
- */
-const checkAccess = async (req, res) => {
-	let id = req.params._id
-	try {
-		const user = await User.findOne({
-			status: true,
-			_id: id,
-		})
-		if (user) {
-			// On check la permission du compte:
-			if (!user.$isEmpty('buyer') && !user.$isEmpty('seller')) {
-				res.status(200).json({ role: 'Buyer, Seller' })
-			} else if (!user.$isEmpty('buyer')) {
-				res.status(200).json({ role: 'Buyer' })
-			} else if (!user.$isEmpty('seller')) {
-				res.status(200).json({ role: 'Seller' })
-			} else if (!user.$isEmpty('agent')) {
-				res.status(200).json({ role: 'Agent' })
-			} else {
-				res.status(200).json({
-					role: 'aucun',
-				})
-			}
-		} else {
-			res.status(400).json({ message: 'Aucun utilisateur' })
-		}
-	} catch (error) {
-		res.status(500).json(error)
-	}
-}
-
 export {
 	getOne,
 	getAll,
@@ -931,5 +888,4 @@ export {
 	addToWishlist,
 	removeOfWishlist,
 	getSellers,
-	checkAccess,
 }

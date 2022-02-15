@@ -17,9 +17,9 @@ import {
 	addToWishlist,
 	removeOfWishlist,
 	getSellers,
-	checkAccess,
 } from '../controllers/user.js'
 import auth from '../middleware/auth.js'
+import checkAccess from '../middleware/checkAccess.js'
 import userValidationRules from '../middleware/validation/user.js'
 import {
 	validateParamId,
@@ -28,7 +28,7 @@ import {
 
 const router = express.Router()
 
-router.post('/login', userValidationRules(), validation, login)
+router.post('/login', login)
 router.post('/signup', userValidationRules(), validation, signup)
 router.post('/forgot', userValidationRules(), validation, forgotPass)
 
@@ -58,8 +58,14 @@ router.get(
 	validation,
 	unsetNewsletter
 )
-router.get('/checkAccess/:_id', checkAccess)
-router.get('/agents', auth, getAgents)
+
+//EXEMPLE DE CHECK ACCESS
+router.get(
+	'/agents',
+	auth,
+	checkAccess(['buyer', 'seller', 'agent']),
+	getAgents
+)
 router.get('/agentAvailabilities', auth, checkAgentAvailabilities)
 router.post('/wishlist', auth, addToWishlist)
 router.delete('/wishlist', auth, removeOfWishlist)
