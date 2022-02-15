@@ -1,5 +1,5 @@
 import req from 'supertest'
-import API from '../../app.js'
+import API from '../../app.rjs'
 
 const user_info = {
 	email: 'b_rault@outlook.fr',
@@ -11,7 +11,19 @@ describe('La UserRoutes', () => {
 		req(API).get('/api/user').expect(200, done)
 	})
 
-	describe('sur la partie Signup', () => {})
+	describe('sur la partie Signup', () => {
+		const tmp_user = {
+			firstname: 'dummy',
+			lastname: 'dummy',
+			email: 'dummy@dummy.dum',
+			password: 'Dummy69',
+			newsletter: true,
+		}
+
+		it("un utilisateur peut s'incrire", (done) => {
+			req(API).post('/api/user/signup').send(tmp_user).expect(201, done)
+		})
+	})
 
 	describe('sur la partie Login', () => {
 		it('Peut connecter un utilisater', (done) => {
