@@ -2,101 +2,43 @@ import { body } from 'express-validator'
 
 export default () => {
 	return [
-		body('firstname')
-			.if(body('firstname').exists())
-			.notEmpty()
-			.withMessage(),
-		body('firstname')
-			.if(body('firstname').exists())
-			.notEmpty()
-			.isAlpha()
-			.withMessage(),
-
-		body('lastname').if(body('lastname').exists()).notEmpty().withMessage(),
-		body('lastname')
-			.if(body('lastname').exists())
-			.notEmpty()
-			.isAlpha()
-			.withMessage(),
-
-		body('email').notEmpty().withMessage(),
-		body('email').notEmpty().isEmail().withMessage(),
-
-		body('password').notEmpty().withMessage(),
+		body('firstname').if(body('firstname').notEmpty()).notEmpty().isAlpha(),
+		body('lastname').if(body('lastname').notEmpty()).notEmpty().isAlpha(),
+		body('email').if(body('email').notEmpty()).notEmpty().isEmail(),
 		body('password')
+			.if(body('password').notEmpty())
 			.notEmpty()
-			.matches(process.env.passwordRegex)
-			.withMessage(),
-
-		body('token')
-			.if(body('token').notEmpty())
-			.isAlphanumeric()
-			.withMessage(),
-		body('token')
-			.if(body('token').notEmpty())
-			.isAlphanumeric()
-			.withMessage(),
-
-		body('phone')
-			.if(body('phone').notEmpty())
-			.isMobilePhone(['fr-FR', []])
-			.withMessage(),
-		body('phone')
-			.if(body('phone').notEmpty())
-			.isMobilePhone(['fr-FR', []])
-			.withMessage(),
-
+			.matches(process.env.passwordRegex),
+		body('token').if(body('token').notEmpty()).isAlphanumeric(),
+		body('phone').if(body('phone').notEmpty()).isMobilePhone(['fr-FR', []]),
 		body('newsletter')
 			.if(body('newsletter').notEmpty())
-			.isBoolean()
-			.withMessage(),
-
-		body('status').if(body('status').notEmpty()).isBoolean().withMessage(),
-
+			.notEmpty()
+			.isBoolean(),
+		body('status').if(body('status').notEmpty()).isBoolean(),
 		body('ref')
 			.if(body('ref').notEmpty())
 			.isAlphanumeric()
-			.isLength({ min: 10, max: 10 })
-			.withMessage(),
-
-		body('ref')
-			.if(body('ref').notEmpty())
-			.isAlphanumeric()
-			.isLength({ min: 10, max: 10 })
-			.withMessage(),
-
-		body('ref')
-			.if(body('ref').notEmpty())
-			.isAlphanumeric()
-			.isLength({ min: 10, max: 10 })
-			.withMessage(),
+			.isLength({ min: 10, max: 10 }),
 
 		// Agent:
-		body('phonePro')
-			.if(body('phonePro').exists())
+		body('agent.phonePro')
+			.if(body('agent.phonePro').exists())
 			.notEmpty()
-			.isMobilePhone(['fr-FR', []])
-			.withMessage(),
+			.isMobilePhone(['fr-FR', []]),
 
 		// Buyer:
-		body('budgetMin').if(body('budgetMin').exists()).isInt().withMessage(),
-		body('budgetMax').if(body('budgetMax').exists()).isInt().withMessage(),
-		body('city').if(body('city').exists()).isAlpha().withMessage(),
-		body('surfaceMin')
-			.if(body('surfaceMin').exists())
-			.isInt()
-			.withMessage(),
-		body('surfaceMax')
-			.if(body('surfaceMax').exists())
-			.isInt()
-			.withMessage(),
-		body('type').if(body('type').exists()).isAlpha().withMessage(),
+		body('buyer.budgetMin').if(body('buyer.budgetMin').exists()).isInt(),
+		body('buyer.budgetMax').if(body('buyer.budgetMax').exists()).isInt(),
+		body('buyer.city').if(body('buyer.city').exists()).isAlpha(),
+		body('buyer.surfaceMin').if(body('buyer.surfaceMin').exists()).isInt(),
+		body('buyer.surfaceMax').if(body('buyer.surfaceMax').exists()).isInt(),
+		body('buyer.type').if(body('buyer.type').exists()).isAlpha(),
 
 		// Seller:
-		body('isSelling')
-			.if(body('isSelling').exists())
+		body('seller.isSelling')
+			.if(body('seller.isSelling').exists())
 			.notEmpty()
-			.isBoolean()
-			.withMessage(),
+			.isBoolean(),
 	]
 }
