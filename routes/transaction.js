@@ -7,7 +7,10 @@ import {
 	getOne,
 } from '../controllers/transaction.js'
 import auth from '../middleware/auth.js'
-import transactionValidationRules from '../middleware/validation/transaction.js'
+import {
+	checkTransactionBody,
+	checkTransactionExistence,
+} from '../middleware/validation/transaction.js'
 import {
 	validateParamId,
 	validation,
@@ -15,9 +18,16 @@ import {
 
 const router = express.Router()
 
-router.post('/', transactionValidationRules(), validation, create)
-router.put('/:_id', auth, transactionValidationRules(), validation, update)
-router.delete('/:_id', auth, validateParamId(), validation, erase)
+router.post('/', checkTransactionBody(), validation, create)
+router.put(
+	'/:_id',
+	auth,
+	checkTransactionExistence(),
+	checkTransactionBody(),
+	validation,
+	update
+)
+router.delete('/:_id', auth, checkTransactionExistence(), validation, erase)
 router.get('/', auth, getAll)
 router.get('/:_id', auth, validateParamId(), validation, getOne)
 

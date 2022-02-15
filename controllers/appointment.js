@@ -123,22 +123,6 @@ const update = async (req, res) => {
  */
 const erase = async (req, res) => {
 	try {
-		// On check la transaction a supprimer:
-		let appointment = await Appointment.findOne({ _id: req.params.id })
-		if (!appointment) {
-			return res.status(404).json({
-				status_code: 404,
-				error: 'Rendez-vous non trouvé !',
-			})
-		}
-		if (appointment.userId !== req.auth.userId) {
-			return res.status(401).json({
-				status_code: 401,
-				error: 'Requête non autorisée !',
-			})
-		}
-
-		// On éxecute:
 		await Appointment.deleteOne({ _id: req.params.id })
 		res.status(200).json({
 			status_code: 200,

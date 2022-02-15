@@ -1,44 +1,210 @@
-import { body } from 'express-validator'
+import { body, param } from 'express-validator'
+import User from '../../models/User.js'
 
-export default () => {
+const checkUserCommonBody = () => {
 	return [
-		body('firstname').if(body('firstname').notEmpty()).notEmpty().isAlpha(),
-		body('lastname').if(body('lastname').notEmpty()).notEmpty().isAlpha(),
-		body('email').if(body('email').notEmpty()).notEmpty().isEmail(),
+		body('firstname')
+			.notEmpty()
+			.withMessage('Vous devez indiquer votre prénom.'),
+		body('firstname')
+			.if(body('firstname').notEmpty())
+			.isAlpha()
+			.withMessage('Le prénom ne doit-être composé que de lettres.'),
+
+		body('lastname')
+			.notEmpty()
+			.withMessage('Vous devez indiquer votre nom de famille.'),
+		body('lastname')
+			.if(body('lastname').notEmpty())
+			.isAlpha()
+			.withMessage(
+				'Le nom de famille ne doit-être composé que de lettres.'
+			),
+
+		body('email')
+			.notEmpty()
+			.withMessage('Vous devez indiquer votre email.'),
+		body('email')
+			.if(body('email').notEmpty())
+			.isEmail(
+				"Le format de l'adresse email renseigné ne correspond pas à celui d'une adresse email (example@amaizon.fr)."
+			),
+
+		body('password')
+			.notEmpty()
+			.withMessage('Vous devez indiquer votre mot de passe.'),
 		body('password')
 			.if(body('password').notEmpty())
-			.notEmpty()
-			.matches(process.env.passwordRegex),
-		body('token').if(body('token').notEmpty()).isAlphanumeric(),
-		body('phone').if(body('phone').notEmpty()).isMobilePhone(['fr-FR', []]),
-		body('newsletter')
-			.if(body('newsletter').notEmpty())
-			.notEmpty()
-			.isBoolean(),
-		body('status').if(body('status').notEmpty()).isBoolean(),
-		body('ref')
-			.if(body('ref').notEmpty())
-			.isAlphanumeric()
-			.isLength({ min: 10, max: 10 }),
+			.matches(process.env.passwordRegex)
+			.withMessage(
+				'Le mot de passe ne correspond pas au format requis: Au moins 8 caractères dont au moins une majuscule, une minuscule, un chiffre.'
+			),
 
-		// Agent:
-		body('agent.phonePro')
-			.if(body('agent.phonePro').exists())
-			.notEmpty()
-			.isMobilePhone(['fr-FR', []]),
+		body('phone')
+			.if(body('phone').notEmpty())
+			.isMobilePhone(['fr-FR', []])
+			.withMessage(
+				'Le format du téléphone indiqué ne correspond pas celui utilisé en France.'
+			),
 
-		// Buyer:
-		body('buyer.budgetMin').if(body('buyer.budgetMin').exists()).isInt(),
-		body('buyer.budgetMax').if(body('buyer.budgetMax').exists()).isInt(),
-		body('buyer.city').if(body('buyer.city').exists()).isAlpha(),
-		body('buyer.surfaceMin').if(body('buyer.surfaceMin').exists()).isInt(),
-		body('buyer.surfaceMax').if(body('buyer.surfaceMax').exists()).isInt(),
-		body('buyer.type').if(body('buyer.type').exists()).isAlpha(),
+		body('newsletter').isBoolean(
+			'La valeur "newsletter" doit-être de type booléen (0/1 ou false/true).'
+		),
+	]
+}
 
-		// Seller:
+const checkBuyerBody = () => {
+	return [
+		body('buyer.budgetMin')
+			.if(body('buyer.budgetMin').notEmpty())
+			.isInt({ min: 0 })
+			.withMessage(
+				'Le nombre de pièces doit être une valeur numérique entière positive.'
+			),
+
+		body('buyer.budgetMax')
+			.if(body('buyer.budgetMax').notEmpty())
+			.isInt({ min: 0 })
+			.withMessage(
+				'Le nombre de pièces doit être une valeur numérique entière positive.'
+			),
+
+		body('buyer.city')
+			.if(body('buyer.city').notEmpty())
+			.isString()
+			.withMessage(
+				'La ville désiré ne doit pas contenir de caractères spéciaux.'
+			),
+
+		body('buyer.surfaceMin')
+			.if(body('buyer.surfaceMin').notEmpty())
+			.isInt({ min: 1 })
+			.withMessage(
+				'Le nombre de pièces doit être une valeur numérique entière positive.'
+			),
+
+		body('buyer.surfaceMax')
+			.if(body('buyer.surfaceMax').notEmpty())
+			.isInt({ min: 1 })
+			.withMessage(
+				'Le nombre de pièces doit être une valeur numérique entière positive.'
+			),
+
+		body('buyer.type')
+			.if(body('buyer.type').notEmpty())
+			.isAlpha()
+			.withMessage(
+				'Le type de propriété ne doit contenir que des lettres.'
+			),
+	]
+}
+
+const checkSellerBody = () => {
+	return [
 		body('seller.isSelling')
 			.if(body('seller.isSelling').exists())
 			.notEmpty()
 			.isBoolean(),
 	]
+}
+
+const checkAgentBody = () => {
+	return [
+		body('agent.phonePro').notEmpty().isMobilePhone(['fr-FR', []]),
+
+		body('agent.phonePro')
+			.notEmpty()
+			.withMessage(
+				'Vous devez indiquer le numéro de téléphone professionnel'
+			),
+		body('agent.phonePro')
+			.if(body('agent.phonePro').notEmpty())
+			.isMobilePhone(['fr-FR', []])
+			.withMessage(
+				'Le format du téléphone indiqué ne correspond pas celui utilisé en France.'
+			),
+	]
+}
+
+const checkForLogin = () => {
+	return [
+		body('email')
+			.notEmpty()
+			.withMessage('Vous devez indiquer votre email.'),
+		body('email')
+			.if(body('email').notEmpty())
+			.isEmail()
+			.withMessage(
+				"Le format de l'adresse email renseigné ne correspond pas à celui d'une adresse email (example@amaizon.fr)."
+			),
+
+		body('password')
+			.notEmpty()
+			.withMessage('Vous devez indiquer votre mot de passe.'),
+		body('password')
+			.if(body('password').notEmpty())
+			.matches(process.env.passwordRegex)
+			.withMessage(
+				'Le mot de passe ne correspond pas au format requis: Au moins 8 caractères dont au moins une majuscule, une minuscule, un chiffre.'
+			),
+	]
+}
+
+const checkForForgotPass = () => {
+	return [
+		body('email')
+			.notEmpty()
+			.withMessage('Vous devez indiquer votre email.'),
+		body('email')
+			.if(body('email').notEmpty())
+			.isEmail()
+			.withMessage(
+				'La valeur renseigné ne correspond pas à une adresse email (example@amaizon.fr).'
+			),
+	]
+}
+
+const checkForResetToken = () => {
+	return [
+		param('token')
+			.notEmpty()
+			.withMessage('Un token est attendu en paramètre URL.'),
+		param('token')
+			.if(param('token').notEmpty())
+			.isJWT()
+			.withMessage(
+				'Le token renseigné ne correspond pas au format attendu.'
+			),
+	]
+}
+
+const checkUserExistence = () => {
+	return [
+		param('_id')
+			.notEmpty()
+			.withMessage("Vous devez indiquer l'identifiant en paramètres."),
+		param('_id')
+			.if(param('_id').notEmpty())
+			.isMongoId()
+			.withMessage("L'identifiant renseigné doit-être de type MongoId."),
+		// On check l'existence de l'utilisateur:
+		param('_id')
+			.if(param('_id').notEmpty().isMongoId())
+			.custom(async (_id) => {
+				let user = await User.findOne({ _id })
+				if (!user) return Promise.reject('Utilisateur inexistant !')
+				return true
+			}),
+	]
+}
+
+export {
+	checkUserCommonBody,
+	checkBuyerBody,
+	checkSellerBody,
+	checkAgentBody,
+	checkForLogin,
+	checkForForgotPass,
+	checkForResetToken,
+	checkUserExistence,
 }

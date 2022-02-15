@@ -8,7 +8,10 @@ import {
 	getParticipants,
 } from '../controllers/appointment.js'
 import auth from '../middleware/auth.js'
-import appointmentValidationRules from '../middleware/validation/appointment.js'
+import {
+	checkAppointmentBody,
+	checkAppointmentExistence,
+} from '../middleware/validation/appointment.js'
 import {
 	validateParamId,
 	validation,
@@ -16,22 +19,22 @@ import {
 
 const router = express.Router()
 
-router.post('/', auth, appointmentValidationRules(), validation, create)
+router.post('/', auth, checkAppointmentBody(), validation, create)
 router.put(
 	'/:_id',
 	auth,
-	validateParamId(),
-	appointmentValidationRules(),
+	checkAppointmentExistence(),
+	checkAppointmentBody(),
 	validation,
 	update
 )
-router.delete('/:_id', auth, validateParamId(), validation, erase)
+router.delete('/:_id', auth, checkAppointmentExistence(), validation, erase)
 router.get('/', auth, getAll)
 router.get('/:_id', auth, validateParamId(), validation, getOne)
 router.get(
 	'/getParticipants/:_id',
 	auth,
-	validateParamId(),
+	checkAppointmentExistence(),
 	validation,
 	getParticipants
 )

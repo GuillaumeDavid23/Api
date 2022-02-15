@@ -19,7 +19,17 @@ import {
 	getSellers,
 } from '../controllers/user.js'
 import auth from '../middleware/auth.js'
-import userValidationRules from '../middleware/validation/user.js'
+import {
+	checkUserCommonBody,
+	checkBuyerBody,
+	checkSellerBody,
+	checkAgentBody,
+	checkForLogin,
+	checkForForgotPass,
+	checkForResetToken,
+	checkUserExistence,
+} from '../middleware/validation/user.js'
+import { checkPropertyExistence } from '../middleware/validation/property.js'
 import {
 	validateParamId,
 	validation,
@@ -27,41 +37,104 @@ import {
 
 const router = express.Router()
 
-router.post('/login', userValidationRules(), validation, login)
-router.post('/signup', userValidationRules(), validation, signup)
-router.post('/forgot', userValidationRules(), validation, forgotPass)
-
-router.post('/', userValidationRules(), validation, create)
+router.post('/login', checkForLogin(), validation, login)
+router.post(
+	'/sellerSignup',
+	checkUserCommonBody(),
+	checkSellerBody(),
+	validation,
+	signup
+)
+router.post(
+	'/buyerSignup',
+	checkUserCommonBody(),
+	checkBuyerBody(),
+	validation,
+	signup
+)
+router.post('/forgot', checkForForgotPass(), validation, forgotPass)
+router.post(
+	'/buyer',
+	auth,
+	checkUserCommonBody(),
+	checkBuyerBody(),
+	validation,
+	create
+)
+router.post(
+	'/seller',
+	auth,
+	checkUserCommonBody(),
+	checkSellerBody(),
+	validation,
+	create
+)
+router.post(
+	'/agent',
+	auth,
+	checkUserCommonBody(),
+	checkAgentBody(),
+	validation,
+	create
+)
 router.put(
-	'/:_id',
-	validateParamId(),
-	userValidationRules(),
+	'/buyer/:_id',
+	auth,
+	checkUserExistence(),
+	checkUserCommonBody(),
+	checkBuyerBody(),
 	validation,
 	update
 )
-router.delete('/:_id', auth, validateParamId(), validation, deleteOne)
-router.get('/', getAll)
-router.get('/check/:token', checkResetToken)
-
+router.put(
+	'/seller/:_id',
+	auth,
+	checkUserExistence(),
+	checkUserCommonBody(),
+	checkSellerBody(),
+	validation,
+	update
+)
+router.put(
+	'/agent/:_id',
+	auth,
+	checkUserExistence(),
+	checkUserCommonBody(),
+	checkAgentBody(),
+	validation,
+	update
+)
+router.delete('/:_id', auth, checkUserExistence(), validation, deleteOne)
+router.get('/', auth, getAll)
+router.get('/check/:token', checkForResetToken(), checkResetToken)
 router.get(
 	'/setNewsletter/:_id',
 	auth,
-	validateParamId(),
+	checkUserExistence(),
 	validation,
 	setNewsletter
 )
 router.get(
 	'/unsetNewsletter/:_id',
 	auth,
-	validateParamId(),
+	checkUserExistence(),
 	validation,
 	unsetNewsletter
 )
-
 router.get('/agents', auth, getAgents)
-router.get('/agentAvailabilities', auth, checkAgentAvailabilities)
-router.post('/wishlist', auth, addToWishlist)
-router.delete('/wishlist', auth, removeOfWishlist)
+router.get(
+	'/agentAvailabilities/:_id',
+	auth,
+	checkUserExistence(),
+	checkAgentAvailabilities
+)
+router.post('/wishlist/:_id', auth, checkPropertyExistence(), addToWishlist)
+router.delete(
+	'/wishlist/:_id',
+	auth,
+	checkPropertyExistence(),
+	removeOfWishlist
+)
 router.get('/buyers', auth, getBuyers)
 router.get('/sellers', auth, getSellers)
 router.get('/:_id', auth, validateParamId(), validation, getOne)
