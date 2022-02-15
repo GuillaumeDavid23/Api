@@ -242,7 +242,7 @@ describe('Le RentalModel ', () => {
 					)
 				})
 				.catch((err) => {
-					expect(err).to.exist.and.be.an.instanceof(Error)
+					expect(err).not.to.exist.and.be.an.instanceof(Error)
 					done()
 				})
 		})
