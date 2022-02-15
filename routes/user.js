@@ -57,6 +57,7 @@ router.post('/forgot', checkForForgotPass(), validation, forgotPass)
 router.post(
 	'/buyer',
 	auth,
+	checkAccess(['agent']),
 	checkUserCommonBody(),
 	checkBuyerBody(),
 	validation,
@@ -65,6 +66,7 @@ router.post(
 router.post(
 	'/seller',
 	auth,
+	checkAccess(['agent']),
 	checkUserCommonBody(),
 	checkSellerBody(),
 	validation,
@@ -73,6 +75,7 @@ router.post(
 router.post(
 	'/agent',
 	auth,
+	checkAccess(['agent']),
 	checkUserCommonBody(),
 	checkAgentBody(),
 	validation,
@@ -81,6 +84,7 @@ router.post(
 router.put(
 	'/buyer/:_id',
 	auth,
+	checkAccess(['agent', 'buyer']),
 	checkUserExistence(),
 	checkUserCommonBody(),
 	checkBuyerBody(),
@@ -90,6 +94,7 @@ router.put(
 router.put(
 	'/seller/:_id',
 	auth,
+	checkAccess(['agent', 'seller']),
 	checkUserExistence(),
 	checkUserCommonBody(),
 	checkSellerBody(),
@@ -99,14 +104,15 @@ router.put(
 router.put(
 	'/agent/:_id',
 	auth,
+	checkAccess(['agent']),
 	checkUserExistence(),
 	checkUserCommonBody(),
 	checkAgentBody(),
 	validation,
 	update
 )
-router.delete('/:_id', auth, checkUserExistence(), validation, deleteOne)
-router.get('/', auth, getAll)
+router.put('/delete/:_id', auth, checkUserExistence(), validation, deleteOne)
+router.get('/', auth, checkAccess(['agent']), getAll)
 router.get('/check/:token', checkForResetToken(), checkResetToken)
 router.get(
 	'/setNewsletter/:_id',
@@ -131,18 +137,27 @@ router.get(
 router.get(
 	'/agentAvailabilities/:_id',
 	auth,
+	checkAccess(['buyer', 'seller', 'agent']),
 	checkUserExistence(),
 	checkAgentAvailabilities
 )
-router.post('/wishlist/:_id', auth, checkPropertyExistence(), addToWishlist)
+
+router.post(
+	'/wishlist/:_id',
+	auth,
+	checkAccess(['buyer', 'seller']),
+	checkPropertyExistence(),
+	addToWishlist
+)
 router.delete(
 	'/wishlist/:_id',
 	auth,
+	checkAccess(['agent']),
 	checkPropertyExistence(),
 	removeOfWishlist
 )
-router.get('/buyers', auth, getBuyers)
-router.get('/sellers', auth, getSellers)
+router.get('/buyers', auth, checkAccess(['agent']), getBuyers)
+router.get('/sellers', auth, checkAccess(['agent']), getSellers)
 router.get('/:_id', auth, validateParamId(), validation, getOne)
 
 export default router

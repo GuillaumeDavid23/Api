@@ -280,7 +280,7 @@ const getAll = async (req, res) => {
 
 //GET DELETE
 /**
- * @api {DELETE} /api/user/:_id Supprimer un utilisateur
+ * @api {PUT} /api/user/delete/:_id Supprimer un utilisateur
  * @apiName deleteOne
  * @apiGroup Utilisateur
  *
