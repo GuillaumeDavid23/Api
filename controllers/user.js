@@ -403,7 +403,6 @@ const login = async (req, res) => {
 		})
 	}
 }
-
 //USER FORGOT PASSWORD
 /**
  * @api {post} /api/forgot Créer un token de réinitilisation
@@ -717,7 +716,7 @@ const checkAgentAvailabilities = async (req, res) => {
  */
 const getBuyers = async (req, res) => {
 	try {
-		const user = await User.find({ status: true })
+		const user = await User.find({ status: true, buyer: { $exists: true } })
 		if (user) {
 			res.status(200).json({ status_code: 200, user })
 		} else {
@@ -792,16 +791,18 @@ const removeOfWishlist = async (req, res) => {
  */
 const getSellers = async (req, res) => {
 	try {
-		let sellers = await User.find({ role: 'Seller' })
-		res.status(200).json({
-			status_code: 200,
-			datas: sellers,
+		const user = await User.find({
+			status: true,
+			seller: { $exists: true },
 		})
+		if (user) {
+			res.status(200).json(user)
+		} else {
+			res.status(204).json({ message: 'Aucun utilisateur' })
+		}
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		console.log(error)
+		res.status(400).json(error)
 	}
 }
 

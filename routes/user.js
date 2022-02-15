@@ -40,7 +40,6 @@ router.put(
 	update
 )
 router.delete('/:_id', auth, validateParamId(), validation, deleteOne)
-router.get('/:_id', auth, validateParamId(), validation, getOne)
 router.get('/', getAll)
 router.get('/check/:token', checkResetToken)
 
@@ -63,6 +62,8 @@ router.get('/agents', auth, getAgents)
 router.get('/agentAvailabilities', auth, checkAgentAvailabilities)
 router.post('/wishlist', auth, addToWishlist)
 router.delete('/wishlist', auth, removeOfWishlist)
+router.get('/buyers', auth, getBuyers)
 router.get('/sellers', auth, getSellers)
+router.get('/:_id', auth, validateParamId(), validation, getOne)
 
 export default router
