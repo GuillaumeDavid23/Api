@@ -1,5 +1,5 @@
 import req from 'supertest'
-import API from '../../app.rjs'
+import API from '../../app.js'
 
 const user_info = {
 	email: 'b_rault@outlook.fr',
