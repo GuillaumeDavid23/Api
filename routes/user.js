@@ -17,6 +17,7 @@ import {
 	addToWishlist,
 	removeOfWishlist,
 	getSellers,
+	checkAccessAdmin,
 } from '../controllers/user.js'
 import auth from '../middleware/auth.js'
 import userValidationRules from '../middleware/validation/user.js'
@@ -57,7 +58,7 @@ router.get(
 	validation,
 	unsetNewsletter
 )
-
+router.post('/check', checkAccessAdmin)
 router.get('/agents', auth, getAgents)
 router.get('/agentAvailabilities', auth, checkAgentAvailabilities)
 router.post('/wishlist', auth, addToWishlist)

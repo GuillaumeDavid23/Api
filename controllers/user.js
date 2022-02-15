@@ -42,7 +42,6 @@ dotenv.config()
 const create = async (req, res) => {
 	const saltRounds = 10
 	let datas = req.body
-	console.log(datas)
 	const user = new User({
 		...datas,
 	})
@@ -61,7 +60,6 @@ const create = async (req, res) => {
 				})
 			)
 			.catch((error) => {
-				console.log(error)
 				res.status(400).json({
 					error,
 				})
@@ -136,7 +134,7 @@ const update = async (req, res) => {
 		})
 
 		let agent = await User.find({ agent: null })
-		seller.forEach(async (element) => {
+		agent.forEach(async (element) => {
 			await User.updateOne(
 				{ _id: element._id },
 				{ $unset: { agent: '' } },
@@ -148,7 +146,6 @@ const update = async (req, res) => {
 			message: 'Utilisateur modifié !',
 		})
 	} catch (error) {
-		console.log(error)
 		res.status(400).json({
 			error: error.message,
 		})
@@ -744,7 +741,6 @@ const getBuyers = async (req, res) => {
 			res.status(204).json({ message: 'Aucun utilisateur' })
 		}
 	} catch (error) {
-		console.log(error)
 		res.status(400).json(error)
 	}
 }
@@ -822,8 +818,58 @@ const getSellers = async (req, res) => {
 			res.status(204).json({ message: 'Aucun utilisateur' })
 		}
 	} catch (error) {
-		console.log(error)
 		res.status(400).json(error)
+	}
+}
+
+//CHECK ADMIN ACCESS
+/**
+ * @api {post} /api/user/check Vérifier les droits admin
+ * @apiName checkAccessAdmin
+ * @apiGroup Utilisateur
+ *
+ * @apiHeader {String} Authorization Token d'Authentification
+ *
+ * @apiBody {Object} user Instance de l'utilisateur
+ *
+ * @apiSuccess True.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      true
+ *     }
+ *
+ * @apiError NotAuthorized Pas d'accès.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 UnAuthorized
+ *     {
+ *       message: "Vous n'êtes pas administrateur"
+ *     }
+ */
+const checkAccessAdmin = async (req, res) => {
+	let datas = req.body.user
+	try {
+		const user = await User.findOne({
+			status: true,
+			email: datas.email,
+		})
+		if (user) {
+			// On check la permission du compte:
+			if (user.agent != undefined) {
+				res.status(200).json(true)
+			} else {
+				res.status(401).json({
+					message: "Vous n'êtes pas administrateur",
+					user: user,
+				})
+			}
+		} else {
+			res.status(400).json({ message: 'Aucun utilisateur' })
+		}
+	} catch (error) {
+		res.status(500).json(error)
 	}
 }
 
@@ -845,4 +891,5 @@ export {
 	addToWishlist,
 	removeOfWishlist,
 	getSellers,
+	checkAccessAdmin,
 }
