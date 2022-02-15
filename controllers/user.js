@@ -824,45 +824,48 @@ const getSellers = async (req, res) => {
 
 //CHECK ADMIN ACCESS
 /**
- * @api {post} /api/user/check Vérifier les droits admin
- * @apiName checkAccessAdmin
+ * @api {get} /api/user/checkAccess/:_id Vérifier les droits
+ * @apiName checkAccess
  * @apiGroup Utilisateur
  *
- * @apiHeader {String} Authorization Token d'Authentification
+ * @apiParam {ObjectId} _id ID de l'utilisateur.
  *
- * @apiBody {Object} user Instance de l'utilisateur
- *
- * @apiSuccess True.
+ * @apiSuccess role role de l'utilisateur.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *      true
+ *      "role" : "Agent"
  *     }
  *
- * @apiError NotAuthorized Pas d'accès.
+ * @apiError message Message de retour associé.
  *
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 401 UnAuthorized
+ *     HTTP/1.1 400 Bad Request
  *     {
- *       message: "Vous n'êtes pas administrateur"
+ *       message: "Aucun utilisateur"
  *     }
  */
-const checkAccessAdmin = async (req, res) => {
-	let datas = req.body.user
+const checkAccess = async (req, res) => {
+	let id = req.params._id
 	try {
 		const user = await User.findOne({
 			status: true,
-			email: datas.email,
+			_id: id,
 		})
 		if (user) {
 			// On check la permission du compte:
-			if (user.agent != undefined) {
-				res.status(200).json(true)
+			if (!user.$isEmpty('buyer') && !user.$isEmpty('seller')) {
+				res.status(200).json({ role: 'Buyer, Seller' })
+			} else if (!user.$isEmpty('buyer')) {
+				res.status(200).json({ role: 'Buyer' })
+			} else if (!user.$isEmpty('seller')) {
+				res.status(200).json({ role: 'Seller' })
+			} else if (!user.$isEmpty('agent')) {
+				res.status(200).json({ role: 'Agent' })
 			} else {
-				res.status(401).json({
-					message: "Vous n'êtes pas administrateur",
-					user: user,
+				res.status(200).json({
+					role: 'aucun',
 				})
 			}
 		} else {
@@ -891,5 +894,5 @@ export {
 	addToWishlist,
 	removeOfWishlist,
 	getSellers,
-	checkAccessAdmin,
+	checkAccess,
 }
