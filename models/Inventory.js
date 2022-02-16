@@ -1,10 +1,15 @@
 import mongoose from '../db/db.js'
-import User from './User.js'
+
 const inventoryShema = mongoose.Schema(
 	{
 		id_agent: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: User,
+			type: 'ObjectId',
+			ref: 'User',
+			required: true,
+		},
+		id_rental: {
+			type: 'ObjectId',
+			ref: 'Rental',
 			required: true,
 		},
 		inOut: { type: Boolean, required: true },

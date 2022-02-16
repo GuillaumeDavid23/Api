@@ -1,9 +1,8 @@
 import mongoose from 'mongoose'
 import { expect } from 'chai'
+import { mongo_path } from './util.js'
 
 mongoose.Promise = global.Promise
-
-const mongo_path = 'mongodb://127.0.0.1:27017/amaizon_test'
 
 const user_default = {
 	firstname: 'Testeur',
@@ -17,7 +16,7 @@ const user_default = {
 	ref: 'testeur',
 }
 
-describe('Le model User', () => {
+describe('Le UserModel', () => {
 	var User, dummy
 
 	before((done) => {
@@ -42,26 +41,31 @@ describe('Le model User', () => {
 	})
 
 	beforeEach((done) => {
-		dummy = new User({ ...user_default, ref: 'dummy' })
+		dummy = new User({
+			...user_default,
+			ref: 'dummy',
+			email: 'dummy@dummy.dum',
+		})
 		dummy.save().then(() => done())
 	})
 
 	afterEach((done) => {
-		mongoose.connection.user_default.users.drop(() => done())
+		mongoose.connection.collections.users.drop(() => done())
 	})
 
 	// Success Functions
 	describe('peut', () => {
-		describe.skip('via un CRUD', () => {
+		describe('via un CRUD', () => {
 			it('créer un utilisateur basique', (done) => {
 				const u = new User({ ...user_default })
+
 				u.save()
 					.then(() => {
 						done()
 					})
-					.catch((error) => {
-						expect(error).not.to.exist
-						done(new Error(error))
+					.catch((err) => {
+						expect(err).not.to.exist
+						done(new Error(err.message))
 					})
 			})
 
@@ -110,19 +114,21 @@ describe('Le model User', () => {
 			})
 
 			it('supprime un utilisateur', (done) => {
-				User.findOneAndDelete({ ref: 'dummy' }).then(() => {
-					User.find()
-						.then((user_list) => {
-							expect(user_list).to.be.an('Array').that.is.empty
-							done()
-						})
-						.catch((error) => {
-							done(new Error(error))
-						})
-						.catch((error) => {
-							done(new Error(error))
-						})
-				})
+				User.findOneAndDelete({ ref: 'dummy' })
+					.then(() => {
+						User.find()
+							.then((user_list) => {
+								expect(user_list).to.be.an('Array').that.is
+									.empty
+								done()
+							})
+							.catch((error) => {
+								done(new Error(error))
+							})
+					})
+					.catch((error) => {
+						done(new Error(error))
+					})
 			})
 		})
 	})
