@@ -34,7 +34,7 @@ const userSchema = mongoose.Schema(
 		},
 
 		agent: {
-			pro_phone_number: { type: String },
+			phonePro: { type: String },
 		},
 
 		seller: {
