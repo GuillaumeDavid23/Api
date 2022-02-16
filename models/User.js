@@ -1,4 +1,5 @@
-import mongoose from '../db/db.js'
+import mongoose from 'mongoose'
+// import mongoose from '../db/db.js'
 import Property from './Property.js'
 
 const userSchema = mongoose.Schema(

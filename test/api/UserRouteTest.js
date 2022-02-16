@@ -4,64 +4,98 @@ import API from '../../app.js'
 import mongoose from 'mongoose'
 import * as util from '../util.js'
 
-const user_info = {
-	email: 'b_rault@outlook.fr',
-	password: 'Azertyuiop12',
+mongoose.Promise = global.Promise
+
+const global_id = new mongoose.Types.ObjectId()
+
+const tmp_user = {
+	_id: global_id,
+	firstname: 'dummy',
+	lastname: 'dummy',
+	email: 'dummy@dummy.dum',
+	password: 'Dummy69',
+	newsletter: true,
 }
 
 describe('La UserRoutes', () => {
-	it('peut récupérer tous les utilisateurs', (done) => {
-		req(API).get('/api/user').expect(200, done)
+	var User,
+		api_path = '/api/user/'
+
+	before((done) => {
+		import('../../models/User.js')
+			.then(({ default: UserModel }) => {
+				User = UserModel
+				done()
+			})
+			.catch((err) => done(new Error(err.message)))
 	})
 
+	after((done) => {
+		done()
+	})
+
+	beforeEach((done) => {
+		const u = new User({ ...tmp_user })
+		u.save((err) => {
+			err ? done(newError(err.message)) : done()
+		})
+	})
+
+	afterEach((done) => {
+		mongoose.connection.collections.users.drop(() => done())
+	})
 	describe('sur la partie Signup', () => {
-		before((done) => {
-			mongoose.connect(util.mongo_path)
-		})
-
-		const tmp_user = {
-			firstname: 'dummy',
-			lastname: 'dummy',
-			email: 'dummy@dummy.dum',
-			password: 'Dummy69',
-			newsletter: true,
-		}
-
 		it("un utilisateur peut s'incrire", (done) => {
-			req(API).post('/api/user/signup').send(tmp_user).expect(201, done)
+			api_path = api_path + 'signup'
+			req(API)
+				.post(api_path)
+				.send({ ...tmp_user, email: 'autre@email.com' })
+				.expect(201, done)
+		})
+
+		describe('sur la partie Login', () => {
+			it('Peut connecter un utilisater', (done) => {
+				req(API)
+					.post('/api/user/login/')
+					.send(user_info)
+					.expect(200, done)
+			})
+
+			it('Renvoie une erreur 422 si email vide', (done) => {
+				const user_info = {
+					email: '',
+					password: 'azertyuiop',
+				}
+				req(API)
+					.post('/api/user/login/')
+					.send(user_info)
+					.expect(422, done)
+			})
+
+			it('Renvoie une erreur 422 si mot de passe vide', (done) => {
+				const user_info = {
+					email: 'b_rault@oulook.fr',
+					password: '',
+				}
+				req(API)
+					.post('/api/user/login/')
+					.send(user_info)
+					.expect(422, done)
+			})
+			it('Renvoie une erreur 401 si utilisateur inexistant', (done) => {
+				const user_info = {
+					email: 'b_rault@oulook.fr',
+					password: 'Azertyuiop503',
+				}
+				req(API)
+					.post('/api/user/login/')
+					.send(user_info)
+					.expect(401, done)
+			})
 		})
 	})
 
-	describe('sur la partie Login', () => {
-		it('Peut connecter un utilisater', (done) => {
-			req(API).post('/api/user/login/').send(user_info).expect(200, done)
-		})
-
-		it('Renvoie une erreur 422 si email vide', (done) => {
-			const user_info = {
-				email: '',
-				password: 'azertyuiop',
-			}
-			req(API).post('/api/user/login/').send(user_info).expect(422, done)
-		})
-
-		it('Renvoie une erreur 422 si mot de passe vide', (done) => {
-			const user_info = {
-				email: 'b_rault@oulook.fr',
-				password: '',
-			}
-			req(API).post('/api/user/login/').send(user_info).expect(422, done)
-		})
-		it('Renvoie une erreur 401 si utilisateur inexistant', (done) => {
-			const user_info = {
-				email: 'b_rault@oulook.fr',
-				password: 'Azertyuiop503',
-			}
-			req(API).post('/api/user/login/').send(user_info).expect(401, done)
-		})
-	})
-
-	describe('sur la partie Tokens', () => {
+	describe.skip('sur la partie Tokens', () => {
 		it("Renvoie un code 204 si le token n'est pas trouvé", (done) => {
 			const token = 'azertyuiop'
 
@@ -88,7 +122,7 @@ describe('La UserRoutes', () => {
 		})
 	})
 
-	describe('sur la partie Newsletter', () => {
+	describe.skip('sur la partie Newsletter', () => {
 		it.skip('Renvoie un code 400 sur un update sur utilisateur déjà inscrit', (done) => {
 			const id_user = ''
 			req(API)
