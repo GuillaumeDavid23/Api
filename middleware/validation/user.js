@@ -1,4 +1,4 @@
-import { body, param } from 'express-validator'
+import { body, param, check } from 'express-validator'
 import User from '../../models/User.js'
 
 const checkUserCommonBody = () => {
@@ -26,7 +26,8 @@ const checkUserCommonBody = () => {
 			.withMessage('Vous devez indiquer votre email.'),
 		body('email')
 			.if(body('email').notEmpty())
-			.isEmail(
+			.isEmail()
+			.withMessage(
 				"Le format de l'adresse email renseigné ne correspond pas à celui d'une adresse email (example@amaizon.fr)."
 			),
 
@@ -55,19 +56,40 @@ const checkUserCommonBody = () => {
 
 const checkBuyerBody = () => {
 	return [
+		body('buyer')
+			.notEmpty()
+			.withMessage("Il faut des informations d'acheteur"),
+
+		check('buyer.wishlist.*._id')
+			.notEmpty()
+			.isMongoId()
+			.withMessage("La propriété n'est pas valide"),
+
+		body('buyer.budgetMin')
+			.notEmpty()
+			.withMessage('Un budget minimum doit être renseigné'),
+
 		body('buyer.budgetMin')
 			.if(body('buyer.budgetMin').notEmpty())
 			.isInt({ min: 0 })
 			.withMessage(
-				'Le nombre de pièces doit être une valeur numérique entière positive.'
+				'Le budget doit être une valeur numérique entière positive.'
 			),
+
+		body('buyer.budgetMax')
+			.notEmpty()
+			.withMessage('Un budget maximum doit être renseigné'),
 
 		body('buyer.budgetMax')
 			.if(body('buyer.budgetMax').notEmpty())
 			.isInt({ min: 0 })
 			.withMessage(
-				'Le nombre de pièces doit être une valeur numérique entière positive.'
+				'Le budget doit être une valeur numérique entière positive.'
 			),
+
+		body('buyer.city')
+			.notEmpty()
+			.withMessage('Une ville de recherche doit être renseigné'),
 
 		body('buyer.city')
 			.if(body('buyer.city').notEmpty())
@@ -77,6 +99,10 @@ const checkBuyerBody = () => {
 			),
 
 		body('buyer.surfaceMin')
+			.notEmpty()
+			.withMessage('Une surface minimum doit être renseigné'),
+
+		body('buyer.surfaceMin')
 			.if(body('buyer.surfaceMin').notEmpty())
 			.isInt({ min: 1 })
 			.withMessage(
@@ -84,11 +110,19 @@ const checkBuyerBody = () => {
 			),
 
 		body('buyer.surfaceMax')
+			.notEmpty()
+			.withMessage('Une surface maximum doit être renseigné'),
+
+		body('buyer.surfaceMax')
 			.if(body('buyer.surfaceMax').notEmpty())
 			.isInt({ min: 1 })
 			.withMessage(
 				'Le nombre de pièces doit être une valeur numérique entière positive.'
 			),
+
+		body('buyer.type')
+			.notEmpty()
+			.withMessage('Un type de biens doit être renseigné'),
 
 		body('buyer.type')
 			.if(body('buyer.type').notEmpty())
@@ -101,17 +135,15 @@ const checkBuyerBody = () => {
 
 const checkSellerBody = () => {
 	return [
-		body('seller.isSelling')
-			.if(body('seller.isSelling').exists())
+		check('seller.propertiesList.*._id')
 			.notEmpty()
-			.isBoolean(),
+			.isMongoId()
+			.withMessage("La propriété n'est pas valide"),
 	]
 }
 
 const checkAgentBody = () => {
 	return [
-		body('agent.phonePro').notEmpty().isMobilePhone(['fr-FR', []]),
-
 		body('agent.phonePro')
 			.notEmpty()
 			.withMessage(
