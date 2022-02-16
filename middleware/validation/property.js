@@ -1,6 +1,10 @@
 import { body, param } from 'express-validator'
 import Property from '../../models/Property.js'
 
+const test = () => {
+	return [body('title').custom((title) => console.log('custom:', title))]
+}
+
 const checkPropertyBody = () => {
 	return [
 		body('title')
@@ -33,13 +37,13 @@ const checkPropertyBody = () => {
 				'Le prix doit être une valeur numérique entière positive.'
 			),
 
-		body('localisation')
+		body('location')
 			.notEmpty()
 			.withMessage(
 				'Vous devez indiquer la localisation de la propriété.'
 			),
-		body('localisation')
-			.if(body('localisation').notEmpty())
+		body('location')
+			.if(body('location').notEmpty())
 			.isString()
 			.withMessage(
 				"L'adresse doit correspondre à une chaine de caractères sans caractères spéciaux."
@@ -87,37 +91,37 @@ const checkPropertyBody = () => {
 				'Le type de transaction ne doit contenir que des lettres.'
 			),
 
-		body('lst_equipment')
-			.notEmpty()
-			.withMessage('Vous devez indiquer la liste des équipements.'),
-		body('lst_equipment')
-			.if(body('lst_equipment').notEmpty())
-			.isArray()
-			.withMessage('La liste des équipements doit-être un tableau.'),
+		// body('list_equipment')
+		// 	.notEmpty()
+		// 	.withMessage('Vous devez indiquer la liste des équipements.'),
+		// body('list_equipment')
+		// 	.if(body('list_equipment').notEmpty())
+		// 	.isArray()
+		// 	.withMessage('La liste des équipements doit-être un tableau.'),
 
-		body('lst_heater')
-			.notEmpty()
-			.withMessage(
-				'Vous devez indiquer les paramètres de chauffage de la propriété.'
-			),
-		body('lst_heater')
-			.if(body('lst_heater').notEmpty())
-			.isArray()
-			.withMessage(
-				"Les paramètres de chauffage doivent-être sous la forme d'un tableau."
-			),
+		// body('list_heater')
+		// 	.notEmpty()
+		// 	.withMessage(
+		// 		'Vous devez indiquer les paramètres de chauffage de la propriété.'
+		// 	),
+		// body('list_heater')
+		// 	.if(body('list_heater').notEmpty())
+		// 	.isArray()
+		// 	.withMessage(
+		// 		"Les paramètres de chauffage doivent-être sous la forme d'un tableau."
+		// 	),
 
-		body('lst_water')
-			.notEmpty()
-			.withMessage(
-				"Vous devez indiquer les paramètres de consommation d'eau de la propriété."
-			),
-		body('lst_water')
-			.if(body('lst_water').notEmpty())
-			.isArray()
-			.withMessage(
-				"Les paramètres de consommation d'eau doivent-être sous la forme d'un tableau."
-			),
+		// body('list_water')
+		// 	.notEmpty()
+		// 	.withMessage(
+		// 		"Vous devez indiquer les paramètres de consommation d'eau de la propriété."
+		// 	),
+		// body('list_water')
+		// 	.if(body('list_water').notEmpty())
+		// 	.isArray()
+		// 	.withMessage(
+		// 		"Les paramètres de consommation d'eau doivent-être sous la forme d'un tableau."
+		// 	),
 
 		body('electricMeterRef')
 			.notEmpty()
@@ -192,4 +196,4 @@ const checkPropertyExistence = () => {
 	]
 }
 
-export { checkPropertyBody, checkPropertyExistence }
+export { test, checkPropertyBody, checkPropertyExistence }

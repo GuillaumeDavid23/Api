@@ -4,14 +4,6 @@
 	"description": "Amaizon API Documentation",
 	"url": "http://127.0.0.1:8080",
 	"sampleUrl": "http://127.0.0.1:8080",
-	"header":{
-		"title":"Introduction",
-		"filename":"./apidoc/header.md"
-	},
-	"footer":{
-		"title":"En savoir plus",
-		"filename":"./apidoc/footer.md"
-	},
 	"template": {
 		"showRequiredLabels": false,
 		"forceLanguage": "fr",

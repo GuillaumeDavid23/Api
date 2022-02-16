@@ -2,6 +2,7 @@ import User from '../models/User.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
+import sendMail from '../util/mail.js'
 dotenv.config()
 
 //CREATE USER
@@ -484,16 +485,20 @@ const forgotPass = async (req, res) => {
 				error: 'Compte utilisateur désactivé !',
 			})
 		}
-		User.updateOne(
-			{ _id: user.id },
-			{
-				token: jwt.sign(
-					{ userId: user._id },
-					process.env.SECRET_TOKEN,
-					{ expiresIn: '5h' }
-				),
-			}
-		)
+
+		let token = jwt.sign({ userId: user._id }, process.env.SECRET_TOKEN, {
+			expiresIn: '5h',
+		})
+
+		await User.updateOne({ _id: user.id }, { token })
+
+		await sendMail('forgotPass', {
+			to: datas.email,
+			userId: user._id.valueOf(),
+			token,
+		})
+
+		res.status(200).json({ message: 'Email de réinitialisation envoyé.' })
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,

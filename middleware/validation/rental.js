@@ -101,7 +101,7 @@ const checkRentalExistence = () => {
 			.if(param('_id').notEmpty().isMongoId())
 			.custom(async (_id) => {
 				let rental = await Rental.findOne({ _id })
-				if (!rental) return Promise.reject('Rendez-vous non trouvé !')
+				if (!rental) return Promise.reject('Location non trouvé !')
 				return true
 			}),
 	]

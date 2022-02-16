@@ -1,5 +1,64 @@
 import Rental from '../models/Rental.js'
 
+/**
+ * @api {post} /api/inventory Créer une Location
+ * @apiName create
+ * @apiGroup Location
+ *
+ * @apiHeader {String} Authorization Token d'authentification
+ *
+ * @apiBody {ObejectId} id_agent ID de l'agent
+ * @apiBody {Boolean} inOut Location de sortie ou d'entrée
+ * @apiBody {String} userReference Référence client
+ * @apiBody {Date} date DAte de l'état des lieux
+ * @apiBody {String} previousBuyerRef Référence du précédent client
+ * @apiBody {Array} lst_statsMeters Liste des relevés compteurs
+ * @apiBody {Array} lst_roomDetails	Liste de l'état des pièces
+ *
+ * @apiSuccess {String} message Message de completion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": "Location enregistré !"",
+ *     }
+ *
+ * @apiError ValidationError Agent inexistant.
+ * @apiError ValidationError Utilisateur inexistant.
+ * @apiError ValidationError Utilisateur précédent inexistant.
+ * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample id_agentError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"id_agent": "Agent inexistant."
+ * 			}
+ * 		]
+ *     }
+ *
+ * @apiErrorExample userReferenceError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"userReference": "Utilisateur inexistant."
+ * 			}
+ * 		]
+ *     }
+ *
+ * @apiErrorExample previousBuyerRefError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"userReference": "Utilisateur précédent inexistant."
+ * 			}
+ * 		]
+ *     }
+ */
 const create = async (req, res) => {
 	try {
 		const rental = new Rental({
@@ -18,6 +77,65 @@ const create = async (req, res) => {
 	}
 }
 
+/**
+ * @api {put} /api/inventory/:_id Modifier un Location
+ * @apiName update
+ * @apiGroup Location
+ *
+ * @apiHeader {String} Authorization Token d'authentification
+ *
+ * @apiBody {ObejectId} id_agent ID de l'agent
+ * @apiBody {Boolean} inOut Location de sortie ou d'entrée
+ * @apiBody {String} userReference Référence client
+ * @apiBody {Date} date Date de l'état des lieux
+ * @apiBody {String} previousBuyerRef Référence du précédent client
+ * @apiBody {Array} lst_statsMeters Liste des relevés compteurs
+ * @apiBody {Array} lst_roomDetails	Liste de l'état des pièces
+ *
+ * @apiSuccess {String} message Message de complétion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Location modifiée !',
+ *     }
+ *
+ * @apiError ValidationError Agent inexistant.
+ * @apiError ValidationError Utilisateur inexistant.
+ * @apiError ValidationError Utilisateur précédent inexistant.
+ * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample id_agentError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"id_agent": "Agent inexistant."
+ * 			}
+ * 		]
+ *     }
+ *
+ * @apiErrorExample userReferenceError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"userReference": "Utilisateur inexistant."
+ * 			}
+ * 		]
+ *     }
+ *
+ * @apiErrorExample previousBuyerRefError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"userReference": "Utilisateur précédent inexistant."
+ * 			}
+ * 		]
+ *     }
+ */
 const update = async (req, res) => {
 	try {
 		await Rental.updateOne(
@@ -41,6 +159,37 @@ const update = async (req, res) => {
 	}
 }
 
+/**
+ * @api {delete} /api/appointment Supprimer un état des lieux
+ * @apiName delete
+ * @apiGroup Location
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {String} _id ID de l'Location.
+ *
+ * @apiSuccess {String} message Message de completion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": "Location supprimé !",
+ *     }
+ *
+ * @apiError ValidationError Location non trouvé !
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"_id": "Location non trouvé !"
+ * 			}
+ * 		]
+ *     }
+ */
 const erase = async (req, res) => {
 	try {
 		let rental = await Rental.findOne({
@@ -73,6 +222,24 @@ const erase = async (req, res) => {
 	}
 }
 
+/**
+ * @api {get} /api/transaction/ Récupérer tous les états des lieux
+ * @apiName getAll
+ * @apiGroup Location
+ * 
+ * @apiHeader {String} Authorization Token d'authentification
+ *
+ * @apiSuccess {Inventory} inventory Objet Location.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      "message": 'Location récupéré !',
+		"data": inventories,
+ *     }
+ *
+ * @apiError ServerError Erreur Serveur.
+ */
 const getAll = async (req, res) => {
 	try {
 		let rentals = await Rental.find()
@@ -88,6 +255,28 @@ const getAll = async (req, res) => {
 	}
 }
 
+/**
+ * @api {get} /api/transaction/:_id Récupérer un état des lieux
+ * @apiName getOne
+ * @apiGroup Location
+ * 
+ * @apiHeader {String} Authorization Token d'authentification
+ *
+ * @apiSuccess {Inventory} inventory Objet Location.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      "message": 'Location récupéré !',
+		"data": inventory,
+ *     }
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 204 OK
+ *
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ */
 const getOne = async (req, res) => {
 	try {
 		let rental = await Rental.findById(req.params._id)
