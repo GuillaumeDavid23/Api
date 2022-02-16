@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import mongoose from 'mongoose'
-import * as util from './util.js'
+import * as util from '../util.js'
 
 const global_id = new mongoose.Types.ObjectId()
 

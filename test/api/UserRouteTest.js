@@ -1,6 +1,9 @@
 import req from 'supertest'
 import API from '../../app.js'
 
+import mongoose from 'mongoose'
+import * as util from '../util.js'
+
 const user_info = {
 	email: 'b_rault@outlook.fr',
 	password: 'Azertyuiop12',
@@ -12,6 +15,10 @@ describe('La UserRoutes', () => {
 	})
 
 	describe('sur la partie Signup', () => {
+		before((done) => {
+			mongoose.connect(util.mongo_path)
+		})
+
 		const tmp_user = {
 			firstname: 'dummy',
 			lastname: 'dummy',

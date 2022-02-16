@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import { expect } from 'chai'
-import { mongo_path } from './util.js'
+import { mongo_path } from '../util.js'
 
 mongoose.Promise = global.Promise
 
