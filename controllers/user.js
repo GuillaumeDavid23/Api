@@ -419,7 +419,7 @@ const login = async (req, res) => {
 				status_code: 401,
 				error: 'Utilisateur non trouvé !',
 			})
-		if (user.status == false && deletedAt == undefined) {
+		if (user.status == false && user.deletedAt == undefined) {
 			let token = jwt.sign(
 				{ userId: user._id },
 				process.env.SECRET_TOKEN,
@@ -433,7 +433,7 @@ const login = async (req, res) => {
 				error: 'Vérification par email nécessaire.',
 			})
 		}
-		if (user.status == false && deletedAt != undefined) {
+		if (user.status == false && user.deletedAt != undefined) {
 			return res.status(403).json({
 				status_code: 403,
 				error: 'Compte utilisateur désactivé.',
