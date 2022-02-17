@@ -20,7 +20,8 @@ import Rental from '../models/Rental.js'
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": "Location enregistré !"",
+ * 		"status_code": 201,
+ *       	"message": "Location enregistré !"",
  *     }
  *
  * @apiError ValidationError Agent inexistant.
@@ -32,31 +33,37 @@ import Rental from '../models/Rental.js'
  * @apiErrorExample id_agentError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"id_agent": "Agent inexistant."
- * 			}
- * 		]
+ *  		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"id_agent": "Agent inexistant."
+ * 				}
+ * 			]
  *     }
  *
  * @apiErrorExample userReferenceError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"userReference": "Utilisateur inexistant."
- * 			}
- * 		]
+ *  		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"userReference": "Utilisateur inexistant."
+ * 				}
+ * 			]
  *     }
  *
  * @apiErrorExample previousBuyerRefError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"userReference": "Utilisateur précédent inexistant."
- * 			}
- * 		]
+ *   		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"userReference": "Utilisateur précédent inexistant."
+ * 				}
+ * 			]
  *     }
  */
 const create = async (req, res) => {
@@ -67,13 +74,10 @@ const create = async (req, res) => {
 		await rental.save()
 		res.status(201).json({
 			status_code: 201,
-			message: 'Location enregistrée !',
+			message: 'Location enregistrée.',
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -95,45 +99,53 @@ const create = async (req, res) => {
  * @apiSuccess {String} message Message de complétion.
  *
  * @apiSuccessExample Success-Response:
- *     HTTP/1.1 201 OK
+ *     HTTP/1.1 200 OK
  *     {
- *       "message": 'Location modifiée !',
+ * 		"status_code": 200,
+ *       	"message": 'Location modifiée.',
  *     }
  *
  * @apiError ValidationError Agent inexistant.
  * @apiError ValidationError Utilisateur inexistant.
  * @apiError ValidationError Utilisateur précédent inexistant.
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample id_agentError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"id_agent": "Agent inexistant."
- * 			}
- * 		]
+ *  		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"id_agent": "Agent inexistant."
+ * 				}
+ * 			]
  *     }
  *
  * @apiErrorExample userReferenceError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"userReference": "Utilisateur inexistant."
- * 			}
- * 		]
+ *   		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"userReference": "Utilisateur inexistant."
+ * 				}
+ * 			]
  *     }
  *
  * @apiErrorExample previousBuyerRefError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"userReference": "Utilisateur précédent inexistant."
- * 			}
- * 		]
+ *  		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"userReference": "Utilisateur précédent inexistant."
+ * 				}
+ * 			]
  *     }
  */
 const update = async (req, res) => {
@@ -149,13 +161,10 @@ const update = async (req, res) => {
 		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'Location modifiée !',
+			message: 'Location modifiée.',
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -173,7 +182,8 @@ const update = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": "Location supprimé !",
+ * 		"status_code": 200,
+ *       	"message": "Location supprimé.",
  *     }
  *
  * @apiError ValidationError Location non trouvé !
@@ -183,11 +193,13 @@ const update = async (req, res) => {
  * @apiErrorExample _idError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"_id": "Location non trouvé !"
- * 			}
- * 		]
+ *   		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Location non trouvé."
+ * 				}
+ * 			]
  *     }
  */
 const erase = async (req, res) => {
@@ -198,13 +210,13 @@ const erase = async (req, res) => {
 		if (!rental) {
 			return res.status(404).json({
 				status_code: 404,
-				error: 'Location non trouvée !',
+				error: 'Location non trouvée.',
 			})
 		}
 		if (rental.userId !== req.auth.userId) {
 			return res.status(401).json({
 				status_code: 401,
-				error: 'Requête non autorisée !',
+				error: 'Requête non autorisée.',
 			})
 		}
 		await Rental.deleteOne({
@@ -212,13 +224,10 @@ const erase = async (req, res) => {
 		})
 		res.status(200).json({
 			status_code: 200,
-			message: 'Location supprimée !',
+			message: 'Location supprimée.',
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -226,7 +235,7 @@ const erase = async (req, res) => {
  * @api {get} /api/transaction/ Récupérer tous les états des lieux
  * @apiName getAll
  * @apiGroup Location
- * 
+ *
  * @apiHeader {String} Authorization Token d'authentification
  *
  * @apiSuccess {Inventory} inventory Objet Location.
@@ -234,8 +243,9 @@ const erase = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *      "message": 'Location récupéré !',
-		"data": inventories,
+ * 		"status_code": 200,
+ *      	"message": "Locations récupérées.",
+ *		"rentals": {rentals},
  *     }
  *
  * @apiError ServerError Erreur Serveur.
@@ -245,13 +255,11 @@ const getAll = async (req, res) => {
 		let rentals = await Rental.find()
 		res.status(200).json({
 			status_code: 200,
-			datas: rentals,
+			message: 'Locations récupérées.',
+			rentals,
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -259,7 +267,7 @@ const getAll = async (req, res) => {
  * @api {get} /api/transaction/:_id Récupérer un état des lieux
  * @apiName getOne
  * @apiGroup Location
- * 
+ *
  * @apiHeader {String} Authorization Token d'authentification
  *
  * @apiSuccess {Inventory} inventory Objet Location.
@@ -267,8 +275,9 @@ const getAll = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *      "message": 'Location récupéré !',
-		"data": inventory,
+ * 		"status_code": 200,
+ *      	"message": "Location récupérée.",
+ *		"rental": {rental},
  *     }
  *
  * @apiSuccessExample Success-Response:
@@ -283,19 +292,17 @@ const getOne = async (req, res) => {
 		if (rental) {
 			res.status(200).json({
 				status_code: 200,
-				datas: rental,
+				message: 'Location récupérée.',
+				rental,
 			})
 		} else {
 			res.status(204).json({
 				status_code: 204,
-				message: 'Location inexistante',
+				message: 'Location inexistante.',
 			})
 		}
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 

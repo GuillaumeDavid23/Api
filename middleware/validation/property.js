@@ -190,7 +190,7 @@ const checkPropertyExistence = () => {
 			.if(param('_id').notEmpty().isMongoId())
 			.custom(async (_id) => {
 				let property = await Property.findOne({ _id })
-				if (!property) return Promise.reject('Propriété non trouvé !')
+				if (!property) return Promise.reject('Propriété non trouvé.')
 				return true
 			}),
 	]
