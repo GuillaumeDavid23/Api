@@ -12,7 +12,7 @@ const userSchema = mongoose.Schema(
 		token: { type: String },
 		phone: { type: String },
 		newsletter: { type: Boolean, default: 0 },
-		status: { type: Boolean, required: true, default: true },
+		status: { type: Boolean, required: true, default: false },
 		ref: { type: String },
 
 		//Roles:
