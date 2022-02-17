@@ -17,18 +17,14 @@ import Transaction from '../models/Transaction.js'
  * @apiSuccess {String} message Message de complétion.
  *
  * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
+ *     HTTP/1.1 201 OK
  *     {
- *       "message": 'Transaction enregistrée !',
+ * 			"status_code": 201,
+ *       "message": "Transaction enregistrée.",
  *     }
  *
+ * @apiError ValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
- *     {
- *       "error": "Transaction non créée !"
- *     }
  */
 const create = async (req, res) => {
 	try {
@@ -38,13 +34,10 @@ const create = async (req, res) => {
 		transaction.save()
 		res.status(201).json({
 			status_code: 201,
-			message: 'Transaction enregistrée !',
+			message: 'Transaction enregistrée.',
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -65,17 +58,27 @@ const create = async (req, res) => {
  * @apiSuccess {String} message Message de complétion.
  *
  * @apiSuccessExample Success-Response:
- *     HTTP/1.1 201 OK
+ *     HTTP/1.1 200 OK
  *     {
- *       "message": 'Transaction modifiée !',
+ * 		"status_code": 200,
+ *       	"message": "Transaction modifiée.",
  *     }
  *
+ * @apiError ValidationError Transaction non trouvé.
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "error": "Transaction non modifiée !"
+ *  		"status_code": 422,
+ * 			"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Transaction non trouvé."
+ * 				}
+ * 			]
  *     }
  */
 const update = async (req, res) => {
@@ -91,13 +94,10 @@ const update = async (req, res) => {
 		)
 		res.status(201).json({
 			status_code: 201,
-			message: 'Transaction modifiée !',
+			message: 'Transaction modifiée.',
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -107,21 +107,30 @@ const update = async (req, res) => {
  * @apiGroup Transaction
  *
  * @apiHeader {String} Authorization Token d'authentification
- * @apiSuccess {String} message Transaction supprimée !.
+ * @apiSuccess {String} message Transaction supprimée..
  *
  *
  * @apiSuccessExample Success-Response:
- *     HTTP/1.1 201 OK
+ *     HTTP/1.1 200 OK
  *     {
- *      "message": 'Transaction supprimée !',
+ * 		"status_code": 200,
+ *      	"message": "Transaction supprimée.",
  *     }
  *
- * @apiError UserNotFound Aucune transaction.
+ * @apiError ValidationError Transaction non trouvé.
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "error": "Impossible de supprimer cette transaction !"
+ *  	"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Transaction non trouvé."
+ * 				}
+ * 			]
  *     }
  */
 const erase = async (req, res) => {
@@ -130,7 +139,7 @@ const erase = async (req, res) => {
 		await Transaction.deleteOne({ _id: req.params.id })
 		res.status(200).json({
 			status_code: 200,
-			message: 'Transaction supprimée !',
+			message: 'Transaction supprimée.',
 		})
 	} catch (error) {
 		res.status(500).json({ status_code: 500, error: error.message })
@@ -141,7 +150,7 @@ const erase = async (req, res) => {
  * @api {get} /api/transaction/ Récupérer toutes les transactions
  * @apiName getAll
  * @apiGroup Transaction
- * 
+ *
  * @apiHeader {String} Authorization Token d'authentification
  *
  * @apiSuccess {Transaction} transaction Objet Transaction.
@@ -149,30 +158,23 @@ const erase = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *      "message": 'Transaction récupéré !',
-		"data": transactions,
+ * 			"status_code": 200,
+ *      	"message": "Transaction récupérées.",
+ *			"transactions": {transactions},
  *     }
  *
- * @apiError TransactionNotFound Aucune Transaction.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
- *     {
- *       "error": "Aucune Transaction trouvée !"
- *     }
+ * @apiError ServerError Erreur Serveur.
  */
 const getAll = async (req, res) => {
 	try {
 		let transactions = await Transaction.find()
 		res.status(200).json({
 			status_code: 200,
-			datas: transactions,
+			message: 'Transactions récupérées.',
+			transactions,
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -180,7 +182,7 @@ const getAll = async (req, res) => {
  * @api {get} /api/transaction/:_id Récupérer une transaction
  * @apiName getOne
  * @apiGroup Transaction
- * 
+ *
  * @apiHeader {String} Authorization Token d'authentification
  *
  * @apiParam {Number} _id ID de la transaction.
@@ -190,17 +192,16 @@ const getAll = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *      "message": 'Transaction récupéré !',
-		"data": transaction,
+ * 		"status_code": 200,
+ *      	"message": 'Transaction récupérée.',
+ *			"transaction": {transaction},
  *     }
  *
- * @apiError TransactionNotFound Aucune Transaction.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 204 OK
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
- *     {
- *       "error": "Transaction non trouvé !"
- *     }
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
  */
 const getOne = async (req, res) => {
 	try {
@@ -208,19 +209,14 @@ const getOne = async (req, res) => {
 		if (transaction) {
 			res.status(200).json({
 				status_code: 200,
-				data: transaction,
+				message: 'Transaction récupérée.',
+				transaction,
 			})
 		} else {
-			res.status(204).json({
-				status_code: 204,
-				message: 'Aucune transaction',
-			})
+			res.status(204)
 		}
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 

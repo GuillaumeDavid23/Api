@@ -35,7 +35,8 @@ import { asyncForEach } from '../util/functions.js'
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": "Propriété enregistrée !"",
+ * 		"status_code": 201,
+ *       	"message": "Propriété enregistrée.",
  *     }
  *
  * @apiError ValidationError Erreurs générales sur les formats de données.
@@ -54,13 +55,10 @@ const createProperty = async (req, res) => {
 		await sendAlert(req.body, newProperty._id.valueOf())
 		res.status(201).json({
 			status_code: 201,
-			message: 'Propriété enregistrée !',
+			message: 'Propriété enregistrée.',
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -75,8 +73,9 @@ const createProperty = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": "Liste de Propriétés récupérée !",
- *       "data": properties,
+ *  		"status_code": 200,
+ *       	"message": "Liste de Propriétés récupérée.",
+ *       	"properties": {properties},
  *     }
  *
  * @apiError ServerError Erreur Serveur
@@ -86,14 +85,11 @@ const getAllProperties = async (req, res) => {
 		let properties = await Property.find()
 		res.status(200).json({
 			status_code: 200,
-			message: 'Liste des propriétés récupérée !',
-			data: properties,
+			message: 'Liste des propriétés récupérée.',
+			properties,
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -110,8 +106,9 @@ const getAllProperties = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": "Propriété récupérée !",
- *       "data": property,
+ * 		"status_code": 200,
+ *       	"message": "Propriété récupérée.",
+ *       	"property": {property},
  *     }
  *
  * @apiSuccessExample Success-Response:
@@ -128,20 +125,14 @@ const getPropertyById = async (req, res) => {
 		if (property) {
 			res.status(200).json({
 				status_code: 200,
-				message: 'Propriété récupérée !',
-				data: property,
+				message: 'Propriété récupérée.',
+				property,
 			})
 		} else {
-			res.status(204).json({
-				status_code: 204,
-				message: 'Aucune propriété !',
-			})
+			res.status(204)
 		}
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -179,9 +170,11 @@ const getPropertyById = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": "Propriété actualisée !",
+ * 		"status_code": 200,
+ *       	"message": "Propriété actualisée.",
  *     }
  *
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  */
@@ -189,7 +182,7 @@ const updateProperty = async (req, res) => {
 	let datas = Object.keys(req.params).length === 0 ? req.query : req.params
 
 	try {
-		const property = req.file
+		req.file
 			? {
 					...JSON.parse(req.body),
 					imageUrl: `${req.protocol}://${req.get('host')}/uploads/${
@@ -209,10 +202,7 @@ const updateProperty = async (req, res) => {
 			message: 'Propriété modifiée !',
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -231,21 +221,24 @@ const updateProperty = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": "Propriété supprimée !",
+ * 		"status_code": 200,
+ *       	"message": "Propriété supprimée !",
  *     }
  *
- * @apiError ValidationError Propriété non trouvé !
+ * @apiError ValidationError Propriété non trouvé.
  * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample _idError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"_id": "Propriété non trouvé !"
- * 			}
- * 		]
+ * 		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Propriété non trouvé."
+ * 				}
+ * 			]
  *     }
  */
 const deleteProperty = async (req, res) => {
@@ -271,14 +264,11 @@ const deleteProperty = async (req, res) => {
 			await Property.deleteOne({ _id: req.params._id })
 			return res.status(200).json({
 				status_code: 200,
-				message: 'Propriété supprimée !',
+				message: 'Propriété supprimée.',
 			})
 		}
 	} catch (error) {
-		return res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 

@@ -21,6 +21,8 @@ const validation = (req, res, next) => {
 	errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }))
 
 	return res.status(422).json({
+		status_code: 422,
+		message: 'La validation à échouée.',
 		errors: extractedErrors,
 	})
 }

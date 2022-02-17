@@ -3,12 +3,11 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import sendMail from '../util/mail.js'
-import mongoose from '../db/db.js'
 dotenv.config()
 
 //CREATE USER
 /**
- * @api {post} /api/user Créer un utilisateur
+ * @api {post} /api/user 1.2 - Créer un utilisateur
  * @apiName create
  * @apiGroup Utilisateur
  *
@@ -78,7 +77,7 @@ const create = async (req, res) => {
 
 //UPDATE USER
 /**
- * @api {put} /api/user/:_id Mettre à jour un utilisateur
+ * @api {put} /api/user/:_id 1.3 - Mettre à jour un utilisateur
  * @apiName update
  * @apiGroup Utilisateur
  *
@@ -176,7 +175,7 @@ const update = async (req, res) => {
 
 //GET ONE USER
 /**
- * @api {get} /api/user/:_id Récupérer un utilisateur
+ * @api {get} /api/user/:_id 1.4 - Récupérer un utilisateur
  * @apiName getOne
  * @apiGroup Utilisateur
  *
@@ -228,7 +227,7 @@ const getOne = async (req, res) => {
 
 //GET ALL USER
 /**
- * @api {get} /api/user/ Récupérer tous les utilisateurs
+ * @api {get} /api/user/ 1.5 - Récupérer tous les utilisateurs
  * @apiName getAll
  * @apiGroup Utilisateur
  *
@@ -280,7 +279,7 @@ const getAll = async (req, res) => {
 
 //GET DELETE
 /**
- * @api {PUT} /api/user/delete/:_id Supprimer un utilisateur
+ * @api {PUT} /api/user/delete/:_id 1.6 - Supprimer un utilisateur
  * @apiName deleteOne
  * @apiGroup Utilisateur
  *
@@ -331,7 +330,7 @@ const deleteOne = async (req, res) => {
 
 //SIGNUP USER
 /**
- * @api {post} /api/user/signup Inscrire un utilisateur
+ * @api {post} /api/user/signup 1.1 - Inscrire un utilisateur
  * @apiName signup
  * @apiGroup Utilisateur
  *
@@ -398,7 +397,7 @@ const signup = async (req, res) => {
 
 //LOGIN USER
 /**
- * @api {post} /api/user/login Authentifier un utilisateur
+ * @api {post} /api/user/login 1 - Authentifier un utilisateur
  * @apiName login
  * @apiGroup Utilisateur
  *
@@ -420,10 +419,24 @@ const login = async (req, res) => {
 				status_code: 401,
 				error: 'Utilisateur non trouvé !',
 			})
-		if (user.status == false) {
+		if (user.status == false && deletedAt == undefined) {
+			let token = jwt.sign(
+				{ userId: user._id },
+				process.env.SECRET_TOKEN,
+				{
+					expiresIn: '5h',
+				}
+			)
+			sendMail('emailVerification', { to: user.email, token })
 			return res.status(403).json({
 				status_code: 403,
-				error: 'Compte utilisateur désactivé !',
+				error: 'Vérification par email nécessaire.',
+			})
+		}
+		if (user.status == false && deletedAt != undefined) {
+			return res.status(403).json({
+				status_code: 403,
+				error: 'Compte utilisateur désactivé.',
 			})
 		}
 		let valid = await bcrypt.compare(datas.password, user.password)
@@ -433,14 +446,13 @@ const login = async (req, res) => {
 				error: 'Mot de passe incorrect !',
 			})
 		}
-		const token = jwt.sign({ user: user._id }, process.env.SECRET_TOKEN, {
+		const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
 			expiresIn: '24h',
 		})
-		await User.updateOne({ _id: user._id }, { token: token })
 		res.status(200).json({
 			status_code: 200,
 			userId: user._id,
-			token: token,
+			token,
 			message: 'Utilisateur connecté !',
 		})
 	} catch (error) {
@@ -450,9 +462,36 @@ const login = async (req, res) => {
 		})
 	}
 }
+
+const verifyEmail = async (req, res) => {
+	try {
+		const decodedToken = jwt.verify(
+			req.params.token,
+			process.env.SECRET_TOKEN
+		)
+		const userId = decodedToken.userId.valueOf()
+
+		const user = await User.findOne({ _id: userId })
+		if (user) {
+			await User.updateOne({ _id: userId }, { status: 1 })
+			res.status(200).json({
+				status_code: 200,
+				message: 'Vérification réussie.',
+			})
+		} else {
+			res.status(204).json({
+				status_code: 204,
+				message: 'Aucun utilisateur',
+			})
+		}
+	} catch (error) {
+		res.status(500).json({ status_code: 500, error: error.message })
+	}
+}
+
 //USER FORGOT PASSWORD
 /**
- * @api {post} /api/forgot Créer un token de réinitilisation
+ * @api {post} /api/forgot 5 - Créer un token de réinitilisation
  * @apiName forgotPass
  * @apiGroup Utilisateur
  *
@@ -489,13 +528,9 @@ const forgotPass = async (req, res) => {
 			expiresIn: '5h',
 		})
 
-		await User.updateOne({ _id: user.id }, { token })
+		await User.updateOne({ _id: user._id }, { token })
 
-		await sendMail('forgotPass', {
-			to: datas.email,
-			userId: user._id.valueOf(),
-			token,
-		})
+		await sendMail('forgotPass', { to: datas.email, token })
 
 		res.status(200).json({ message: 'Email de réinitialisation envoyé.' })
 	} catch (error) {
@@ -508,7 +543,7 @@ const forgotPass = async (req, res) => {
 
 //CHECK RESEST PASSWORD TOKEN
 /**
- * @api {get} /api/user/check/:token Vérifier le token utilisateur
+ * @api {get} /api/user/check/:token 5.1 - Vérifier le token utilisateur
  * @apiName checkResetToken
  * @apiGroup Utilisateur
  *
@@ -533,7 +568,13 @@ const forgotPass = async (req, res) => {
  */
 const checkResetToken = async (req, res) => {
 	try {
-		const user = await User.findOne({ token: req.params.token })
+		const decodedToken = jwt.verify(
+			req.params.token,
+			process.env.SECRET_TOKEN
+		)
+		const userId = decodedToken.userId
+
+		const user = await User.findOne({ _id: userId })
 		if (user) {
 			res.status(200).json({
 				status_code: 200,
@@ -599,7 +640,7 @@ const unsetNewsletter = async (req, res) => {
 
 //GET ALL AGENTS
 /**
- * @api {get} /api/user/agents Récupérer tous les agents
+ * @api {get} /api/user/agents 4 - Récupérer tous les agents
  * @apiName getAgents
  * @apiGroup Utilisateur
  * 
@@ -639,7 +680,7 @@ const getAgents = async (req, res) => {
 
 //Check AVAILABILITIES OF AGENT
 /**
- * @api {post} /api/user/agentAvailabilities Vérifier ses disponibilités
+ * @api {post} /api/user/agentAvailabilities 4.1 - Vérifier les disponibilités d'un agent
  * @apiName checkAgentAvailabilities
  * @apiGroup Utilisateur
  *
@@ -734,7 +775,7 @@ const checkAgentAvailabilities = async (req, res) => {
 
 //GET ALL BUYERS
 /**
- * @api {get} /api/user/buyers Récupérer tous les acheteurs
+ * @api {get} /api/user/buyers 2 - Récupérer tous les acheteurs
  * @apiName getBuyers
  * @apiGroup Utilisateur
  * 
@@ -773,14 +814,36 @@ const getBuyers = async (req, res) => {
 	}
 }
 
+//UPDATE WishList USER
+/**
+ * @api {put} /api/user/wishlist/ 2.1 - Ajouter un favori
+ * @apiName addToWishlist
+ * @apiGroup Utilisateur
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiBody {ObjectId} idProperty id de la propriété à ajouter
+ *
+ * @apiSuccess {String} message Favori ajouté !
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Favori ajouté !',
+ *     }
+ *
+ * @apiError ServerError Utilisateur non modifié.
+ */
 const addToWishlist = async (req, res) => {
 	try {
-		const wishlist = await User.findById(req.auth.user.id).wishlist
-		wishlist.push(req.body.idProperty)
-		await User.updateOne({ _id: req.auth.user.id }, { wishlist })
+		let user = await User.findById(req.auth.user._id)
+		await User.updateOne(
+			{ _id: user._id },
+			{ $push: { 'buyer.wishlist': req.body.idProperty } }
+		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'Propriété ajouté à la wishlist !',
+			message: 'Favori ajouté !',
 		})
 	} catch (error) {
 		res.status(500).json({
@@ -790,14 +853,124 @@ const addToWishlist = async (req, res) => {
 	}
 }
 
+//UPDATE WishList USER
+/**
+ * @api {delete} /api/user/wishlist/ 2.2 - Supprimer un favori
+ * @apiName removeOfWishlist
+ * @apiGroup Utilisateur
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiBody {ObjectId} ObjectId id de la propriété à supprimer
+ *
+ * @apiSuccess {String} message Favori supprimé !
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Favori supprimé !',
+ *     }
+ *
+ * @apiError ServerError Utilisateur non modifié.
+ */
 const removeOfWishlist = async (req, res) => {
 	try {
-		const wishlist = await User.findById(req.auth.user.id).wishlist
-		wishlist = wishlist.filter((wish) => wish !== req.body.idProperty)
-		await User.updateOne({ _id: req.auth.user.id }, { wishlist })
+		let user = await User.findById(req.auth.user._id)
+
+		await User.updateOne(
+			{ _id: user._id },
+			{
+				$pull: {
+					'buyer.wishlist': req.body.idProperty,
+				},
+			}
+		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'Propriété retiré à la wishlist !',
+			message: 'Favori supprimé !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
+//UPDATE PropertyList USER
+/**
+ * @api {put} /api/user/property/ 3.1 - Ajouter une proprieté dans la liste d'un vendeur
+ * @apiName addToPropertyList
+ * @apiGroup Utilisateur
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiBody {ObjectId} idProperty id de la propriété à ajouter
+ *
+ * @apiSuccess {String} message Favori ajouté !
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Favori ajouté !',
+ *     }
+ *
+ * @apiError ServerError Utilisateur non modifié.
+ */
+const addToPropertyList = async (req, res) => {
+	try {
+		let user = await User.findById(req.auth.user._id)
+		await User.updateOne(
+			{ _id: user._id },
+			{ $push: { 'seller.propertiesList': req.body.idProperty } }
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'Propriété ajouté à la liste !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
+//UPDATE PropertyList USER
+/**
+ * @api {delete} /api/user/property/ 3.2 - Supprimer une proprieté dans la liste d'un vendeur
+ * @apiName removeOfPropertyList
+ * @apiGroup Utilisateur
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiBody {ObjectId} ObjectId id de la propriété à supprimer
+ *
+ * @apiSuccess {String} message Favori supprimé !
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Favori supprimé !',
+ *     }
+ *
+ * @apiError ServerError Utilisateur non modifié.
+ */
+const removeOfPropertyList = async (req, res) => {
+	try {
+		let user = await User.findById(req.auth.user._id)
+
+		await User.updateOne(
+			{ _id: user._id },
+			{
+				$pull: {
+					'seller.propertiesList': req.body.idProperty,
+				},
+			}
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'Propriété supprimé de la liste !',
 		})
 	} catch (error) {
 		res.status(500).json({
@@ -809,7 +982,7 @@ const removeOfWishlist = async (req, res) => {
 
 //GET ALL SELLERS
 /**
- * @api {get} /api/user/sellers Récupérer tous les vendeurs
+ * @api {get} /api/user/sellers  3 - Récupérer tous les vendeurs
  * @apiName getSellers
  * @apiGroup Utilisateur
  * 
@@ -856,6 +1029,7 @@ export {
 	deleteOne,
 	login,
 	signup,
+	verifyEmail,
 	forgotPass,
 	checkResetToken,
 	setNewsletter,
@@ -866,4 +1040,6 @@ export {
 	addToWishlist,
 	removeOfWishlist,
 	getSellers,
+	addToPropertyList,
+	removeOfPropertyList,
 }

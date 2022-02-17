@@ -34,14 +34,27 @@ export default async (method, infos) => {
 
 		case 'forgotPass':
 			var from = `"Amaizon" <${process.env.mailAmaizon}>`
-			var { to, userId, token } = infos
+			var { to, token } = infos
 			var subject = 'Réinitialisation de mot de passe.'
 			var body = `Bonjour<br>
 			Une demande de réinitialisation de mot de passe a été sollicité de votre part.
             Veuillez vous rendre sur la page dédié en cliquant 
             sur ce lien:<br>
             <a href="https://amaizon.fr/resetPassword/${userId}/${token}">
-            https://amaizon.fr/resetPassword/${userId}/${token}
+            https://amaizon.fr/resetPassword/${token}
+            </a><br><br>
+			Cordialement,<br>
+			L'équipe Amaizon`
+
+		case 'emailVerification':
+			var from = `"Amaizon" <${process.env.mailAmaizon}>`
+			var { to, token } = infos
+			var subject = 'Vérification de votre email.'
+			var body = `Bonjour<br>
+			Merci d'avoir créer un compte sur notre site web Amaizon.<br>
+			Une vérification par email est nécessaire, merci de cliquer sur le lien suivant pour y procéder:<br>
+            <a href="https://amaizon.fr/emailVerification/${token}">
+            https://amaizon.fr/emailVerification/${token}
             </a><br><br>
 			Cordialement,<br>
 			L'équipe Amaizon`

@@ -20,7 +20,8 @@ import Inventory from '../models/Inventory.js'
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": "Etat des lieux enregistré !"",
+ * 		"status_code": 201,
+ *       	"message": "Etat des lieux enregistré.",
  *     }
  *
  * @apiError ValidationError Agent inexistant.
@@ -32,31 +33,37 @@ import Inventory from '../models/Inventory.js'
  * @apiErrorExample id_agentError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"id_agent": "Agent inexistant."
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"id_agent": "Agent inexistant."
+ * 				}
+ * 			]
  *     }
  *
  * @apiErrorExample userReferenceError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"userReference": "Utilisateur inexistant."
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"userReference": "Utilisateur inexistant."
+ * 				}
+ * 			]
  *     }
  *
  * @apiErrorExample previousBuyerRefError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"userReference": "Utilisateur précédent inexistant."
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"userReference": "Utilisateur précédent inexistant."
+ * 				}
+ * 			]
  *     }
  */
 const create = async (req, res) => {
@@ -67,13 +74,10 @@ const create = async (req, res) => {
 		await inventory.save()
 		res.status(201).json({
 			status_code: 201,
-			message: 'Etat des lieux enregistrée !',
+			message: 'Etat des lieux enregistré.',
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -97,43 +101,51 @@ const create = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": 'Etat des lieux modifiée !',
+ * 		"status_code": 200,
+ *       	"message": "Etat des lieux modifié.",
  *     }
  *
  * @apiError ValidationError Agent inexistant.
  * @apiError ValidationError Utilisateur inexistant.
  * @apiError ValidationError Utilisateur précédent inexistant.
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample id_agentError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"id_agent": "Agent inexistant."
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"id_agent": "Agent inexistant."
+ * 				}
+ * 			]
  *     }
  *
  * @apiErrorExample userReferenceError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"userReference": "Utilisateur inexistant."
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"userReference": "Utilisateur inexistant."
+ * 				}
+ * 			]
  *     }
  *
  * @apiErrorExample previousBuyerRefError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"userReference": "Utilisateur précédent inexistant."
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"userReference": "Utilisateur précédent inexistant."
+ * 				}
+ * 			]
  *     }
  */
 const update = async (req, res) => {
@@ -144,13 +156,10 @@ const update = async (req, res) => {
 		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'Etat des lieux modifiée !',
+			message: 'Etat des lieux modifié.',
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -169,7 +178,8 @@ const update = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": "Etat des lieux supprimé !",
+ * 		"status_code": 200,
+ *       	"message": "Etat des lieux supprimé.",
  *     }
  *
  * @apiError ValidationError Etat des lieux non trouvé !
@@ -179,11 +189,13 @@ const update = async (req, res) => {
  * @apiErrorExample _idError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"_id": "Etat des lieux non trouvé !"
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Etat des lieux non trouvé."
+ * 				}
+ * 			]
  *     }
  */
 const erase = async (req, res) => {
@@ -191,7 +203,7 @@ const erase = async (req, res) => {
 		await Inventory.deleteOne({ _id: req.params.id })
 		res.status(200).json({
 			status_code: 200,
-			message: 'Etat des lieux supprimée !',
+			message: 'Etat des lieux supprimé !',
 		})
 	} catch (error) {
 		res.status(500).json({ status_code: 500, error: error.message })
@@ -202,7 +214,7 @@ const erase = async (req, res) => {
  * @api {get} /api/transaction/ Récupérer tous les états des lieux
  * @apiName getAll
  * @apiGroup Etat des lieux
- * 
+ *
  * @apiHeader {String} Authorization Token d'authentification
  *
  * @apiSuccess {Inventory} inventory Objet Etat des lieux.
@@ -210,8 +222,9 @@ const erase = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *      "message": 'Etat des lieux récupéré !',
-		"data": inventories,
+ * 		"status_code": 200,
+ *      	"message": "Etats des lieux récupérés.",
+ *		"inventories": {inventories},
  *     }
  *
  * @apiError ServerError Erreur Serveur.
@@ -219,12 +232,13 @@ const erase = async (req, res) => {
 const getAll = async () => {
 	try {
 		let inventories = await Inventory.find()
-		res.status(200).json(inventories)
-	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
+		res.status(200).json({
+			status_code: 200,
+			message: 'Etats des lieux récupérés.',
+			inventories,
 		})
+	} catch (error) {
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -232,7 +246,7 @@ const getAll = async () => {
  * @api {get} /api/transaction/:_id Récupérer un état des lieux
  * @apiName getOne
  * @apiGroup Etat des lieux
- * 
+ *
  * @apiHeader {String} Authorization Token d'authentification
  *
  * @apiSuccess {Inventory} inventory Objet Etat des lieux.
@@ -240,8 +254,9 @@ const getAll = async () => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *      "message": 'Etat des lieux récupéré !',
-		"data": inventory,
+ * 		"status_code": 200,
+ *      	"message": "Etat des lieux récupéré.",
+ *		"inventory": {inventory},
  *     }
  *
  * @apiSuccessExample Success-Response:
@@ -256,25 +271,20 @@ const getOne = async (req, res) => {
 		if (inventory) {
 			res.status(200).json({
 				status_code: 200,
-				data: inventory,
+				message: 'Etat des lieux récupéré.',
+				inventory,
 			})
 		} else {
-			res.status(204).json({
-				status_code: 204,
-				message: 'Aucun Etat des lieux',
-			})
+			res.status(204)
 		}
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
 // READ ONE JOIN
 /**
- * @api {get} /api/inventory/:id Récupérer les inventaires d'un utilisateur
+ * @api {get} /api/inventory/getAllForOneUser/:_id Récupérer les inventaires d'un utilisateur
  * @apiName getAllForOneUser
  * @apiGroup Etat des lieux
  *
@@ -285,8 +295,9 @@ const getOne = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- * 	   		status_code: 200,
- * 			datas: {inventories}
+ * 	   	"status_code": 200,
+ * 		"message": "Etats des lieux récupérés.",
+ * 		"inventories": {inventories}
  *     }
  *
  * @apiError ValidationError Utilisateur non trouvé !
@@ -296,11 +307,13 @@ const getOne = async (req, res) => {
  * @apiErrorExample _idError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"_id": "Utilisateur non trouvé !"
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Utilisateur non trouvé."
+ * 				}
+ * 			]
  *     }
  */
 const getAllForOneUser = async (req, res) => {
@@ -310,13 +323,11 @@ const getAllForOneUser = async (req, res) => {
 		})
 		res.status(200).json({
 			status_code: 200,
-			datas: inventories,
+			message: 'Etats des lieux récupérés.',
+			inventories,
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 

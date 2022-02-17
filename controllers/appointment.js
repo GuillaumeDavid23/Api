@@ -20,7 +20,8 @@ import Appointment from '../models/Appointment.js'
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": "Rendez-vous enregistré !",
+ *       	"status_code": 201,
+ *		"message": "Rendez-vous enregistré.",
  *     }
  *
  * @apiError ValidationError Date de fin antérieure à la date de début.
@@ -32,31 +33,37 @@ import Appointment from '../models/Appointment.js'
  * @apiErrorExample dateEndError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"dateEnd": "Date de fin antérieure à la date de début."
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"dateEnd": "Date de fin antérieure à la date de début."
+ * 				}
+ * 			]
  *     }
  *
  * @apiErrorExample id_buyerError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"id_buyer": "Acheteur inexistant."
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"id_buyer": "Acheteur inexistant."
+ * 				}
+ * 			]
  *     }
  *
  * @apiErrorExample id_agentError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"id_agent": "Agent inexistant."
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"id_agent": "Agent inexistant."
+ * 				}
+ * 			]
  *     }
  */
 const create = async (req, res) => {
@@ -65,13 +72,10 @@ const create = async (req, res) => {
 		await appointment.save()
 		res.status(201).json({
 			status_code: 201,
-			message: 'Rendez-vous enregistré !',
+			message: 'Rendez-vous enregistré.',
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -97,43 +101,51 @@ const create = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": "Rendez-vous modifié !"",
+ *       	"status_code": 200,
+ *		"message": "Rendez-vous modifié.",
  *     }
  *
  * @apiError ValidationError Date de fin antérieure à la date de début.
  * @apiError ValidationError Acheteur inexistant.
  * @apiError ValidationError Agent inexistant.
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample dateEndError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"dateEnd": "Date de fin antérieure à la date de début."
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"dateEnd": "Date de fin antérieure à la date de début."
+ * 				}
+ * 			]
  *     }
  *
  * @apiErrorExample id_buyerError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"id_buyer": "Acheteur inexistant."
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"id_buyer": "Acheteur inexistant."
+ * 				}
+ * 			]
  *     }
  *
  * @apiErrorExample id_agentError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"id_agent": "Agent inexistant."
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"id_agent": "Agent inexistant."
+ * 				}
+ * 			]
  *     }
  */
 const update = async (req, res) => {
@@ -141,13 +153,10 @@ const update = async (req, res) => {
 		await Appointment.updateOne({ _id: req.params._id }, { ...req.body })
 		res.status(200).json({
 			status_code: 200,
-			message: 'Rendez-vous modifié !',
+			message: 'Rendez-vous modifié.',
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -161,26 +170,29 @@ const update = async (req, res) => {
  *
  * @apiParam {String} _id ID du rendez-vous.
  *
- * @apiSuccess {String} message Message de completion.
+ * @apiSuccess {String} message Message de complétion.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": "Rendez-vous supprimé !"",
+ *       	"status_code": 200,
+ *		"message": "Rendez-vous supprimé.",
  *     }
  *
- * @apiError ValidationError Rendez-vous non trouvé !
+ * @apiError ValidationError Rendez-vous non trouvé.
  * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample _idError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"_id": "Rendez-vous non trouvé !"
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Rendez-vous non trouvé."
+ * 				}
+ * 			]
  *     }
  */
 const erase = async (req, res) => {
@@ -188,7 +200,7 @@ const erase = async (req, res) => {
 		await Appointment.deleteOne({ _id: req.params.id })
 		res.status(200).json({
 			status_code: 200,
-			message: 'Rendez-vous supprimé !',
+			message: 'Rendez-vous supprimé.',
 		})
 	} catch (error) {
 		res.status(500).json({ status_code: 500, error: error.message })
@@ -206,8 +218,9 @@ const erase = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": "Liste de Rendez-vous récupérée !",
- *       "data": appointments,
+ * 		"status_code": 200,
+ *		"message": "Rendez-vous récupérés.",
+ *		"appointments": {appointments}
  *     }
  *
  * @apiError ServerError Erreur Serveur.
@@ -217,13 +230,11 @@ const getAll = async (req, res) => {
 		let appointments = await Appointment.find()
 		res.status(200).json({
 			status_code: 200,
+			message: 'Rendez-vous récupérés.',
 			appointments,
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -240,8 +251,9 @@ const getAll = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": "Rendez-vous récupéré !",
- *       "data": appointment,
+ *		"status_code": 200,
+ *		"message": "Rendez-vous récupéré.",
+ *		"appointment": {appointment},
  *     }
  *
  * @apiSuccessExample Success-Response:
@@ -256,19 +268,14 @@ const getOne = async (req, res) => {
 		if (appointment) {
 			res.status(200).json({
 				status_code: 200,
-				datas: appointment,
+				message: 'Rendez-vous récupéré.',
+				appointment,
 			})
 		} else {
-			res.status(204).json({
-				status_code: 204,
-				message: 'Aucun rendez-vous',
-			})
+			res.status(204)
 		}
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 
@@ -285,9 +292,10 @@ const getOne = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "message": "Participants récupérés !",
- *       "buyer": {buyer},
- * 		 "agent": {agent},
+ *		"status_code": 200,
+ *		"message": "Partcipants récupérés.",
+ *		"buyer": {buyer},
+ *		"agent": {agent},
  *     }
  *
  * @apiError ValidationError Rendez-vous non trouvé !
@@ -297,11 +305,13 @@ const getOne = async (req, res) => {
  * @apiErrorExample _idError:
  *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "errors": [
- * 			{
- * 				"_id": "Rendez-vous non trouvé !"
- * 			}
- * 		]
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Rendez-vous non trouvé !"
+ * 				}
+ * 			]
  *     }
  */
 const getParticipants = async (req, res) => {
@@ -311,14 +321,12 @@ const getParticipants = async (req, res) => {
 		let agent = await Agent.findOne({ _id: appointment.id_agent })
 		res.status(200).json({
 			status_code: 200,
+			message: 'Partcipants récupérés.',
 			buyer: buyer,
 			agent: agent,
 		})
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
 

@@ -73,7 +73,7 @@ const checkTransactionExistence = () => {
 			.custom(async (_id) => {
 				let transaction = await Transaction.findOne({ _id })
 				if (!transaction)
-					return Promise.reject('Transaction non trouvé !')
+					return Promise.reject('Transaction non trouvé.')
 				return true
 			}),
 	]
