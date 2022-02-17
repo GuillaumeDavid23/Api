@@ -463,7 +463,7 @@ const login = async (req, res) => {
 	}
 }
 
-const verifyEmail = (req, res) => {
+const verifyEmail = async (req, res) => {
 	try {
 		const decodedToken = jwt.verify(
 			req.params.token,
