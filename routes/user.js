@@ -142,17 +142,17 @@ router.get(
 	checkAgentAvailabilities
 )
 
-router.post(
-	'/wishlist/:_id',
+router.put(
+	'/wishlist/',
 	auth,
-	checkAccess(['buyer', 'seller']),
+	checkAccess(['buyer']),
 	checkPropertyExistence(),
 	addToWishlist
 )
 router.delete(
-	'/wishlist/:_id',
+	'/wishlist/',
 	auth,
-	checkAccess(['agent']),
+	checkAccess(['buyer']),
 	checkPropertyExistence(),
 	removeOfWishlist
 )

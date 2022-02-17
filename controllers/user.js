@@ -433,7 +433,7 @@ const login = async (req, res) => {
 				error: 'Mot de passe incorrect !',
 			})
 		}
-		const token = jwt.sign({ user: user._id }, process.env.SECRET_TOKEN, {
+		const token = jwt.sign({ user: user }, process.env.SECRET_TOKEN, {
 			expiresIn: '24h',
 		})
 		await User.updateOne({ _id: user._id }, { token: token })
@@ -773,14 +773,36 @@ const getBuyers = async (req, res) => {
 	}
 }
 
+//UPDATE WishList USER
+/**
+ * @api {put} /api/user/wishlist/ Ajouter un favori
+ * @apiName addToWishlist
+ * @apiGroup Utilisateur
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiBody {ObjectId} idProperty id de la propriété à ajouter
+ *
+ * @apiSuccess {String} message Favori ajouté !
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Favori ajouté !',
+ *     }
+ *
+ * @apiError ServerError Utilisateur non modifié.
+ */
 const addToWishlist = async (req, res) => {
 	try {
-		const wishlist = await User.findById(req.auth.user.id).wishlist
-		wishlist.push(req.body.idProperty)
-		await User.updateOne({ _id: req.auth.user.id }, { wishlist })
+		let user = await User.findById(req.auth.user._id)
+		await User.updateOne(
+			{ _id: user._id },
+			{ $push: { 'buyer.wishlist': req.body.idProperty } }
+		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'Propriété ajouté à la wishlist !',
+			message: 'Favori ajouté !',
 		})
 	} catch (error) {
 		res.status(500).json({
@@ -790,14 +812,41 @@ const addToWishlist = async (req, res) => {
 	}
 }
 
+//UPDATE WishList USER
+/**
+ * @api {delete} /api/user/wishlist/ Supprimer un favori
+ * @apiName removeOfWishlist
+ * @apiGroup Utilisateur
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiBody {ObjectId} ObjectId id de la propriété à supprimer
+ *
+ * @apiSuccess {String} message Favori supprimé !
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Favori supprimé !',
+ *     }
+ *
+ * @apiError ServerError Utilisateur non modifié.
+ */
 const removeOfWishlist = async (req, res) => {
 	try {
-		const wishlist = await User.findById(req.auth.user.id).wishlist
-		wishlist = wishlist.filter((wish) => wish !== req.body.idProperty)
-		await User.updateOne({ _id: req.auth.user.id }, { wishlist })
+		let user = await User.findById(req.auth.user._id)
+
+		await User.updateOne(
+			{ _id: user._id },
+			{
+				$pull: {
+					'buyer.wishlist': req.body.idProperty,
+				},
+			}
+		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'Propriété retiré à la wishlist !',
+			message: 'Favori supprimé !',
 		})
 	} catch (error) {
 		res.status(500).json({
