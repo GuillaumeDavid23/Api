@@ -20,15 +20,43 @@ import Appointment from '../models/Appointment.js'
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": "Rendez-vous enregistré !"",
+ *       "message": "Rendez-vous enregistré !",
  *     }
  *
- * @apiError ServerError Rendez-vous non crée.
+ * @apiError ValidationError Date de fin antérieure à la date de début.
+ * @apiError ValidationError Acheteur inexistant.
+ * @apiError ValidationError Agent inexistant.
+ * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError ServerError Erreur serveur.
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 500 Not Found
+ * @apiErrorExample dateEndError:
+ *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "error": "Rendez-vous non crée !"
+ *       "errors": [
+ * 			{
+ * 				"dateEnd": "Date de fin antérieure à la date de début."
+ * 			}
+ * 		]
+ *     }
+ *
+ * @apiErrorExample id_buyerError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"id_buyer": "Acheteur inexistant."
+ * 			}
+ * 		]
+ *     }
+ *
+ * @apiErrorExample id_agentError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"id_agent": "Agent inexistant."
+ * 			}
+ * 		]
  *     }
  */
 const create = async (req, res) => {
@@ -72,12 +100,40 @@ const create = async (req, res) => {
  *       "message": "Rendez-vous modifié !"",
  *     }
  *
- * @apiError ServerError Rendez-vous non modifié.
+ * @apiError ValidationError Date de fin antérieure à la date de début.
+ * @apiError ValidationError Acheteur inexistant.
+ * @apiError ValidationError Agent inexistant.
+ * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError ServerError Erreur serveur.
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 500 Not Found
+ * @apiErrorExample dateEndError:
+ *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "error": "Rendez-vous non modifié !"
+ *       "errors": [
+ * 			{
+ * 				"dateEnd": "Date de fin antérieure à la date de début."
+ * 			}
+ * 		]
+ *     }
+ *
+ * @apiErrorExample id_buyerError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"id_buyer": "Acheteur inexistant."
+ * 			}
+ * 		]
+ *     }
+ *
+ * @apiErrorExample id_agentError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"id_agent": "Agent inexistant."
+ * 			}
+ * 		]
  *     }
  */
 const update = async (req, res) => {
@@ -113,12 +169,18 @@ const update = async (req, res) => {
  *       "message": "Rendez-vous supprimé !"",
  *     }
  *
- * @apiError ServerError Rendez-vous non supprimé.
+ * @apiError ValidationError Rendez-vous non trouvé !
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 500 Not Found
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "error": "Rendez-vous non supprimé !"
+ *       "errors": [
+ * 			{
+ * 				"_id": "Rendez-vous non trouvé !"
+ * 			}
+ * 		]
  *     }
  */
 const erase = async (req, res) => {
@@ -139,7 +201,7 @@ const erase = async (req, res) => {
  * @apiName getAll
  * @apiGroup Rendez-vous
  *
- * @apiSuccess {Array} appointments Liste de rendez-vbus
+ * @apiSuccess {Array} appointments Liste de rendez-vous
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -148,13 +210,7 @@ const erase = async (req, res) => {
  *       "data": appointments,
  *     }
  *
- * @apiError ServerError Erreur Serveur
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 500 Not Found
- *     {
- *       "error": "Erreur serveur !"
- *     }
+ * @apiError ServerError Erreur Serveur.
  */
 const getAll = async (req, res) => {
 	try {
@@ -188,13 +244,11 @@ const getAll = async (req, res) => {
  *       "data": appointment,
  *     }
  *
- * @apiError AppointmentNotFound Rendez-vous non trouvée.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 204 OK
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 204 Not Found
- *     {
- *       "error": "Rendez-vous non trouvée !"
- *     }
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
  */
 const getOne = async (req, res) => {
 	try {
@@ -232,15 +286,22 @@ const getOne = async (req, res) => {
  *     HTTP/1.1 200 OK
  *     {
  *       "message": "Participants récupérés !",
- *       "data": users,
+ *       "buyer": {buyer},
+ * 		 "agent": {agent},
  *     }
  *
- * @apiError AppointmentNotFound Rendez-vous non trouvée.
+ * @apiError ValidationError Rendez-vous non trouvé !
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 204 Not Found
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "error": "Participants non récupérés !"
+ *       "errors": [
+ * 			{
+ * 				"_id": "Rendez-vous non trouvé !"
+ * 			}
+ * 		]
  *     }
  */
 const getParticipants = async (req, res) => {

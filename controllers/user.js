@@ -2,6 +2,8 @@ import User from '../models/User.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
+import sendMail from '../util/mail.js'
+import mongoose from '../db/db.js'
 dotenv.config()
 
 //CREATE USER
@@ -22,7 +24,7 @@ dotenv.config()
  * @apiBody {String} [ref] Référence client
  * @apiBody {Object} [buyer] Informations de l'acheteur ({Object} wishlist, {Number} budgetMin, {Number} budgetMax, {String} city, {Number} surfaceMin, {Number} surfaceMax, {String} type)
  * @apiBody {Object} [seller] Informations du vendeur ({Object} propertiesList)
- * @apiBody {Object} [agent] Informations de l'agent ({String} pro_phone_tel)
+ * @apiBody {Object} [agent] Informations de l'agent ({String} phonePro)
  *
  * @apiSuccess {String} message Message de complétion.
  *
@@ -49,7 +51,6 @@ dotenv.config()
 const create = async (req, res) => {
 	const saltRounds = 10
 	let datas = req.body
-
 	try {
 		const user = new User({ ...datas })
 		const mailCheck = await User.findOne({ email: user.email })
@@ -127,8 +128,7 @@ const update = async (req, res) => {
 			{ returnDocument: 'after' }
 		)
 
-		console.log(user.$isEmpty('agent'))
-		//CHECK SI DES PROPERTIES VIDE EXISTENT
+		//CHECK SI DES PROPERTIES VIDE EXISTENT AFIN d'unset
 		async function checkEmptyFields(user) {
 			let buyer = await User.find({
 				$or: [{ buyer: {} }, { buyer: null }],
@@ -484,16 +484,20 @@ const forgotPass = async (req, res) => {
 				error: 'Compte utilisateur désactivé !',
 			})
 		}
-		User.updateOne(
-			{ _id: user.id },
-			{
-				token: jwt.sign(
-					{ userId: user._id },
-					process.env.SECRET_TOKEN,
-					{ expiresIn: '5h' }
-				),
-			}
-		)
+
+		let token = jwt.sign({ userId: user._id }, process.env.SECRET_TOKEN, {
+			expiresIn: '5h',
+		})
+
+		await User.updateOne({ _id: user.id }, { token })
+
+		await sendMail('forgotPass', {
+			to: datas.email,
+			userId: user._id.valueOf(),
+			token,
+		})
+
+		res.status(200).json({ message: 'Email de réinitialisation envoyé.' })
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,

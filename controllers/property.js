@@ -1,5 +1,6 @@
 import Property from '../models/Property.js'
-import nodemailer from 'nodemailer'
+import User from '../models/User.js'
+import sendMail from '../util/mail.js'
 import fs from 'fs'
 import { asyncForEach } from '../util/functions.js'
 
@@ -37,26 +38,20 @@ import { asyncForEach } from '../util/functions.js'
  *       "message": "Propriété enregistrée !"",
  *     }
  *
- * @apiError 400 Propriété non crée.
- * @apiError (Erreur 500) ServerError Erreur sur le Serveur.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
- *     {
- *       "error": "Propriété non crée !"
- *     }
+ * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError ServerError Erreur serveur.
  */
 const createProperty = async (req, res) => {
 	try {
-		const newProperty = new Property({
+		var newProperty = new Property({
 			...req.body,
 			isToSell: req.body.isToSell == 'on' ? true : false,
 			imageUrl: `${req.protocol}://${req.get('host')}/uploads/${
 				req.body.propertyRef
 			}`,
 		})
-		await newProperty.save()
-		await sendAlert(req.body)
+		newProperty = await newProperty.save()
+		await sendAlert(req.body, newProperty._id.valueOf())
 		res.status(201).json({
 			status_code: 201,
 			message: 'Propriété enregistrée !',
@@ -85,7 +80,6 @@ const createProperty = async (req, res) => {
  *     }
  *
  * @apiError ServerError Erreur Serveur
- *
  */
 const getAllProperties = async (req, res) => {
 	try {
@@ -120,13 +114,11 @@ const getAllProperties = async (req, res) => {
  *       "data": property,
  *     }
  *
- * @apiError PropertyNotFound Propriété non trouvée.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 204 OK
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Not Found
- *     {
- *       "error": "Propriété non trouvée !"
- *     }
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
  */
 const getPropertyById = async (req, res) => {
 	let data = Object.keys(req.params).length === 0 ? req.query : req.params
@@ -190,13 +182,8 @@ const getPropertyById = async (req, res) => {
  *       "message": "Propriété actualisée !",
  *     }
  *
- * @apiError ServerError Propriété non crée.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
- *     {
- *       "error": "Propriété non crée !"
- *     }
+ * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError ServerError Erreur serveur.
  */
 const updateProperty = async (req, res) => {
 	let datas = Object.keys(req.params).length === 0 ? req.query : req.params
@@ -247,12 +234,18 @@ const updateProperty = async (req, res) => {
  *       "message": "Propriété supprimée !",
  *     }
  *
- * @apiError ServerError Propriété non crée.
+ * @apiError ValidationError Propriété non trouvé !
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "error": "Propriété non crée !"
+ *       "errors": [
+ * 			{
+ * 				"_id": "Propriété non trouvé !"
+ * 			}
+ * 		]
  *     }
  */
 const deleteProperty = async (req, res) => {
@@ -290,51 +283,36 @@ const deleteProperty = async (req, res) => {
 }
 
 // SENDALERT (Intervient dans create)
-const sendAlert = async (datas) => {
+const sendAlert = async (datas, newId) => {
 	try {
-		const buyers = await Buyer.find()
+		const buyers = await User.find({ buyer: { $exists: true } })
 
 		await asyncForEach(buyers, async (buyer) => {
+			let preferences = buyer.buyer
 			if (
-				(buyer.budgetMin ||
-					buyer.budgetMax ||
-					buyer.city ||
-					buyer.surfaceMin ||
-					buyer.surfaceMax ||
-					buyer.type) &&
-				(!buyer.budgetMin || buyer.budgetMin <= datas.amount) &&
-				(!buyer.budgetMax || buyer.budgetMax >= datas.amount) &&
-				(!buyer.city || buyer.city === datas.localisation) &&
-				(!buyer.surfaceMin || buyer.surfaceMin <= datas.surface) &&
-				(!buyer.surfaceMax || buyer.surfaceMax >= datas.surface) &&
-				(!buyer.type || buyer.type === datas.propertyType)
+				(preferences.budgetMin &&
+					preferences.budgetMin <= datas.amount) ||
+				(preferences.budgetMax &&
+					preferences.budgetMax >= datas.amount) ||
+				(preferences.city && preferences.city === datas.location) ||
+				(preferences.surfaceMin &&
+					preferences.surfaceMin <= datas.surface) ||
+				(preferences.surfaceMax &&
+					preferences.surfaceMax >= datas.surface) ||
+				(preferences.type && preferences.type === datas.propertyType)
 			) {
-				// create reusable transporter object using the default SMTP transport
-				let transporter = nodemailer.createTransport({
-					host: 'smtp.gmail.com',
-					port: 465,
-					secure: true, // true for 465, false for other ports
-					auth: {
-						user: 'mancheronv@gmail.com', // generated ethereal user
-						pass: '#fg3rTxFninqL!TnrBdPjXoC$Poi38K5habrtq8G', // generated ethereal password
-					},
+				sendMail('sendAlert', {
+					to: buyer.email,
+					amount: datas.amount,
+					city: datas.location,
+					surface: datas.surface,
+					type: datas.propertyType,
+					idProperty: newId,
 				})
-
-				// send mail with defined transport object
-				let info = await transporter.sendMail({
-					from: '"Fred Foo 👻" <mancheronv@gmail.com>', // sender address
-					to: 'vmancheron@yahoo.fr', // list of receivers
-					subject: 'Hello ✔', // Subject line
-					text: 'Hello world?', // plain text body
-					html: '<b>Hello world?</b>', // html body
-				})
-
-				console.log('Message sent: %s', info.messageId)
-				// Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 			}
 		})
 	} catch (error) {
-		console.log(error)
+		console.log("Echec lors de l'envoi du mail:", error.message)
 	}
 }
 

@@ -140,7 +140,7 @@ const checkInventoryExistence = () => {
 			.custom(async (_id) => {
 				let inventory = await Inventory.findOne({ _id })
 				if (!inventory)
-					return Promise.reject('Rendez-vous non trouvé !')
+					return Promise.reject('Etat des lieux non trouvé !')
 				return true
 			}),
 	]

@@ -23,12 +23,40 @@ import Inventory from '../models/Inventory.js'
  *       "message": "Etat des lieux enregistré !"",
  *     }
  *
- * @apiError ServerError Etat des lieux non crée.
+ * @apiError ValidationError Agent inexistant.
+ * @apiError ValidationError Utilisateur inexistant.
+ * @apiError ValidationError Utilisateur précédent inexistant.
+ * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError ServerError Erreur serveur.
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 500 Not Found
+ * @apiErrorExample id_agentError:
+ *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "error": "Etat des lieux non crée !"
+ *       "errors": [
+ * 			{
+ * 				"id_agent": "Agent inexistant."
+ * 			}
+ * 		]
+ *     }
+ *
+ * @apiErrorExample userReferenceError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"userReference": "Utilisateur inexistant."
+ * 			}
+ * 		]
+ *     }
+ *
+ * @apiErrorExample previousBuyerRefError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"userReference": "Utilisateur précédent inexistant."
+ * 			}
+ * 		]
  *     }
  */
 const create = async (req, res) => {
@@ -72,12 +100,40 @@ const create = async (req, res) => {
  *       "message": 'Etat des lieux modifiée !',
  *     }
  *
+ * @apiError ValidationError Agent inexistant.
+ * @apiError ValidationError Utilisateur inexistant.
+ * @apiError ValidationError Utilisateur précédent inexistant.
+ * @apiError ValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
+ * @apiErrorExample id_agentError:
+ *     HTTP/1.1 422 Unprocessable Entity
  *     {
- *       "error": "Etat des lieux non modifiée !"
+ *       "errors": [
+ * 			{
+ * 				"id_agent": "Agent inexistant."
+ * 			}
+ * 		]
+ *     }
+ *
+ * @apiErrorExample userReferenceError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"userReference": "Utilisateur inexistant."
+ * 			}
+ * 		]
+ *     }
+ *
+ * @apiErrorExample previousBuyerRefError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"userReference": "Utilisateur précédent inexistant."
+ * 			}
+ * 		]
  *     }
  */
 const update = async (req, res) => {
@@ -98,6 +154,38 @@ const update = async (req, res) => {
 	}
 }
 
+// DELETE
+/**
+ * @api {delete} /api/appointment Supprimer un état des lieux
+ * @apiName delete
+ * @apiGroup Etat des lieux
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {String} _id ID de l'etat des lieux.
+ *
+ * @apiSuccess {String} message Message de completion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "message": "Etat des lieux supprimé !",
+ *     }
+ *
+ * @apiError ValidationError Etat des lieux non trouvé !
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"_id": "Etat des lieux non trouvé !"
+ * 			}
+ * 		]
+ *     }
+ */
 const erase = async (req, res) => {
 	try {
 		await Inventory.deleteOne({ _id: req.params.id })
@@ -126,13 +214,7 @@ const erase = async (req, res) => {
 		"data": inventories,
  *     }
  *
- * @apiError InventoryNotFound Aucune Inventory.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
- *     {
- *       "error": "Aucune Inventory trouvée !"
- *     }
+ * @apiError ServerError Erreur Serveur.
  */
 const getAll = async () => {
 	try {
@@ -162,13 +244,11 @@ const getAll = async () => {
 		"data": inventory,
  *     }
  *
- * @apiError InventoryNotFound Aucune Inventory.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 204 OK
  *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 400 Not Found
- *     {
- *       "error": "Aucune Inventory trouvée !"
- *     }
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
  */
 const getOne = async (req, res) => {
 	try {
@@ -192,7 +272,37 @@ const getOne = async (req, res) => {
 	}
 }
 
-// /!\ Réussir à recupérer la condition:
+// READ ONE JOIN
+/**
+ * @api {get} /api/inventory/:id Récupérer les inventaires d'un utilisateur
+ * @apiName getAllForOneUser
+ * @apiGroup Etat des lieux
+ *
+ * @apiParam {String} _id ID de l'état des lieux.
+ *
+ * @apiSuccess {Array} appointment Objet Etat des lieux.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ * 	   		status_code: 200,
+ * 			datas: {inventories}
+ *     }
+ *
+ * @apiError ValidationError Utilisateur non trouvé !
+ * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ *       "errors": [
+ * 			{
+ * 				"_id": "Utilisateur non trouvé !"
+ * 			}
+ * 		]
+ *     }
+ */
 const getAllForOneUser = async (req, res) => {
 	try {
 		let inventories = await Inventory.find({
