@@ -436,7 +436,6 @@ const login = async (req, res) => {
 		const token = jwt.sign({ user: user }, process.env.SECRET_TOKEN, {
 			expiresIn: '24h',
 		})
-		await User.updateOne({ _id: user._id }, { token: token })
 		res.status(200).json({
 			status_code: 200,
 			userId: user._id,

@@ -1,7 +1,7 @@
 import Transaction from '../models/Transaction.js'
 
 /**
- * @api {post} /api/transaction/ Créer une transaction
+ * @api {post} /api/transaction/ 1 - Créer une transaction
  * @apiName create
  * @apiGroup Transaction
  *
@@ -49,7 +49,7 @@ const create = async (req, res) => {
 }
 
 /**
- * @api {put} /api/transaction/:_id Modifier une transaction
+ * @api {put} /api/transaction/:_id 2 - Modifier une transaction
  * @apiName update
  * @apiGroup Transaction
  *
@@ -58,6 +58,7 @@ const create = async (req, res) => {
  * @apiBody {Array} lst_buyer Liste des ID acheteurs
  * @apiBody {Array} lst_seller Liste des ID vendeurs
  * @apiBody {ObjectId} id_agent ID de l'agent
+ * @apiBody {ObjectId} id_property ID de la propriété
  * @apiBody {Number} amount Montant de la transaction
  * @apiBody {Date} date Date de la transaction
  * @apiBody {Boolean} status="true" Status actif ou non
@@ -102,7 +103,7 @@ const update = async (req, res) => {
 }
 
 /**
- * @api {DELETE} /api/transaction/:_id Supprimer une transaction
+ * @api {DELETE} /api/transaction/:_id 4 - Supprimer une transaction
  * @apiName erase
  * @apiGroup Transaction
  *
@@ -138,7 +139,7 @@ const erase = async (req, res) => {
 }
 
 /**
- * @api {get} /api/transaction/ Récupérer toutes les transactions
+ * @api {get} /api/transaction/ 3 - Récupérer toutes les transactions
  * @apiName getAll
  * @apiGroup Transaction
  * 
@@ -177,7 +178,7 @@ const getAll = async (req, res) => {
 }
 
 /**
- * @api {get} /api/transaction/:_id Récupérer une transaction
+ * @api {get} /api/transaction/:_id 2 - Récupérer une transaction
  * @apiName getOne
  * @apiGroup Transaction
  * 
@@ -205,6 +206,7 @@ const getAll = async (req, res) => {
 const getOne = async (req, res) => {
 	try {
 		let transaction = await Transaction.findById(req.params._id)
+
 		if (transaction) {
 			res.status(200).json({
 				status_code: 200,
@@ -223,5 +225,178 @@ const getOne = async (req, res) => {
 		})
 	}
 }
+//UPDATE SELLER LIST USER
+/**
+ * @api {put} /api/transaction/seller/:_id 8 - Ajouter un vendeur
+ * @apiName addSeller
+ * @apiGroup Transaction
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id id de la transaction
+ * @apiBody {ObjectId} idSeller id de l'vendeur à ajouter
+ *
+ * @apiSuccess {String} message Favori ajouté !
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Favori ajouté !',
+ *     }
+ *
+ * @apiError ServerError Transaction non modifié.
+ */
+const addSeller = async (req, res) => {
+	try {
+		await Transaction.updateOne(
+			{ _id: req.params._id },
+			{ $push: { lst_seller: req.body.idSeller } }
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'vendeur ajouté à la liste !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
 
-export { create, update, erase, getAll, getOne }
+/**
+ * @api {delete} /api/transaction/seller/:_id 9 - Supprimer un vendeur
+ * @apiName removeSeller
+ * @apiGroup Transaction
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id id de la transaction
+ *
+ * @apiBody {ObjectId} idSeller id de l'vendeur à supprimer
+ *
+ * @apiSuccess {String} message vendeur supprimé de la liste
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'vendeur supprimé de la liste',
+ *     }
+ *
+ * @apiError ServerError Transaction non modifié.
+ */
+const removeSeller = async (req, res) => {
+	try {
+		await Transaction.updateOne(
+			{ _id: req.params._id },
+			{
+				$pull: {
+					lst_seller: req.body.idSeller,
+				},
+			}
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'vendeur supprimé de la liste !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
+//UPDATE BUYER LIST USER
+/**
+ * @api {put} /api/transaction/buyer/:_id 6 - Ajouter un acheteur
+ * @apiName addBuyer
+ * @apiGroup Transaction
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id id de la transaction
+ * @apiBody {ObjectId} idBuyer id de l'acheteur à ajouter
+ *
+ * @apiSuccess {String} message Favori ajouté !
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Favori ajouté !',
+ *     }
+ *
+ * @apiError ServerError Transaction non modifié.
+ */
+const addBuyer = async (req, res) => {
+	try {
+		await Transaction.updateOne(
+			{ _id: req.params._id },
+			{ $push: { lst_buyer: req.body.idBuyer } }
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'Acheteur ajouté à la liste !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
+/**
+ * @api {delete} /api/transaction/buyer/:_id 7 - Supprimer un acheteur
+ * @apiName removeBuyer
+ * @apiGroup Transaction
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id id de la transaction
+ *
+ * @apiBody {ObjectId} idBuyer id de l'acheteur à supprimer
+ *
+ * @apiSuccess {String} message Acheteur supprimé de la liste
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Acheteur supprimé de la liste',
+ *     }
+ *
+ * @apiError ServerError Transaction non modifié.
+ */
+const removeBuyer = async (req, res) => {
+	try {
+		await Transaction.updateOne(
+			{ _id: req.params._id },
+			{
+				$pull: {
+					lst_buyer: req.body.idBuyer,
+				},
+			}
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'Acheteur supprimé de la liste !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
+export {
+	create,
+	update,
+	erase,
+	getAll,
+	getOne,
+	addBuyer,
+	removeBuyer,
+	removeSeller,
+	addSeller,
+}
