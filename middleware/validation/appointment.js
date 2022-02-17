@@ -116,7 +116,7 @@ const checkAppointmentExistence = () => {
 			.custom(async (_id) => {
 				let appointment = await Appointment.findOne({ _id })
 				if (!appointment)
-					return Promise.reject('Rendez-vous non trouvé !')
+					return Promise.reject('Rendez-vous non trouvé.')
 				return true
 			}),
 	]
