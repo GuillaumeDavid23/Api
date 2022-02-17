@@ -17,6 +17,8 @@ import {
 	addToWishlist,
 	removeOfWishlist,
 	getSellers,
+	addToPropertyList,
+	removeOfPropertyList,
 } from '../controllers/user.js'
 import auth from '../middleware/auth.js'
 import checkAccess from '../middleware/checkAccess.js'
@@ -141,6 +143,7 @@ router.get(
 	checkUserExistence(),
 	checkAgentAvailabilities
 )
+//ROUTE SELLER WISH LIST
 
 router.put(
 	'/wishlist/',
@@ -155,6 +158,22 @@ router.delete(
 	checkAccess(['buyer']),
 	checkPropertyExistence(),
 	removeOfWishlist
+)
+
+//ROUTE SELLER PROPERTY LIST
+router.put(
+	'/property/',
+	auth,
+	checkAccess(['seller', 'agent']),
+	checkPropertyExistence(),
+	addToPropertyList
+)
+router.delete(
+	'/property/',
+	auth,
+	checkAccess(['seller', 'agent']),
+	checkPropertyExistence(),
+	removeOfPropertyList
 )
 router.get('/buyers', auth, checkAccess(['agent']), getBuyers)
 router.get('/sellers', auth, checkAccess(['agent']), getSellers)
