@@ -8,6 +8,7 @@ import {
 	login,
 	signup,
 	forgotPass,
+	verifyEmail,
 	checkResetToken,
 	setNewsletter,
 	unsetNewsletter,
@@ -56,6 +57,7 @@ router.post(
 	signup
 )
 router.post('/forgot', checkForForgotPass(), validation, forgotPass)
+router.get('/emailVerification/:token', verifyEmail)
 router.post(
 	'/buyer',
 	auth,

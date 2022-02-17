@@ -173,12 +173,6 @@ const checkForLogin = () => {
 		body('password')
 			.notEmpty()
 			.withMessage('Vous devez indiquer votre mot de passe.'),
-		body('password')
-			.if(body('password').notEmpty())
-			.matches(process.env.passwordRegex)
-			.withMessage(
-				'Le mot de passe ne correspond pas au format requis: Au moins 8 caractères dont au moins une majuscule, une minuscule, un chiffre.'
-			),
 	]
 }
 

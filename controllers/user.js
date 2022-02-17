@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import sendMail from '../util/mail.js'
-import mongoose from '../db/db.js'
 dotenv.config()
 
 //CREATE USER
@@ -420,10 +419,24 @@ const login = async (req, res) => {
 				status_code: 401,
 				error: 'Utilisateur non trouvé !',
 			})
-		if (user.status == false) {
+		if (user.status == false && deletedAt == undefined) {
+			let token = jwt.sign(
+				{ userId: user._id },
+				process.env.SECRET_TOKEN,
+				{
+					expiresIn: '5h',
+				}
+			)
+			sendMail('emailVerification', { to: user.email, token })
 			return res.status(403).json({
 				status_code: 403,
-				error: 'Compte utilisateur désactivé !',
+				error: 'Vérification par email nécessaire.',
+			})
+		}
+		if (user.status == false && deletedAt != undefined) {
+			return res.status(403).json({
+				status_code: 403,
+				error: 'Compte utilisateur désactivé.',
 			})
 		}
 		let valid = await bcrypt.compare(datas.password, user.password)
@@ -433,14 +446,13 @@ const login = async (req, res) => {
 				error: 'Mot de passe incorrect !',
 			})
 		}
-		const token = jwt.sign({ user: user }, process.env.SECRET_TOKEN, {
+		const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
 			expiresIn: '24h',
 		})
-		await User.updateOne({ _id: user._id }, { token: token })
 		res.status(200).json({
 			status_code: 200,
 			userId: user._id,
-			token: token,
+			token,
 			message: 'Utilisateur connecté !',
 		})
 	} catch (error) {
@@ -450,6 +462,33 @@ const login = async (req, res) => {
 		})
 	}
 }
+
+const verifyEmail = (req, res) => {
+	try {
+		const decodedToken = jwt.verify(
+			req.params.token,
+			process.env.SECRET_TOKEN
+		)
+		const userId = decodedToken.userId.valueOf()
+
+		const user = await User.findOne({ _id: userId })
+		if (user) {
+			await User.updateOne({ _id: userId }, { status: 1 })
+			res.status(200).json({
+				status_code: 200,
+				message: 'Vérification réussie.',
+			})
+		} else {
+			res.status(204).json({
+				status_code: 204,
+				message: 'Aucun utilisateur',
+			})
+		}
+	} catch (error) {
+		res.status(500).json({ status_code: 500, error: error.message })
+	}
+}
+
 //USER FORGOT PASSWORD
 /**
  * @api {post} /api/forgot 5 - Créer un token de réinitilisation
@@ -489,13 +528,9 @@ const forgotPass = async (req, res) => {
 			expiresIn: '5h',
 		})
 
-		await User.updateOne({ _id: user.id }, { token })
+		await User.updateOne({ _id: user._id }, { token })
 
-		await sendMail('forgotPass', {
-			to: datas.email,
-			userId: user._id.valueOf(),
-			token,
-		})
+		await sendMail('forgotPass', { to: datas.email, token })
 
 		res.status(200).json({ message: 'Email de réinitialisation envoyé.' })
 	} catch (error) {
@@ -533,7 +568,13 @@ const forgotPass = async (req, res) => {
  */
 const checkResetToken = async (req, res) => {
 	try {
-		const user = await User.findOne({ token: req.params.token })
+		const decodedToken = jwt.verify(
+			req.params.token,
+			process.env.SECRET_TOKEN
+		)
+		const userId = decodedToken.userId
+
+		const user = await User.findOne({ _id: userId })
 		if (user) {
 			res.status(200).json({
 				status_code: 200,
@@ -988,6 +1029,7 @@ export {
 	deleteOne,
 	login,
 	signup,
+	verifyEmail,
 	forgotPass,
 	checkResetToken,
 	setNewsletter,
