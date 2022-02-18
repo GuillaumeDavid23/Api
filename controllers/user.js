@@ -8,7 +8,6 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import sendMail from '../util/mail.js'
-import { ObjectId } from 'mongodb'
 dotenv.config()
 
 //CREATE USER
