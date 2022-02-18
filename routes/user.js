@@ -223,7 +223,7 @@ router.delete(
 	checkAccess(['agent']),
 	CHK.checkUserExistence(),
 	validation,
-	anonymize
+	UC.anonymize
 )
 
 export default router
