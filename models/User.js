@@ -14,6 +14,7 @@ const userSchema = mongoose.Schema(
 		newsletter: { type: Boolean, default: 0 },
 		status: { type: Boolean, required: true, default: false },
 		ref: { type: String },
+		deletedAt: { type: Date },
 
 		//Roles:
 		buyer: {

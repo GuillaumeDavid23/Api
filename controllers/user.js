@@ -368,29 +368,23 @@ const deleteOne = async (req, res) => {
 const signup = async (req, res) => {
 	let datas = req.body
 
-	if (datas.password != null) {
-		try {
-			let hash = await bcrypt.hash(datas.password, 10)
-			const user = new User({
-				...datas,
-				password: hash,
-			})
-			await user.save().then(() =>
-				res.status(201).json({
-					status_code: 201,
-					message: 'Compte créé !',
-				})
-			)
-		} catch (error) {
-			res.status(500).json({
-				status_code: 500,
-				error: error.message,
-			})
-		}
-	} else {
-		res.status(400).json({
-			status_code: 400,
-			message: 'Mot de passe vide',
+	try {
+		let hash = await bcrypt.hash(datas.password, 10)
+		const user = new User({
+			...datas,
+			password: hash,
+		})
+
+		await user.save()
+
+		res.status(201).json({
+			status_code: 201,
+			message: 'Compte créé !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
 		})
 	}
 }
@@ -427,7 +421,7 @@ const login = async (req, res) => {
 					expiresIn: '5h',
 				}
 			)
-			sendMail('emailVerification', { to: user.email, token })
+			// sendMail('emailVerification', { to: user.email, token })
 			return res.status(403).json({
 				status_code: 403,
 				error: 'Vérification par email nécessaire.',
@@ -530,7 +524,7 @@ const forgotPass = async (req, res) => {
 
 		await User.updateOne({ _id: user._id }, { token })
 
-		await sendMail('forgotPass', { to: datas.email, token })
+		// await sendMail('forgotPass', { to: datas.email, token })
 
 		res.status(200).json({ message: 'Email de réinitialisation envoyé.' })
 	} catch (error) {
