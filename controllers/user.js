@@ -553,6 +553,37 @@ const checkResetToken = async (req, res) => {
 }
 
 // SETNEWSLETTER
+/**
+ * @api {get} /api/user/setNewsletter/:_id 6 - Activer les newsletters
+ * @apiName setNewsletter
+ * @apiGroup Utilisateur
+ *
+ * @apiParam {String} _id id de l'utilisateur.
+ *
+ * @apiSuccess {User} user Objet Utilisateur.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *			status_code: 200,
+ *			message: 'Utilisateur inscrit à la newsletter !',
+ *		}
+ *
+ *  @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *		    status_code: 200,
+ *		    message: 'Vous êtes déjà inscrit à la newsletter.',
+ *		}
+ * @apiError ServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     	HTTP/1.1 500 Server Error
+ *     	{
+ *			status_code: 500,
+ *			error: error.message,
+ *		}
+ */
 const setNewsletter = async (req, res) => {
 	try {
 		const user = await findById(req.params._id)
@@ -575,6 +606,37 @@ const setNewsletter = async (req, res) => {
 }
 
 // UNSETNEWSLETTER
+/**
+ * @api {get} /api/user/unsetNewsletter/:_id 6.1 - Désactiver les newsletters
+ * @apiName unsetNewsletter
+ * @apiGroup Utilisateur
+ *
+ * @apiParam {String} _id id de l'utilisateur.
+ *
+ * @apiSuccess {String} message Utilisateur désinscrit à la newsletter !.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *			status_code: 200,
+ *			message: 'Utilisateur désinscrit à la newsletter !',
+ *		}
+ *
+ *  @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *		    status_code: 200,
+ *		    message: "Vous n'êtes pas inscrit à la newsletter.",
+ *		}
+ * @apiError ServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     	HTTP/1.1 500 Server Error
+ *     	{
+ *			status_code: 500,
+ *			error: error.message,
+ *		}
+ */
 const unsetNewsletter = async (req, res) => {
 	try {
 		const user = await findById(req.params._id)
