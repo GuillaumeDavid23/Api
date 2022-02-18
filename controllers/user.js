@@ -902,7 +902,7 @@ const getBuyers = async (req, res) => {
 
 //UPDATE WishList USER
 /**
- * @api {put} /api/user/wishlist/:_id 2.1 - Ajouter un favori
+ * @api {get} /api/user/wishlist/:_id 2.1 - Ajouter un favori
  * @apiName addToWishlist
  * @apiGroup Utilisateur
  *
