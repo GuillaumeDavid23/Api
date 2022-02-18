@@ -39,6 +39,14 @@ router.post('/forgot', CHK.checkForForgotPass(), validation, UC.forgotPass)
 
 //(Create) Création admin d'un acheteur
 router.post(
+	'/',
+	auth,
+	checkAccess(['agent']),
+	checkUserCommonBody(),
+	validation,
+	create
+)
+router.post(
 	'/buyer',
 	auth,
 	checkAccess(['agent']),
@@ -162,6 +170,7 @@ router.get(
 	auth,
 	checkAccess(['buyer', 'seller', 'agent']),
 	CHK.checkUserExistence(),
+	validation,
 	UC.checkAgentAvailabilities
 )
 
@@ -171,6 +180,7 @@ router.get(
 	auth,
 	checkAccess(['buyer']),
 	checkPropertyExistence(),
+	validation,
 	UC.addToWishlist
 )
 
@@ -180,6 +190,7 @@ router.get(
 	auth,
 	checkAccess(['buyer']),
 	checkPropertyExistence(),
+	validation,
 	UC.removeOfWishlist
 )
 
@@ -189,6 +200,7 @@ router.get(
 	auth,
 	checkAccess(['agent']),
 	checkPropertyExistence(),
+	validation,
 	UC.addToPropertyList
 )
 
@@ -198,10 +210,20 @@ router.get(
 	auth,
 	checkAccess(['agent']),
 	checkPropertyExistence(),
+	validation,
 	UC.removeOfPropertyList
 )
 
 //(Get) Récupération d'un utilisateur
 router.get('/:_id', auth, validateParamId(), validation, UC.getOne)
+
+router.delete(
+	'/anonymize/:_id',
+	auth,
+	checkAccess(['agent']),
+	checkUserExistence(),
+	validation,
+	anonymize
+)
 
 export default router

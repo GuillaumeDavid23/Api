@@ -1,8 +1,14 @@
 import User from '../models/User.js'
+import Appointment from '../models/Appointment.js'
+import Inventory from '../models/Inventory.js'
+import Property from '../models/Property.js'
+import Rental from '../models/Rental.js'
+import Transaction from '../models/Transaction.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import sendMail from '../util/mail.js'
+import { ObjectId } from 'mongodb'
 dotenv.config()
 
 //CREATE USER
@@ -371,17 +377,18 @@ const signup = async (req, res) => {
 	if (datas.password != null) {
 		try {
 			let hash = await bcrypt.hash(datas.password, 10)
-			const user = new User({
+			var user = new User({
 				...datas,
 				password: hash,
 			})
-			await user.save().then(() =>
-				res.status(201).json({
-					status_code: 201,
-					message: 'Compte créé !',
-				})
-			)
+			user = await user.save()
+			sendVerificationMail(user._id, user.email)
+			res.status(201).json({
+				status_code: 201,
+				message: 'Compte créé !',
+			})
 		} catch (error) {
+			console.log(error)
 			res.status(500).json({
 				status_code: 500,
 				error: error.message,
@@ -420,18 +427,7 @@ const login = async (req, res) => {
 				error: 'Utilisateur non trouvé !',
 			})
 		if (user.status == false && deletedAt == undefined) {
-			let token = jwt.sign(
-				{ userId: user._id },
-				process.env.SECRET_TOKEN,
-				{
-					expiresIn: '5h',
-				}
-			)
-			sendMail('emailVerification', { to: user.email, token })
-			return res.status(403).json({
-				status_code: 403,
-				error: 'Vérification par email nécessaire.',
-			})
+			sendVerificationMail(user._id, user.email)
 		}
 		if (user.status == false && deletedAt != undefined) {
 			return res.status(403).json({
@@ -461,6 +457,13 @@ const login = async (req, res) => {
 			error: error.message,
 		})
 	}
+}
+
+const sendVerificationMail = (id, email) => {
+	let token = jwt.sign({ userId: id }, process.env.SECRET_TOKEN, {
+		expiresIn: '5h',
+	})
+	return sendMail('emailVerification', { to: email, token })
 }
 
 /**
@@ -1106,6 +1109,128 @@ const getSellers = async (req, res) => {
 	}
 }
 
+const anonymize = async (req, res) => {
+	try {
+		// Récupération de l'id et de la ref à anonymiser:
+		const userToAnonymize = await User.findOne({ _id: req.params._id })
+		const idToAnonymize = userToAnonymize._id
+		const refToAnonymize = userToAnonymize.ref
+
+		// Récupération de l'id et de la ref Anonymous:
+		const anonymous = await User.findOne({
+			lastname: 'Anonymous',
+			firstname: 'Anonymous',
+		})
+		const idAnonymous = anonymous._id
+		const refAnonymous = anonymous.ref
+
+		// Update dans les collections Appointment:
+		await Appointment.updateMany(
+			{ id_buyer: idToAnonymize },
+			{ id_buyer: idAnonymous }
+		)
+		await Appointment.updateMany(
+			{ id_agent: idToAnonymize },
+			{ id_agent: idAnonymous }
+		)
+
+		// Update dans les collections Inventory:
+		await Inventory.updateMany(
+			{ id_agent: idToAnonymize },
+			{ id_agent: idAnonymous }
+		)
+		await Inventory.updateMany(
+			{ userReference: refToAnonymize },
+			{ userReference: refAnonymous }
+		)
+		await Inventory.updateMany(
+			{ previousBuyerRef: refToAnonymize },
+			{ previousBuyerRef: refAnonymous }
+		)
+
+		// Update dans les collections Property:
+		await Property.updateMany(
+			{ 'buyers._id': idToAnonymize },
+			{ $set: { 'buyers.$._id': idAnonymous } }
+		)
+		await Property.updateMany(
+			{ 'wishers._id': idToAnonymize },
+			{ $set: { 'wishers.$._id': idAnonymous } }
+		)
+
+		// Update dans les collections Rental:
+		await Rental.updateMany(
+			{ 'id_buyers._id': idToAnonymize },
+			{ $set: { 'id_buyers.$._id': idAnonymous } }
+		)
+
+		// Update dans les collections Transaction:
+		await Transaction.updateMany(
+			{ id_agent: refToAnonymize },
+			{ id_agent: refAnonymous }
+		)
+		await Transaction.updateMany(
+			{ 'lst_buyer._id': idToAnonymize },
+			{ $set: { lst_buyer: idAnonymous } }
+		)
+		await Transaction.updateMany(
+			{ 'lst_seller._id': idToAnonymize },
+			{ $set: { lst_seller: idAnonymous } }
+		)
+
+		// let transactions = await Transaction.find({
+		// 	'lst_seller._id': idToAnonymize,
+		// })
+		let transactions = await Transaction.find()
+		console.log(transactions)
+		transactions.forEach(async (transaction) => {
+			var lst_seller = transaction.lst_seller
+			lst_seller.forEach((seller) => {
+				if (seller.valueOf() == idToAnonymize) {
+					console.log(1)
+					seller = ObjectId(idAnonymous)
+				}
+			})
+			await Transaction.updateOne(
+				{ _id: transaction._id },
+				{ lst_seller }
+			)
+		})
+
+		// transaction.lst_seller.forEach((seller) => {
+		// 	if (seller.valueOf() == idToAnonymize)
+		// 		Transaction.updateOne({_id: seller._id}, {$addToSet: {}})
+		// })
+		// })
+
+		// Transaction.find({ 'lst_seller._id': idToAnonymize }).exec(
+		// 	(err, result) => {
+		// 		if (err) throw err
+		// 		if (result) {
+		// 			result.forEach((resul) => {
+		// 				resul.lst_seller.idToAnonymize = idAnonymous
+		// 				result.save()
+		// 			})
+
+		// 			console.log('new value')
+		// 		} else {
+		// 			console.log('not found')
+		// 		}
+		// 	}
+		// )
+
+		// Suppression du compte utilisateur:
+
+		// Réponse:
+		res.status(200).json({
+			status_code: 200,
+			message: 'Anonymisation réussie.',
+		})
+	} catch (error) {
+		res.status(500).json({ error: error.message })
+	}
+}
+
 export {
 	getOne,
 	getAll,
@@ -1127,4 +1252,5 @@ export {
 	getSellers,
 	addToPropertyList,
 	removeOfPropertyList,
+	anonymize,
 }
