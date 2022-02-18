@@ -1,37 +1,8 @@
 import express from 'express'
-import {
-	getOne,
-	getAll,
-	create,
-	update,
-	deleteOne,
-	login,
-	signup,
-	forgotPass,
-	checkResetToken,
-	setNewsletter,
-	unsetNewsletter,
-	getAgents,
-	checkAgentAvailabilities,
-	getBuyers,
-	addToWishlist,
-	removeOfWishlist,
-	getSellers,
-	addToPropertyList,
-	removeOfPropertyList,
-} from '../controllers/user.js'
+import * as UC from '../controllers/user.js'
+import * as CHK from '../middleware/validation/user.js'
 import auth from '../middleware/auth.js'
 import checkAccess from '../middleware/checkAccess.js'
-import {
-	checkUserCommonBody,
-	checkBuyerBody,
-	checkSellerBody,
-	checkAgentBody,
-	checkForLogin,
-	checkForForgotPass,
-	checkForResetToken,
-	checkUserExistence,
-} from '../middleware/validation/user.js'
 import { checkPropertyExistence } from '../middleware/validation/property.js'
 import {
 	validateParamId,
@@ -40,38 +11,38 @@ import {
 
 const router = express.Router()
 //(Login) Connexion d'un utilisateur
-router.post('/login', checkForLogin(), validation, login)
+router.post('/login', CHK.checkForLogin(), validation, UC.login)
 
 //(SignUp) Inscription d'un vendeur
 router.post(
 	'/sellerSignup',
-	checkUserCommonBody(),
-	checkSellerBody(),
+	CHK.checkUserCommonBody(),
+	CHK.checkSellerBody(),
 	validation,
-	signup
+	UC.signup
 )
 
 //(SignUp) Inscription d'un acheteur
 router.post(
 	'/buyerSignup',
-	checkUserCommonBody(),
-	checkBuyerBody(),
+	CHK.checkUserCommonBody(),
+	CHK.checkBuyerBody(),
 	validation,
-	signup
+	UC.signup
 )
 
 //(Forgot) Mot de passe oublié
-router.post('/forgot', checkForForgotPass(), validation, forgotPass)
+router.post('/forgot', CHK.checkForForgotPass(), validation, UC.forgotPass)
 
 //(Create) Création admin d'un acheteur
 router.post(
 	'/buyer',
 	auth,
 	checkAccess(['agent']),
-	checkUserCommonBody(),
-	checkBuyerBody(),
+	CHK.checkUserCommonBody(),
+	CHK.checkBuyerBody(),
 	validation,
-	create
+	UC.create
 )
 
 //(Create) Création admin d'un vendeur
@@ -79,10 +50,10 @@ router.post(
 	'/seller',
 	auth,
 	checkAccess(['agent']),
-	checkUserCommonBody(),
-	checkSellerBody(),
+	CHK.checkUserCommonBody(),
+	CHK.checkSellerBody(),
 	validation,
-	create
+	UC.create
 )
 
 //(Create) Création admin d'un agent
@@ -90,10 +61,10 @@ router.post(
 	'/agent',
 	auth,
 	checkAccess(['agent']),
-	checkUserCommonBody(),
-	checkAgentBody(),
+	CHK.checkUserCommonBody(),
+	CHK.checkAgentBody(),
 	validation,
-	create
+	UC.create
 )
 
 //(Update) Mise à jour d'un acheteur
@@ -101,11 +72,11 @@ router.put(
 	'/buyer/:_id',
 	auth,
 	checkAccess(['agent', 'buyer']),
-	checkUserExistence(),
-	checkUserCommonBody(),
-	checkBuyerBody(),
+	CHK.checkUserExistence(),
+	CHK.checkUserCommonBody(),
+	CHK.checkBuyerBody(),
 	validation,
-	update
+	UC.update
 )
 
 //(Update) Mise à jour d'un vendeur
@@ -113,11 +84,11 @@ router.put(
 	'/seller/:_id',
 	auth,
 	checkAccess(['agent', 'seller']),
-	checkUserExistence(),
-	checkUserCommonBody(),
-	checkSellerBody(),
+	CHK.checkUserExistence(),
+	CHK.checkUserCommonBody(),
+	CHK.checkSellerBody(),
 	validation,
-	update
+	UC.update
 )
 
 //(Update) Mise à jour d'un agent
@@ -125,11 +96,11 @@ router.put(
 	'/agent/:_id',
 	auth,
 	checkAccess(['agent']),
-	checkUserExistence(),
-	checkUserCommonBody(),
-	checkAgentBody(),
+	CHK.checkUserExistence(),
+	CHK.checkUserCommonBody(),
+	CHK.checkAgentBody(),
 	validation,
-	update
+	UC.update
 )
 
 //(Delete) Désactivation d'un utilisateur
@@ -137,25 +108,25 @@ router.put(
 	'/delete/:_id',
 	auth,
 	checkAccess(['buyer', 'seller', 'agent']),
-	checkUserExistence(),
+	CHK.checkUserExistence(),
 	validation,
-	deleteOne
+	UC.deleteOne
 )
 
 //(Get) Récuperation des utilisateurs
-router.get('/', auth, checkAccess(['agent']), getAll)
+router.get('/', auth, checkAccess(['agent']), UC.getAll)
 
 //(Check) Vérification du token
-router.get('/check/:token', checkForResetToken(), checkResetToken)
+router.get('/check/:token', CHK.checkForResetToken(), UC.checkResetToken)
 
 //(Update) Activation des newletters
 router.get(
 	'/setNewsletter/:_id',
 	auth,
 	checkAccess(['buyer', 'seller', 'agent']),
-	checkUserExistence(),
+	CHK.checkUserExistence(),
 	validation,
-	setNewsletter
+	UC.setNewsletter
 )
 
 //(Update) Désactivation des newletters
@@ -163,9 +134,9 @@ router.get(
 	'/unsetNewsletter/:_id',
 	auth,
 	checkAccess(['buyer', 'seller', 'agent']),
-	checkUserExistence(),
+	CHK.checkUserExistence(),
 	validation,
-	unsetNewsletter
+	UC.unsetNewsletter
 )
 
 //(Get) Récupération de tous les agents
@@ -173,22 +144,22 @@ router.get(
 	'/agents',
 	auth,
 	checkAccess(['buyer', 'seller', 'agent']),
-	getAgents
+	UC.getAgents
 )
 
 //(Get) Récupération de tous les acheteurs
-router.get('/buyers', auth, checkAccess(['agent']), getBuyers)
+router.get('/buyers', auth, checkAccess(['agent']), UC.getBuyers)
 
 //(Get) Récupération de tous les vendeurs
-router.get('/sellers', auth, checkAccess(['agent']), getSellers)
+router.get('/sellers', auth, checkAccess(['agent']), UC.getSellers)
 
 //(Get) Récupération des disponibilité d'un agent
 router.get(
 	'/agentAvailabilities/:_id',
 	auth,
 	checkAccess(['buyer', 'seller', 'agent']),
-	checkUserExistence(),
-	checkAgentAvailabilities
+	CHK.checkUserExistence(),
+	UC.checkAgentAvailabilities
 )
 
 //(Update) Ajout d'un favoris dans la wishlist
@@ -197,7 +168,7 @@ router.put(
 	auth,
 	checkAccess(['buyer']),
 	checkPropertyExistence(),
-	addToWishlist
+	UC.addToWishlist
 )
 
 //(Delete) Suppression d'un favoris dans la wishlist
@@ -206,7 +177,7 @@ router.delete(
 	auth,
 	checkAccess(['buyer']),
 	checkPropertyExistence(),
-	removeOfWishlist
+	UC.removeOfWishlist
 )
 
 //(Update) Ajout d'une propriété dans la liste d'un vendeur
@@ -215,7 +186,7 @@ router.put(
 	auth,
 	checkAccess(['agent']),
 	checkPropertyExistence(),
-	addToPropertyList
+	UC.addToPropertyList
 )
 
 //(Delete) Suppression d'une propriété dans la liste d'un vendeur
@@ -224,10 +195,10 @@ router.delete(
 	auth,
 	checkAccess(['agent']),
 	checkPropertyExistence(),
-	removeOfPropertyList
+	UC.removeOfPropertyList
 )
 
 //(Get) Récupération d'un utilisateur
-router.get('/:_id', auth, validateParamId(), validation, getOne)
+router.get('/:_id', auth, validateParamId(), validation, UC.getOne)
 
 export default router

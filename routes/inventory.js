@@ -1,16 +1,5 @@
 import express from 'express'
-import {
-	create,
-	update,
-	erase,
-	getAll,
-	getOne,
-	getAllForOneUser,
-	addRoomDetails,
-	removeRoomDetails,
-	addStatsMeters,
-	removeStatsMeters,
-} from '../controllers/inventory.js'
+import * as IC from '../controllers/inventory.js'
 import auth from '../middleware/auth.js'
 import checkAccess from '../middleware/checkAccess.js'
 import {
@@ -25,20 +14,20 @@ import {
 
 const router = express.Router()
 //(Update) Ajout d'un état de pièce dans lst_roomDetails
-router.put('/room/:_id', auth, checkAccess(['agent']), addRoomDetails)
+router.put('/room/:_id', auth, checkAccess(['agent']), IC.addRoomDetails)
 
 //(Delete) Suppression d'un état de pièce dans lst_roomDetails
-router.delete('/room/:_id', auth, checkAccess(['agent']), removeRoomDetails)
+router.delete('/room/:_id', auth, checkAccess(['agent']), IC.removeRoomDetails)
 
 //(Update) Ajout d'un relevé dans lst_statsMeters
-router.put('/statsmeters/:_id', auth, checkAccess(['agent']), addStatsMeters)
+router.put('/statsmeters/:_id', auth, checkAccess(['agent']), IC.addStatsMeters)
 
 //(Delete) Suppression d'un relevé dans lst_statsMeters
 router.delete(
 	'/statsmeters/:_id',
 	auth,
 	checkAccess(['agent']),
-	removeStatsMeters
+	IC.removeStatsMeters
 )
 
 //(Create) Création d'un état des lieux
@@ -48,7 +37,7 @@ router.post(
 	checkAccess(['agent']),
 	checkInventoryBody(),
 	validation,
-	create
+	IC.create
 )
 
 //(Update) Mise à jour d'un état des lieux
@@ -59,7 +48,7 @@ router.put(
 	checkInventoryExistence(),
 	checkInventoryBody(),
 	validation,
-	update
+	IC.update
 )
 
 //(Delete) Suppression d'un état des lieux
@@ -69,11 +58,11 @@ router.delete(
 	checkAccess(['agent']),
 	checkInventoryExistence(),
 	validation,
-	erase
+	IC.erase
 )
 
 //(Get) Récupération de tout les état des lieux
-router.get('/', auth, checkAccess(['agent']), getAll)
+router.get('/', auth, checkAccess(['agent']), IC.getAll)
 
 //(Get) Récupération d'un état des lieux
 router.get(
@@ -82,7 +71,7 @@ router.get(
 	checkAccess(['agent']),
 	validateParamId(),
 	validation,
-	getOne
+	IC.getOne
 )
 
 //(Get) Récupération des état des lieux par rapport à un utilisateur
@@ -92,7 +81,7 @@ router.get(
 	checkAccess(['agent']),
 	checkUserExistence(),
 	validation,
-	getAllForOneUser
+	IC.getAllForOneUser
 )
 
 export default router

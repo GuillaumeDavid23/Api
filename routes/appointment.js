@@ -1,12 +1,5 @@
 import express from 'express'
-import {
-	create,
-	update,
-	erase,
-	getAll,
-	getOne,
-	getParticipants,
-} from '../controllers/appointment.js'
+import * as AC from '../controllers/appointment.js'
 import auth from '../middleware/auth.js'
 import checkAccess from '../middleware/checkAccess.js'
 import {
@@ -27,7 +20,7 @@ router.post(
 	checkAccess(['seller', 'buyer', 'agent']),
 	checkAppointmentBody(),
 	validation,
-	create
+	AC.create
 )
 
 //(Update) Mise à jour d'un rendez-vous
@@ -38,7 +31,7 @@ router.put(
 	checkAppointmentExistence(),
 	checkAppointmentBody(),
 	validation,
-	update
+	AC.update
 )
 
 //(Delete) Suppression d'un rendez-vous
@@ -48,11 +41,11 @@ router.delete(
 	checkAccess(['seller', 'buyer', 'agent']),
 	checkAppointmentExistence(),
 	validation,
-	erase
+	AC.erase
 )
 
 //(Get) Récupération de toutes les rendez-vous
-router.get('/', auth, checkAccess(['agent']), getAll)
+router.get('/', auth, checkAccess(['agent']), AC.getAll)
 
 //(Get) Récupération d'une rendez-vous
 router.get(
@@ -61,7 +54,7 @@ router.get(
 	checkAccess(['seller', 'buyer', 'agent']),
 	validateParamId(),
 	validation,
-	getOne
+	AC.getOne
 )
 
 //(Get) Récupération des participant à un rendez-vous
@@ -71,7 +64,7 @@ router.get(
 	checkAccess(['seller', 'buyer', 'agent']),
 	checkAppointmentExistence(),
 	validation,
-	getParticipants
+	AC.getParticipants
 )
 
 export default router

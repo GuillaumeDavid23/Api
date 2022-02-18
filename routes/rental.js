@@ -1,5 +1,5 @@
 import express from 'express'
-import { create, update, erase, getAll, getOne } from '../controllers/rental.js'
+import * as RC from '../controllers/rental.js'
 import auth from '../middleware/auth.js'
 import checkAccess from '../middleware/checkAccess.js'
 import {
@@ -20,7 +20,7 @@ router.post(
 	checkAccess(['agent']),
 	checkRentalBody(),
 	validation,
-	create
+	RC.create
 )
 
 //(Update) Mise à jour d'une location
@@ -31,7 +31,7 @@ router.put(
 	checkRentalExistence(),
 	checkRentalBody(),
 	validation,
-	update
+	RC.update
 )
 
 //(Delete) Suppression d'une location
@@ -41,7 +41,7 @@ router.delete(
 	checkAccess(['agent']),
 	checkRentalExistence(),
 	validation,
-	erase
+	RC.erase
 )
 
 //(Get) Récupération de toutes les locations
@@ -51,10 +51,10 @@ router.get(
 	checkAccess(['agent']),
 	validateParamId(),
 	validation,
-	getOne
+	RC.getOne
 )
 
 //(Get) Récupération d'une location
-router.get('/', auth, checkAccess(['agent']), getAll)
+router.get('/', auth, checkAccess(['agent']), RC.getAll)
 
 export default router

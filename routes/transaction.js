@@ -1,15 +1,5 @@
 import express from 'express'
-import {
-	create,
-	update,
-	erase,
-	getAll,
-	getOne,
-	addBuyer,
-	removeBuyer,
-	addSeller,
-	removeSeller,
-} from '../controllers/transaction.js'
+import * as TC from '../controllers/transaction.js'
 import auth from '../middleware/auth.js'
 import checkAccess from '../middleware/checkAccess.js'
 import {
@@ -24,16 +14,16 @@ import {
 const router = express.Router()
 
 //(Update) Ajout d'un vendeur dans lst_buyer
-router.put('/buyer/:_id', auth, checkAccess(['agent']), addBuyer)
+router.put('/buyer/:_id', auth, checkAccess(['agent']), TC.addBuyer)
 
 //(Delete) Suppression d'un vendeur dans lst_buyer
-router.delete('/buyer/:_id', auth, checkAccess(['agent']), removeBuyer)
+router.delete('/buyer/:_id', auth, checkAccess(['agent']), TC.removeBuyer)
 
 //(Update) Ajout d'un vendeur dans lst_seller
-router.put('/seller/:_id', auth, checkAccess(['agent']), addSeller)
+router.put('/seller/:_id', auth, checkAccess(['agent']), TC.addSeller)
 
 //(Delete) Suppression d'un vendeur dans lst_seller
-router.delete('/seller/:_id', auth, checkAccess(['agent']), removeSeller)
+router.delete('/seller/:_id', auth, checkAccess(['agent']), TC.removeSeller)
 
 //(Create) Création d'une transaction
 router.post(
@@ -42,7 +32,7 @@ router.post(
 	checkAccess(['agent']),
 	checkTransactionBody(),
 	validation,
-	create
+	TC.create
 )
 
 //(Update) Mise à jour d'une transaction
@@ -53,7 +43,7 @@ router.put(
 	checkTransactionExistence(),
 	checkTransactionBody(),
 	validation,
-	update
+	TC.update
 )
 
 //(Delete) Suppression d'une transaction
@@ -63,11 +53,11 @@ router.delete(
 	checkAccess(['agent']),
 	checkTransactionExistence(),
 	validation,
-	erase
+	TC.erase
 )
 
 //(Get) Récuperation de toutes les transactions
-router.get('/', auth, checkAccess(['agent']), getAll)
+router.get('/', auth, checkAccess(['agent']), TC.getAll)
 
 //(Get) Récuperation d'une transaction
 router.get(
@@ -76,7 +66,7 @@ router.get(
 	checkAccess(['agent']),
 	validateParamId(),
 	validation,
-	getOne
+	TC.getOne
 )
 
 export default router
