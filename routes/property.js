@@ -35,6 +35,7 @@ router.delete('/heater/:_id', auth, checkAccess(['agent']), PC.removeHeater)
 router.post(
 	'/',
 	auth,
+	checkAccess(['agent']),
 	multer,
 	checkPropertyBody(),
 	validation,
@@ -46,9 +47,12 @@ router.get('/', PC.getAllProperties)
 
 //(Get) Récupération d'une propriété
 router.get('/:_id', validateParamId(), validation, PC.getPropertyById)
+
+//(Update) Mise à jour d'une propriété
 router.put(
 	'/:_id',
 	auth,
+	checkAccess(['agent']),
 	multer,
 	checkPropertyExistence(),
 	checkPropertyBody(),
@@ -60,6 +64,7 @@ router.put(
 router.delete(
 	'/:_id',
 	auth,
+	checkAccess(['agent']),
 	checkPropertyExistence(),
 	validation,
 	PC.deleteProperty
