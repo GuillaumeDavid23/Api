@@ -42,12 +42,20 @@ router.delete(
 )
 
 //(Create) Création d'un état des lieux
-router.post('/', auth, checkInventoryBody(), validation, create)
+router.post(
+	'/',
+	auth,
+	checkAccess(['agent']),
+	checkInventoryBody(),
+	validation,
+	create
+)
 
 //(Update) Mise à jour d'un état des lieux
 router.put(
 	'/:_id',
 	auth,
+	checkAccess(['agent']),
 	checkInventoryExistence(),
 	checkInventoryBody(),
 	validation,
@@ -55,18 +63,33 @@ router.put(
 )
 
 //(Delete) Suppression d'un état des lieux
-router.delete('/:_id', auth, checkInventoryExistence(), validation, erase)
+router.delete(
+	'/:_id',
+	auth,
+	checkAccess(['agent']),
+	checkInventoryExistence(),
+	validation,
+	erase
+)
 
 //(Get) Récupération de tout les état des lieux
-router.get('/', auth, getAll)
+router.get('/', auth, checkAccess(['agent']), getAll)
 
 //(Get) Récupération d'un état des lieux
-router.get('/:_id', auth, validateParamId(), validation, getOne)
+router.get(
+	'/:_id',
+	auth,
+	checkAccess(['agent']),
+	validateParamId(),
+	validation,
+	getOne
+)
 
 //(Get) Récupération des état des lieux par rapport à un utilisateur
 router.get(
 	'/getAllForOneUser/:_id',
 	auth,
+	checkAccess(['agent']),
 	checkUserExistence(),
 	validation,
 	getAllForOneUser

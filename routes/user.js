@@ -39,8 +39,10 @@ import {
 } from '../middleware/validation/validation.js'
 
 const router = express.Router()
-
+//(Login) Connexion d'un utilisateur
 router.post('/login', checkForLogin(), validation, login)
+
+//(SignUp) Inscription d'un vendeur
 router.post(
 	'/sellerSignup',
 	checkUserCommonBody(),
@@ -48,6 +50,8 @@ router.post(
 	validation,
 	signup
 )
+
+//(SignUp) Inscription d'un acheteur
 router.post(
 	'/buyerSignup',
 	checkUserCommonBody(),
@@ -55,7 +59,11 @@ router.post(
 	validation,
 	signup
 )
+
+//(Forgot) Mot de passe oublié
 router.post('/forgot', checkForForgotPass(), validation, forgotPass)
+
+//(Create) Création admin d'un acheteur
 router.post(
 	'/buyer',
 	auth,
@@ -65,6 +73,8 @@ router.post(
 	validation,
 	create
 )
+
+//(Create) Création admin d'un vendeur
 router.post(
 	'/seller',
 	auth,
@@ -74,6 +84,8 @@ router.post(
 	validation,
 	create
 )
+
+//(Create) Création admin d'un agent
 router.post(
 	'/agent',
 	auth,
@@ -83,6 +95,8 @@ router.post(
 	validation,
 	create
 )
+
+//(Update) Mise à jour d'un acheteur
 router.put(
 	'/buyer/:_id',
 	auth,
@@ -93,6 +107,8 @@ router.put(
 	validation,
 	update
 )
+
+//(Update) Mise à jour d'un vendeur
 router.put(
 	'/seller/:_id',
 	auth,
@@ -103,6 +119,8 @@ router.put(
 	validation,
 	update
 )
+
+//(Update) Mise à jour d'un agent
 router.put(
 	'/agent/:_id',
 	auth,
@@ -113,29 +131,58 @@ router.put(
 	validation,
 	update
 )
-router.put('/delete/:_id', auth, checkUserExistence(), validation, deleteOne)
+
+//(Delete) Désactivation d'un utilisateur
+router.put(
+	'/delete/:_id',
+	auth,
+	checkAccess(['buyer', 'seller', 'agent']),
+	checkUserExistence(),
+	validation,
+	deleteOne
+)
+
+//(Get) Récuperation des utilisateurs
 router.get('/', auth, checkAccess(['agent']), getAll)
+
+//(Check) Vérification du token
 router.get('/check/:token', checkForResetToken(), checkResetToken)
+
+//(Update) Activation des newletters
 router.get(
 	'/setNewsletter/:_id',
 	auth,
+	checkAccess(['buyer', 'seller', 'agent']),
 	checkUserExistence(),
 	validation,
 	setNewsletter
 )
+
+//(Update) Désactivation des newletters
 router.get(
 	'/unsetNewsletter/:_id',
 	auth,
+	checkAccess(['buyer', 'seller', 'agent']),
 	checkUserExistence(),
 	validation,
 	unsetNewsletter
 )
+
+//(Get) Récupération de tous les agents
 router.get(
 	'/agents',
 	auth,
 	checkAccess(['buyer', 'seller', 'agent']),
 	getAgents
 )
+
+//(Get) Récupération de tous les acheteurs
+router.get('/buyers', auth, checkAccess(['agent']), getBuyers)
+
+//(Get) Récupération de tous les vendeurs
+router.get('/sellers', auth, checkAccess(['agent']), getSellers)
+
+//(Get) Récupération des disponibilité d'un agent
 router.get(
 	'/agentAvailabilities/:_id',
 	auth,
@@ -143,8 +190,8 @@ router.get(
 	checkUserExistence(),
 	checkAgentAvailabilities
 )
-//ROUTE SELLER WISH LIST
 
+//(Update) Ajout d'un favoris dans la wishlist
 router.put(
 	'/wishlist/',
 	auth,
@@ -152,6 +199,8 @@ router.put(
 	checkPropertyExistence(),
 	addToWishlist
 )
+
+//(Delete) Suppression d'un favoris dans la wishlist
 router.delete(
 	'/wishlist/',
 	auth,
@@ -160,23 +209,25 @@ router.delete(
 	removeOfWishlist
 )
 
-//ROUTE SELLER PROPERTY LIST
+//(Update) Ajout d'une propriété dans la liste d'un vendeur
 router.put(
 	'/property/',
 	auth,
-	checkAccess(['seller', 'agent']),
+	checkAccess(['agent']),
 	checkPropertyExistence(),
 	addToPropertyList
 )
+
+//(Delete) Suppression d'une propriété dans la liste d'un vendeur
 router.delete(
 	'/property/',
 	auth,
-	checkAccess(['seller', 'agent']),
+	checkAccess(['agent']),
 	checkPropertyExistence(),
 	removeOfPropertyList
 )
-router.get('/buyers', auth, checkAccess(['agent']), getBuyers)
-router.get('/sellers', auth, checkAccess(['agent']), getSellers)
+
+//(Get) Récupération d'un utilisateur
 router.get('/:_id', auth, validateParamId(), validation, getOne)
 
 export default router

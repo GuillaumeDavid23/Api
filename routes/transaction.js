@@ -24,34 +24,32 @@ import {
 const router = express.Router()
 
 //(Update) Ajout d'un vendeur dans lst_buyer
-router.put('/buyer/:_id', auth, checkAccess(['seller', 'agent']), addBuyer)
+router.put('/buyer/:_id', auth, checkAccess(['agent']), addBuyer)
 
 //(Delete) Suppression d'un vendeur dans lst_buyer
-router.delete(
-	'/buyer/:_id',
-	auth,
-	checkAccess(['seller', 'agent']),
-	removeBuyer
-)
+router.delete('/buyer/:_id', auth, checkAccess(['agent']), removeBuyer)
 
 //(Update) Ajout d'un vendeur dans lst_seller
-router.put('/seller/:_id', auth, checkAccess(['seller', 'agent']), addSeller)
+router.put('/seller/:_id', auth, checkAccess(['agent']), addSeller)
 
 //(Delete) Suppression d'un vendeur dans lst_seller
-router.delete(
-	'/seller/:_id',
-	auth,
-	checkAccess(['seller', 'agent']),
-	removeSeller
-)
+router.delete('/seller/:_id', auth, checkAccess(['agent']), removeSeller)
 
 //(Create) Création d'une transaction
-router.post('/', checkTransactionBody(), validation, create)
+router.post(
+	'/',
+	auth,
+	checkAccess(['agent']),
+	checkTransactionBody(),
+	validation,
+	create
+)
 
 //(Update) Mise à jour d'une transaction
 router.put(
 	'/:_id',
 	auth,
+	checkAccess(['agent']),
 	checkTransactionExistence(),
 	checkTransactionBody(),
 	validation,
@@ -59,12 +57,26 @@ router.put(
 )
 
 //(Delete) Suppression d'une transaction
-router.delete('/:_id', auth, checkTransactionExistence(), validation, erase)
+router.delete(
+	'/:_id',
+	auth,
+	checkAccess(['agent']),
+	checkTransactionExistence(),
+	validation,
+	erase
+)
 
-//(Get) Récuperer toutes les transactions
-router.get('/', auth, getAll)
+//(Get) Récuperation de toutes les transactions
+router.get('/', auth, checkAccess(['agent']), getAll)
 
-//(Get) Récuperer une transaction
-router.get('/:_id', auth, validateParamId(), validation, getOne)
+//(Get) Récuperation d'une transaction
+router.get(
+	'/:_id',
+	auth,
+	checkAccess(['agent']),
+	validateParamId(),
+	validation,
+	getOne
+)
 
 export default router
