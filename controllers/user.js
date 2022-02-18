@@ -314,6 +314,7 @@ const deleteOne = async (req, res) => {
 			},
 			{
 				status: 0,
+				deletedAt: new Date(),
 			}
 		)
 		res.status(201).json({
@@ -596,7 +597,8 @@ const checkResetToken = async (req, res) => {
 			req.params.token,
 			process.env.SECRET_TOKEN
 		)
-		const userId = decodedToken.userId
+
+		const userId = decodedToken.userId.valueOf()
 
 		const user = await User.findOne({ _id: userId })
 		if (user) {
