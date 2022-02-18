@@ -459,10 +459,12 @@ const login = async (req, res) => {
 	}
 }
 
-const sendVerificationMail = (id, email) => {
+const sendVerificationMail = async (id, email) => {
 	let token = jwt.sign({ userId: id }, process.env.SECRET_TOKEN, {
 		expiresIn: '5h',
 	})
+
+	await User.updateOne({ _id: id }, { token })
 	return sendMail('emailVerification', { to: email, token })
 }
 
