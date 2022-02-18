@@ -163,8 +163,8 @@ router.get(
 )
 
 //(Update) Ajout d'un favoris dans la wishlist
-router.put(
-	'/wishlist/',
+router.get(
+	'/wishlist/:_id',
 	auth,
 	checkAccess(['buyer']),
 	checkPropertyExistence(),
@@ -172,8 +172,8 @@ router.put(
 )
 
 //(Delete) Suppression d'un favoris dans la wishlist
-router.delete(
-	'/wishlist/',
+router.get(
+	'/wishlist/:_id',
 	auth,
 	checkAccess(['buyer']),
 	checkPropertyExistence(),
@@ -181,8 +181,8 @@ router.delete(
 )
 
 //(Update) Ajout d'une propriété dans la liste d'un vendeur
-router.put(
-	'/property/',
+router.get(
+	'/property/:_id',
 	auth,
 	checkAccess(['agent']),
 	checkPropertyExistence(),
@@ -190,8 +190,8 @@ router.put(
 )
 
 //(Delete) Suppression d'une propriété dans la liste d'un vendeur
-router.delete(
-	'/property/',
+router.get(
+	'/property/:_id',
 	auth,
 	checkAccess(['agent']),
 	checkPropertyExistence(),
