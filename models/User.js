@@ -11,7 +11,7 @@ const userSchema = mongoose.Schema(
 		password: { type: String, required: true },
 		token: { type: String },
 		phone: { type: String },
-		newsletter: { type: Boolean, default: 0 },
+		newsletter: { type: Boolean, default: false },
 		status: { type: Boolean, required: true, default: true },
 		ref: { type: String },
 		deletedAt: { type: Date },
