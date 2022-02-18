@@ -463,6 +463,30 @@ const login = async (req, res) => {
 	}
 }
 
+/**
+ * @api {get} /api/user/emailVerification/:token 6.2 - Vérifier le compte utilisateur
+ * @apiName verifyEmail
+ * @apiGroup Utilisateur
+ *
+ * @apiParam {String} token de l'utilisateur.
+ *
+ * @apiSuccess {User} user Objet Utilisateur.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      message: 'Vérification réussie.',
+ * 		status_code: 200,
+ *     }
+ *
+ * @apiError UserNotFound Aucun utilisateur.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 204 Empty Content
+ *     {
+ *       "error": "Aucun utilisateur !"
+ *     }
+ */
 const verifyEmail = async (req, res) => {
 	try {
 		const decodedToken = jwt.verify(
@@ -884,7 +908,7 @@ const getBuyers = async (req, res) => {
  *
  * @apiHeader {String} Authorization
  *
- * @apiParams {ObjectId} _id id de la propriété à ajouter
+ * @apiParam {ObjectId} _id id de la propriété à ajouter
  *
  * @apiSuccess {String} message Favori ajouté !
  *
@@ -922,7 +946,7 @@ const addToWishlist = async (req, res) => {
  *
  * @apiHeader {String} Authorization
  *
- * @apiParams {ObjectId} _id id de la propriété à supprimer
+ * @apiParam {ObjectId} _id id de la propriété à supprimer
  *
  * @apiSuccess {String} message Favori supprimé !
  *
@@ -966,7 +990,7 @@ const removeOfWishlist = async (req, res) => {
  *
  * @apiHeader {String} Authorization
  *
- * @apiParams {ObjectId} _id id de la propriété à ajouter
+ * @apiParam {ObjectId} _id id de la propriété à ajouter
  *
  * @apiSuccess {String} message Favori ajouté !
  *
@@ -1005,7 +1029,7 @@ const addToPropertyList = async (req, res) => {
  *
  * @apiHeader {String} Authorization
  *
- * @apiParams {ObjectId} _id id de la propriété à supprimer
+ * @apiParam {ObjectId} _id id de la propriété à supprimer
  *
  * @apiSuccess {String} message Favori supprimé !
  *
