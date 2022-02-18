@@ -31,7 +31,7 @@ const propertySchema = Mongoose.Schema(
 				ref: 'User',
 			},
 		],
-		wishers: [{ type: 'ObjectId', ref: 'User' }],
+		wishers: [{ type: Mongoose.Schema.Types.ObjectId, ref: 'User' }],
 	},
 	{ timestamps: true }
 )

@@ -20,6 +20,7 @@ import {
 	getSellers,
 	addToPropertyList,
 	removeOfPropertyList,
+	anonymize,
 } from '../controllers/user.js'
 import auth from '../middleware/auth.js'
 import checkAccess from '../middleware/checkAccess.js'
@@ -58,6 +59,14 @@ router.post(
 )
 router.post('/forgot', checkForForgotPass(), validation, forgotPass)
 router.get('/emailVerification/:token', verifyEmail)
+router.post(
+	'/',
+	auth,
+	checkAccess(['agent']),
+	checkUserCommonBody(),
+	validation,
+	create
+)
 router.post(
 	'/buyer',
 	auth,
@@ -143,6 +152,7 @@ router.get(
 	auth,
 	checkAccess(['buyer', 'seller', 'agent']),
 	checkUserExistence(),
+	validation,
 	checkAgentAvailabilities
 )
 //ROUTE SELLER WISH LIST
@@ -180,5 +190,14 @@ router.delete(
 router.get('/buyers', auth, checkAccess(['agent']), getBuyers)
 router.get('/sellers', auth, checkAccess(['agent']), getSellers)
 router.get('/:_id', auth, validateParamId(), validation, getOne)
+
+router.delete(
+	'/anonymize/:_id',
+	auth,
+	checkAccess(['agent']),
+	checkUserExistence(),
+	validation,
+	anonymize
+)
 
 export default router
