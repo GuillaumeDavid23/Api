@@ -6,7 +6,7 @@ import { asyncForEach } from '../util/functions.js'
 
 // CREATE
 /**
- * @api {post} /api/property Créer une propriété
+ * @api {post} /api/property 1 - Créer une propriété
  * @apiName createProperty
  * @apiGroup Propriété
  *
@@ -64,7 +64,7 @@ const createProperty = async (req, res) => {
 
 // READ
 /**
- * @api {get} /api/property Récupérer toutes les propriétés
+ * @api {get} /api/property 3 - Récupérer toutes les propriétés
  * @apiName getAllProperties
  * @apiGroup Propriété
  *
@@ -95,7 +95,7 @@ const getAllProperties = async (req, res) => {
 
 // READ ONE
 /**
- * @api {get} /api/property/:id Récupérer une propriété
+ * @api {get} /api/property/:id 3.1 - Récupérer une propriété
  * @apiName getPropertyById
  * @apiGroup Propriété
  *
@@ -138,7 +138,7 @@ const getPropertyById = async (req, res) => {
 
 // UPDATE
 /**
- * @api {put} /api/property/:_id Mettre à jour une propriété
+ * @api {put} /api/property/:_id 2 - Mettre à jour une propriété
  * @apiName updateProperty
  * @apiGroup Propriété
  *
@@ -208,7 +208,7 @@ const updateProperty = async (req, res) => {
 
 // DELETE
 /**
- * @api {delete} /api/property/:_id Supprimer une propriété
+ * @api {delete} /api/property/:_id 4 - Supprimer une propriété
  * @apiName deleteProperty
  * @apiGroup Propriété
  *
@@ -308,7 +308,7 @@ const sendAlert = async (datas, newId) => {
 
 //UPDATE list_equipments
 /**
- * @api {put} /api/property/equipment/:_id 8 - Ajouter un équipement
+ * @api {put} /api/property/equipment/:_id 7 - Ajouter un équipement
  * @apiName addEquipment
  * @apiGroup Propriété
  *
@@ -351,7 +351,7 @@ const addEquipment = async (req, res) => {
 }
 
 /**
- * @api {delete} /api/property/equipment/:_id 9 - Supprimer un équipement
+ * @api {delete} /api/property/equipment/:_id 8 - Supprimer un équipement
  * @apiName removeEquipment
  * @apiGroup Propriété
  *
@@ -395,7 +395,7 @@ const removeEquipment = async (req, res) => {
 
 //UPDATE list_equipments
 /**
- * @api {put} /api/property/heater/:_id 6 - Ajouter un chauffage
+ * @api {put} /api/property/heater/:_id 5 - Ajouter un chauffage
  * @apiName addHeater
  * @apiGroup Propriété
  *
@@ -441,7 +441,7 @@ const addHeater = async (req, res) => {
 }
 
 /**
- * @api {delete} /api/property/heater/:_id 7 - Supprimer un chauffage
+ * @api {delete} /api/property/heater/:_id 6 - Supprimer un chauffage
  * @apiName removeHeater
  * @apiGroup Propriété
  *
