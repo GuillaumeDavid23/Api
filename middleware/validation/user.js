@@ -66,19 +66,11 @@ const checkBuyerBody = () => {
 			.withMessage("La propriété n'est pas valide"),
 
 		body('buyer.budgetMin')
-			.notEmpty()
-			.withMessage('Un budget minimum doit être renseigné'),
-
-		body('buyer.budgetMin')
 			.if(body('buyer.budgetMin').notEmpty())
 			.isInt({ min: 0 })
 			.withMessage(
 				'Le budget doit être une valeur numérique entière positive.'
 			),
-
-		body('buyer.budgetMax')
-			.notEmpty()
-			.withMessage('Un budget maximum doit être renseigné'),
 
 		body('buyer.budgetMax')
 			.if(body('buyer.budgetMax').notEmpty())
@@ -88,19 +80,11 @@ const checkBuyerBody = () => {
 			),
 
 		body('buyer.city')
-			.notEmpty()
-			.withMessage('Une ville de recherche doit être renseigné'),
-
-		body('buyer.city')
 			.if(body('buyer.city').notEmpty())
 			.isString()
 			.withMessage(
 				'La ville désiré ne doit pas contenir de caractères spéciaux.'
 			),
-
-		body('buyer.surfaceMin')
-			.notEmpty()
-			.withMessage('Une surface minimum doit être renseigné'),
 
 		body('buyer.surfaceMin')
 			.if(body('buyer.surfaceMin').notEmpty())
@@ -110,19 +94,11 @@ const checkBuyerBody = () => {
 			),
 
 		body('buyer.surfaceMax')
-			.notEmpty()
-			.withMessage('Une surface maximum doit être renseigné'),
-
-		body('buyer.surfaceMax')
 			.if(body('buyer.surfaceMax').notEmpty())
 			.isInt({ min: 1 })
 			.withMessage(
 				'Le nombre de pièces doit être une valeur numérique entière positive.'
 			),
-
-		body('buyer.type')
-			.notEmpty()
-			.withMessage('Un type de biens doit être renseigné'),
 
 		body('buyer.type')
 			.if(body('buyer.type').notEmpty())

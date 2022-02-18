@@ -560,7 +560,7 @@ const forgotPass = async (req, res) => {
 
 		await User.updateOne({ _id: user._id }, { token })
 
-		await sendMail('forgotPass', { to: datas.email, token })
+		// await sendMail('forgotPass', { to: datas.email, token })
 
 		res.status(200).json({ message: 'Email de réinitialisation envoyé.' })
 	} catch (error) {
