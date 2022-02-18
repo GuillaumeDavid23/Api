@@ -1,5 +1,6 @@
 import mongoose from '../db/db.js'
 import Property from './Property.js'
+// import seeder from 'mongoose-seeder'
 
 const userSchema = mongoose.Schema(
 	{
@@ -52,5 +53,18 @@ const userSchema = mongoose.Schema(
 	},
 	{ timestamps: true }
 )
+
+// try {
+// 	seeder.seed({
+// 		firstname: 'Anonymous',
+// 		lastname: 'Anonymous',
+// 		email: 'anonymous@anonymous.com',
+// 		password: 'Anonymous0',
+// 		newsletter: false,
+// 		status: true,
+// 	})
+// } catch (error) {
+// 	console.log(error.message)
+// }
 
 export default mongoose.model('User', userSchema)
