@@ -1,4 +1,4 @@
-import { body, param } from 'express-validator'
+import { body, param, check } from 'express-validator'
 import Inventory from '../../models/Inventory.js'
 import User from '../../models/User.js'
 
@@ -7,12 +7,10 @@ const checkInventoryBody = () => {
 		body('id_agent')
 			.notEmpty()
 			.withMessage("Vous devez indiquer l'identifiant de l'agent."),
-		body('id_agent')
-			.if(body('id_agent').notEmpty())
+		check('buyer.wishlist.*._id')
+			.notEmpty()
 			.isMongoId()
-			.withMessage(
-				"L'identifiant de l'agent renseigné doit être de type MongoId."
-			),
+			.withMessage("L'identifiant de l'agent doit-être de type MongoId."),
 		// On check l'existence de l'agent:
 		body('id_agent')
 			.if(body('id_agent').notEmpty().isMongoId())

@@ -1,8 +1,14 @@
 import User from '../models/User.js'
+import Appointment from '../models/Appointment.js'
+import Inventory from '../models/Inventory.js'
+import Property from '../models/Property.js'
+import Rental from '../models/Rental.js'
+import Transaction from '../models/Transaction.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import sendMail from '../util/mail.js'
+import { ObjectId } from 'mongodb'
 dotenv.config()
 
 //CREATE USER
@@ -314,6 +320,7 @@ const deleteOne = async (req, res) => {
 			},
 			{
 				status: 0,
+				deletedAt: new Date(),
 			}
 		)
 		res.status(201).json({
@@ -371,17 +378,18 @@ const signup = async (req, res) => {
 	if (datas.password != null) {
 		try {
 			let hash = await bcrypt.hash(datas.password, 10)
-			const user = new User({
+			var user = new User({
 				...datas,
 				password: hash,
 			})
-			await user.save().then(() =>
-				res.status(201).json({
-					status_code: 201,
-					message: 'Compte créé !',
-				})
-			)
+			user = await user.save()
+			sendVerificationMail(user._id, user.email)
+			res.status(201).json({
+				status_code: 201,
+				message: 'Compte créé !',
+			})
 		} catch (error) {
+			console.log(error)
 			res.status(500).json({
 				status_code: 500,
 				error: error.message,
@@ -420,18 +428,7 @@ const login = async (req, res) => {
 				error: 'Utilisateur non trouvé !',
 			})
 		if (user.status == false && user.deletedAt == undefined) {
-			let token = jwt.sign(
-				{ userId: user._id },
-				process.env.SECRET_TOKEN,
-				{
-					expiresIn: '5h',
-				}
-			)
-			sendMail('emailVerification', { to: user.email, token })
-			return res.status(403).json({
-				status_code: 403,
-				error: 'Vérification par email nécessaire.',
-			})
+			sendVerificationMail(user._id, user.email)
 		}
 		if (user.status == false && user.deletedAt != undefined) {
 			return res.status(403).json({
@@ -463,6 +460,39 @@ const login = async (req, res) => {
 	}
 }
 
+const sendVerificationMail = async (id, email) => {
+	let token = jwt.sign({ userId: id }, process.env.SECRET_TOKEN, {
+		expiresIn: '5h',
+	})
+
+	await User.updateOne({ _id: id }, { token })
+	return sendMail('emailVerification', { to: email, token })
+}
+
+/**
+ * @api {get} /api/user/emailVerification/:token 6.2 - Vérifier le compte utilisateur
+ * @apiName verifyEmail
+ * @apiGroup Utilisateur
+ *
+ * @apiParam {String} token de l'utilisateur.
+ *
+ * @apiSuccess {User} user Objet Utilisateur.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      message: 'Vérification réussie.',
+ * 		status_code: 200,
+ *     }
+ *
+ * @apiError UserNotFound Aucun utilisateur.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 204 Empty Content
+ *     {
+ *       "error": "Aucun utilisateur !"
+ *     }
+ */
 const verifyEmail = async (req, res) => {
 	try {
 		const decodedToken = jwt.verify(
@@ -572,7 +602,8 @@ const checkResetToken = async (req, res) => {
 			req.params.token,
 			process.env.SECRET_TOKEN
 		)
-		const userId = decodedToken.userId
+
+		const userId = decodedToken.userId.valueOf()
 
 		const user = await User.findOne({ _id: userId })
 		if (user) {
@@ -595,6 +626,37 @@ const checkResetToken = async (req, res) => {
 }
 
 // SETNEWSLETTER
+/**
+ * @api {get} /api/user/setNewsletter/:_id 6 - Activer les newsletters
+ * @apiName setNewsletter
+ * @apiGroup Utilisateur
+ *
+ * @apiParam {String} _id id de l'utilisateur.
+ *
+ * @apiSuccess {User} user Objet Utilisateur.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *			status_code: 200,
+ *			message: 'Utilisateur inscrit à la newsletter !',
+ *		}
+ *
+ *  @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *		    status_code: 200,
+ *		    message: 'Vous êtes déjà inscrit à la newsletter.',
+ *		}
+ * @apiError ServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     	HTTP/1.1 500 Server Error
+ *     	{
+ *			status_code: 500,
+ *			error: error.message,
+ *		}
+ */
 const setNewsletter = async (req, res) => {
 	try {
 		const user = await findById(req.params._id)
@@ -617,6 +679,37 @@ const setNewsletter = async (req, res) => {
 }
 
 // UNSETNEWSLETTER
+/**
+ * @api {get} /api/user/unsetNewsletter/:_id 6.1 - Désactiver les newsletters
+ * @apiName unsetNewsletter
+ * @apiGroup Utilisateur
+ *
+ * @apiParam {String} _id id de l'utilisateur.
+ *
+ * @apiSuccess {String} message Utilisateur désinscrit à la newsletter !.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *			status_code: 200,
+ *			message: 'Utilisateur désinscrit à la newsletter !',
+ *		}
+ *
+ *  @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *		    status_code: 200,
+ *		    message: "Vous n'êtes pas inscrit à la newsletter.",
+ *		}
+ * @apiError ServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     	HTTP/1.1 500 Server Error
+ *     	{
+ *			status_code: 500,
+ *			error: error.message,
+ *		}
+ */
 const unsetNewsletter = async (req, res) => {
 	try {
 		const user = await findById(req.params._id)
@@ -816,13 +909,13 @@ const getBuyers = async (req, res) => {
 
 //UPDATE WishList USER
 /**
- * @api {put} /api/user/wishlist/ 2.1 - Ajouter un favori
+ * @api {get} /api/user/wishlist/:_id 2.1 - Ajouter un favori
  * @apiName addToWishlist
  * @apiGroup Utilisateur
  *
  * @apiHeader {String} Authorization
  *
- * @apiBody {ObjectId} idProperty id de la propriété à ajouter
+ * @apiParam {ObjectId} _id id de la propriété à ajouter
  *
  * @apiSuccess {String} message Favori ajouté !
  *
@@ -839,7 +932,7 @@ const addToWishlist = async (req, res) => {
 		let user = await User.findById(req.auth.user._id)
 		await User.updateOne(
 			{ _id: user._id },
-			{ $push: { 'buyer.wishlist': req.body.idProperty } }
+			{ $push: { 'buyer.wishlist': req.params._id } }
 		)
 		res.status(200).json({
 			status_code: 200,
@@ -853,15 +946,14 @@ const addToWishlist = async (req, res) => {
 	}
 }
 
-//UPDATE WishList USER
 /**
- * @api {delete} /api/user/wishlist/ 2.2 - Supprimer un favori
+ * @api {get} /api/user/wishlist/:_id 2.2 - Supprimer un favori
  * @apiName removeOfWishlist
  * @apiGroup Utilisateur
  *
  * @apiHeader {String} Authorization
  *
- * @apiBody {ObjectId} ObjectId id de la propriété à supprimer
+ * @apiParam {ObjectId} _id id de la propriété à supprimer
  *
  * @apiSuccess {String} message Favori supprimé !
  *
@@ -881,7 +973,7 @@ const removeOfWishlist = async (req, res) => {
 			{ _id: user._id },
 			{
 				$pull: {
-					'buyer.wishlist': req.body.idProperty,
+					'buyer.wishlist': req.params._id,
 				},
 			}
 		)
@@ -899,13 +991,13 @@ const removeOfWishlist = async (req, res) => {
 
 //UPDATE PropertyList USER
 /**
- * @api {put} /api/user/property/ 3.1 - Ajouter une proprieté dans la liste d'un vendeur
+ * @api {get} /api/user/property/:_id 3.1 - Ajouter une proprieté dans la liste d'un vendeur
  * @apiName addToPropertyList
  * @apiGroup Utilisateur
  *
  * @apiHeader {String} Authorization
  *
- * @apiBody {ObjectId} idProperty id de la propriété à ajouter
+ * @apiParam {ObjectId} _id id de la propriété à ajouter
  *
  * @apiSuccess {String} message Favori ajouté !
  *
@@ -922,7 +1014,7 @@ const addToPropertyList = async (req, res) => {
 		let user = await User.findById(req.auth.user._id)
 		await User.updateOne(
 			{ _id: user._id },
-			{ $push: { 'seller.propertiesList': req.body.idProperty } }
+			{ $push: { 'seller.propertiesList': req.params._id } }
 		)
 		res.status(200).json({
 			status_code: 200,
@@ -938,13 +1030,13 @@ const addToPropertyList = async (req, res) => {
 
 //UPDATE PropertyList USER
 /**
- * @api {delete} /api/user/property/ 3.2 - Supprimer une proprieté dans la liste d'un vendeur
+ * @api {get} /api/user/property/:_id 3.2 - Supprimer une proprieté dans la liste d'un vendeur
  * @apiName removeOfPropertyList
  * @apiGroup Utilisateur
  *
  * @apiHeader {String} Authorization
  *
- * @apiBody {ObjectId} ObjectId id de la propriété à supprimer
+ * @apiParam {ObjectId} _id id de la propriété à supprimer
  *
  * @apiSuccess {String} message Favori supprimé !
  *
@@ -964,7 +1056,7 @@ const removeOfPropertyList = async (req, res) => {
 			{ _id: user._id },
 			{
 				$pull: {
-					'seller.propertiesList': req.body.idProperty,
+					'seller.propertiesList': req.params._id,
 				},
 			}
 		)
@@ -1021,6 +1113,128 @@ const getSellers = async (req, res) => {
 	}
 }
 
+const anonymize = async (req, res) => {
+	try {
+		// Récupération de l'id et de la ref à anonymiser:
+		const userToAnonymize = await User.findOne({ _id: req.params._id })
+		const idToAnonymize = userToAnonymize._id
+		const refToAnonymize = userToAnonymize.ref
+
+		// Récupération de l'id et de la ref Anonymous:
+		const anonymous = await User.findOne({
+			lastname: 'Anonymous',
+			firstname: 'Anonymous',
+		})
+		const idAnonymous = anonymous._id
+		const refAnonymous = anonymous.ref
+
+		// Update dans les collections Appointment:
+		await Appointment.updateMany(
+			{ id_buyer: idToAnonymize },
+			{ id_buyer: idAnonymous }
+		)
+		await Appointment.updateMany(
+			{ id_agent: idToAnonymize },
+			{ id_agent: idAnonymous }
+		)
+
+		// Update dans les collections Inventory:
+		await Inventory.updateMany(
+			{ id_agent: idToAnonymize },
+			{ id_agent: idAnonymous }
+		)
+		await Inventory.updateMany(
+			{ userReference: refToAnonymize },
+			{ userReference: refAnonymous }
+		)
+		await Inventory.updateMany(
+			{ previousBuyerRef: refToAnonymize },
+			{ previousBuyerRef: refAnonymous }
+		)
+
+		// Update dans les collections Property:
+		await Property.updateMany(
+			{ 'buyers._id': idToAnonymize },
+			{ $set: { 'buyers.$._id': idAnonymous } }
+		)
+		await Property.updateMany(
+			{ 'wishers._id': idToAnonymize },
+			{ $set: { 'wishers.$._id': idAnonymous } }
+		)
+
+		// Update dans les collections Rental:
+		await Rental.updateMany(
+			{ 'id_buyers._id': idToAnonymize },
+			{ $set: { 'id_buyers.$._id': idAnonymous } }
+		)
+
+		// Update dans les collections Transaction:
+		await Transaction.updateMany(
+			{ id_agent: refToAnonymize },
+			{ id_agent: refAnonymous }
+		)
+		await Transaction.updateMany(
+			{ 'lst_buyer._id': idToAnonymize },
+			{ $set: { lst_buyer: idAnonymous } }
+		)
+		await Transaction.updateMany(
+			{ 'lst_seller._id': idToAnonymize },
+			{ $set: { lst_seller: idAnonymous } }
+		)
+
+		// let transactions = await Transaction.find({
+		// 	'lst_seller._id': idToAnonymize,
+		// })
+		let transactions = await Transaction.find()
+		console.log(transactions)
+		transactions.forEach(async (transaction) => {
+			var lst_seller = transaction.lst_seller
+			lst_seller.forEach((seller) => {
+				if (seller.valueOf() == idToAnonymize) {
+					console.log(1)
+					seller = ObjectId(idAnonymous)
+				}
+			})
+			await Transaction.updateOne(
+				{ _id: transaction._id },
+				{ lst_seller }
+			)
+		})
+
+		// transaction.lst_seller.forEach((seller) => {
+		// 	if (seller.valueOf() == idToAnonymize)
+		// 		Transaction.updateOne({_id: seller._id}, {$addToSet: {}})
+		// })
+		// })
+
+		// Transaction.find({ 'lst_seller._id': idToAnonymize }).exec(
+		// 	(err, result) => {
+		// 		if (err) throw err
+		// 		if (result) {
+		// 			result.forEach((resul) => {
+		// 				resul.lst_seller.idToAnonymize = idAnonymous
+		// 				result.save()
+		// 			})
+
+		// 			console.log('new value')
+		// 		} else {
+		// 			console.log('not found')
+		// 		}
+		// 	}
+		// )
+
+		// Suppression du compte utilisateur:
+
+		// Réponse:
+		res.status(200).json({
+			status_code: 200,
+			message: 'Anonymisation réussie.',
+		})
+	} catch (error) {
+		res.status(500).json({ error: error.message })
+	}
+}
+
 export {
 	getOne,
 	getAll,
@@ -1042,4 +1256,5 @@ export {
 	getSellers,
 	addToPropertyList,
 	removeOfPropertyList,
+	anonymize,
 }

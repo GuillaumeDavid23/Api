@@ -306,10 +306,191 @@ const sendAlert = async (datas, newId) => {
 	}
 }
 
+//UPDATE list_equipments
+/**
+ * @api {put} /api/property/equipment/:_id 8 - Ajouter un équipement
+ * @apiName addEquipment
+ * @apiGroup Propriété
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id id de la propriété
+ *
+ * @apiBody {String} name nom de l'équipement
+ *
+ * @apiSuccess {String} message équipement ajouté !
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'équipement ajouté !',
+ *     }
+ *
+ * @apiError ServerError inventory non modifié.
+ */
+const addEquipment = async (req, res) => {
+	try {
+		await Property.updateOne(
+			{ _id: req.params._id },
+			{
+				$push: {
+					list_equipments: [req.body.name],
+				},
+			}
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'équipement ajouté à la liste !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
+/**
+ * @api {delete} /api/property/equipment/:_id 9 - Supprimer un équipement
+ * @apiName removeEquipment
+ * @apiGroup Propriété
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id id de l'état des lieux
+ *
+ * @apiBody {String} name nom de l'équipement à supprimer
+ *
+ * @apiSuccess {String} message equipement supprimé de la liste
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'équipement supprimé de la liste',
+ *     }
+ *
+ * @apiError ServerError état des lieux non modifié.
+ */
+const removeEquipment = async (req, res) => {
+	try {
+		await Property.updateOne(
+			{ _id: req.params._id },
+			{
+				$pull: {
+					list_equipments: req.body.name,
+				},
+			}
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'équipement supprimé de la liste !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
+//UPDATE list_equipments
+/**
+ * @api {put} /api/property/heater/:_id 6 - Ajouter un chauffage
+ * @apiName addHeater
+ * @apiGroup Propriété
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id id de la propriété
+ *
+ * @apiBody {String} name nom du chauffage
+ * @apiBody {Number} quantity nombre de chauffage
+ *
+ * @apiSuccess {String} message chauffage ajouté !
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'chauffage ajouté !',
+ *     }
+ *
+ * @apiError ServerError inventory non modifié.
+ */
+const addHeater = async (req, res) => {
+	try {
+		await Property.updateOne(
+			{ _id: req.params._id },
+			{
+				$push: {
+					list_heater: [
+						{ name: req.body.name, quantity: req.body.quantity },
+					],
+				},
+			}
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'chauffage ajouté à la liste !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
+/**
+ * @api {delete} /api/property/heater/:_id 7 - Supprimer un chauffage
+ * @apiName removeHeater
+ * @apiGroup Propriété
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id id de l'état des lieux
+ *
+ * @apiBody {String} name nom de l'chauffage à supprimer
+ *
+ * @apiSuccess {String} message equipement supprimé de la liste
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'chauffage supprimé de la liste',
+ *     }
+ *
+ * @apiError ServerError état des lieux non modifié.
+ */
+const removeHeater = async (req, res) => {
+	try {
+		await Property.updateOne(
+			{ _id: req.params._id },
+			{
+				$pull: {
+					list_heater: { name: { $eq: req.body.name } },
+				},
+			}
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'chauffage supprimé de la liste !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
 export {
 	createProperty,
 	getAllProperties,
 	getPropertyById,
 	updateProperty,
 	deleteProperty,
+	addEquipment,
+	removeEquipment,
+	addHeater,
+	removeHeater,
 }

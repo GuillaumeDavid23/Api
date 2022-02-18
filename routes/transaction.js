@@ -1,12 +1,7 @@
 import express from 'express'
-import {
-	create,
-	update,
-	erase,
-	getAll,
-	getOne,
-} from '../controllers/transaction.js'
+import * as TC from '../controllers/transaction.js'
 import auth from '../middleware/auth.js'
+import checkAccess from '../middleware/checkAccess.js'
 import {
 	checkTransactionBody,
 	checkTransactionExistence,
@@ -18,17 +13,60 @@ import {
 
 const router = express.Router()
 
-router.post('/', checkTransactionBody(), validation, create)
+//(Update) Ajout d'un vendeur dans lst_buyer
+router.put('/buyer/:_id', auth, checkAccess(['agent']), TC.addBuyer)
+
+//(Delete) Suppression d'un vendeur dans lst_buyer
+router.delete('/buyer/:_id', auth, checkAccess(['agent']), TC.removeBuyer)
+
+//(Update) Ajout d'un vendeur dans lst_seller
+router.put('/seller/:_id', auth, checkAccess(['agent']), TC.addSeller)
+
+//(Delete) Suppression d'un vendeur dans lst_seller
+router.delete('/seller/:_id', auth, checkAccess(['agent']), TC.removeSeller)
+
+//(Create) Création d'une transaction
+router.post(
+	'/',
+	auth,
+	checkAccess(['agent']),
+	checkTransactionBody(),
+	validation,
+	TC.create
+)
+
+//(Update) Mise à jour d'une transaction
 router.put(
 	'/:_id',
 	auth,
+	checkAccess(['agent']),
 	checkTransactionExistence(),
 	checkTransactionBody(),
 	validation,
-	update
+	TC.update
 )
-router.delete('/:_id', auth, checkTransactionExistence(), validation, erase)
-router.get('/', auth, getAll)
-router.get('/:_id', auth, validateParamId(), validation, getOne)
+
+//(Delete) Suppression d'une transaction
+router.delete(
+	'/:_id',
+	auth,
+	checkAccess(['agent']),
+	checkTransactionExistence(),
+	validation,
+	TC.erase
+)
+
+//(Get) Récuperation de toutes les transactions
+router.get('/', auth, checkAccess(['agent']), TC.getAll)
+
+//(Get) Récuperation d'une transaction
+router.get(
+	'/:_id',
+	auth,
+	checkAccess(['agent']),
+	validateParamId(),
+	validation,
+	TC.getOne
+)
 
 export default router

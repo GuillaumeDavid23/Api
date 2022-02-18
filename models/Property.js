@@ -14,7 +14,6 @@ const propertySchema = Mongoose.Schema(
 		transactionType: { type: String, required: true },
 		list_equipments: { type: Array, required: true },
 		list_heater: { type: Array, required: true },
-		list_water: { type: Array, required: true },
 		electricMeterRef: { type: String, required: true },
 		gasMeterRef: { type: String, required: true },
 		isToSell: { type: Boolean, required: true },
@@ -31,7 +30,7 @@ const propertySchema = Mongoose.Schema(
 				ref: 'User',
 			},
 		],
-		wishers: [{ type: 'ObjectId', ref: 'User' }],
+		wishers: [{ type: Mongoose.Schema.Types.ObjectId, ref: 'User' }],
 	},
 	{ timestamps: true }
 )

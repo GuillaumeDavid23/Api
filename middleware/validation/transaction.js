@@ -1,4 +1,4 @@
-import { body, param } from 'express-validator'
+import { body, param, check } from 'express-validator'
 import Transaction from '../../models/Transaction.js'
 
 const checkTransactionBody = () => {
@@ -22,8 +22,8 @@ const checkTransactionBody = () => {
 		body('id_agent')
 			.notEmpty()
 			.withMessage("Vous devez indiquer l'identifiant de l'agent."),
-		body('id_agent')
-			.if(body('id_agent').notEmpty())
+		check('buyer.wishlist.*._id')
+			.notEmpty()
 			.isMongoId()
 			.withMessage("L'identifiant de l'agent doit-être de type MongoId."),
 

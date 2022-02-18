@@ -1,7 +1,7 @@
 import Inventory from '../models/Inventory.js'
 
 /**
- * @api {post} /api/inventory Créer un Etat des lieux
+ * @api {post} /api/inventory 1 - Créer un Etat des lieux
  * @apiName create
  * @apiGroup Etat des lieux
  *
@@ -82,7 +82,7 @@ const create = async (req, res) => {
 }
 
 /**
- * @api {put} /api/inventory/:_id Modifier un etat des lieux
+ * @api {put} /api/inventory/:_id 2 - Modifier un etat des lieux
  * @apiName update
  * @apiGroup Etat des lieux
  *
@@ -165,7 +165,7 @@ const update = async (req, res) => {
 
 // DELETE
 /**
- * @api {delete} /api/appointment Supprimer un état des lieux
+ * @api {delete} /api/appointment 5 - Supprimer un état des lieux
  * @apiName delete
  * @apiGroup Etat des lieux
  *
@@ -211,7 +211,7 @@ const erase = async (req, res) => {
 }
 
 /**
- * @api {get} /api/transaction/ Récupérer tous les états des lieux
+ * @api {get} /api/transaction/ 3 - Récupérer tous les états des lieux
  * @apiName getAll
  * @apiGroup Etat des lieux
  *
@@ -243,7 +243,7 @@ const getAll = async () => {
 }
 
 /**
- * @api {get} /api/transaction/:_id Récupérer un état des lieux
+ * @api {get} /api/transaction/:_id 3.1 - Récupérer un état des lieux
  * @apiName getOne
  * @apiGroup Etat des lieux
  *
@@ -331,4 +331,194 @@ const getAllForOneUser = async (req, res) => {
 	}
 }
 
-export { create, update, erase, getAll, getOne, getAllForOneUser }
+//UPDATE lst_roomDetails
+/**
+ * @api {put} /api/inventory/room/:_id 8 - Ajouter l'état d'une pièce
+ * @apiName addRoomDetails
+ * @apiGroup Etat des lieux
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id id de l'état des lieux
+ * @apiBody {String} name nom de la pièce à ajouter
+ * @apiBody {String} condition état de la pièce à ajouter
+ *
+ * @apiSuccess {String} message état de la pièce ajouté !
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'état de la pièce ajouté !',
+ *     }
+ *
+ * @apiError ServerError inventory non modifié.
+ */
+const addRoomDetails = async (req, res) => {
+	try {
+		await Inventory.updateOne(
+			{ _id: req.params._id },
+			{
+				$push: {
+					lst_roomDetails: {
+						name: req.body.name,
+						condition: req.body.condition,
+					},
+				},
+			}
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'etat de la piece ajouté à la liste !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
+/**
+ * @api {delete} /api/inventory/room/:_id 9 - Supprimer l'état d'une pièce
+ * @apiName removeRoomDetails
+ * @apiGroup Etat des lieux
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id id de l'état des lieux
+ *
+ * @apiBody {String} name nom de la pièce à supprimer
+ *
+ * @apiSuccess {String} message vendeur supprimé de la liste
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'état de la poièce supprimé de la liste',
+ *     }
+ *
+ * @apiError ServerError état des lieux non modifié.
+ */
+const removeRoomDetails = async (req, res) => {
+	try {
+		await Inventory.updateOne(
+			{ _id: req.params._id },
+			{
+				$pull: {
+					lst_roomDetails: { name: { $eq: req.body.name } },
+				},
+			}
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'etat de la pièce supprimé de la liste !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
+//UPDATE lst_statsMeters
+/**
+ * @api {put} /api/inventory/statsmeters/:_id 6 - Ajouter un relevé de compteur
+ * @apiName addStatsMeters
+ * @apiGroup Etat des lieux
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id id de l'état des lieux
+ * @apiBody {String} name nom de la pièce à ajouter
+ * @apiBody {String} condition état de la pièce à ajouter
+ *
+ * @apiSuccess {String} message relevé ajouté à la liste !
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'relevé ajouté à la liste !',
+ *     }
+ *
+ * @apiError ServerError état des lieux non modifié.
+ */
+const addStatsMeters = async (req, res) => {
+	try {
+		await Inventory.updateOne(
+			{ _id: req.params._id },
+			{
+				$push: {
+					lst_statsMeters: {
+						name: req.body.name,
+						amount: req.body.amount,
+					},
+				},
+			}
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'relevé ajouté à la liste !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
+/**
+ * @api {delete} /api/inventory/statsmeters/:_id 7 - Supprimer un relevé de compteur
+ * @apiName removeStatsMeters
+ * @apiGroup Etat des lieux
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id id de l'état des lieux
+ *
+ * @apiBody {String} name nom du relevé à supprimer
+ *
+ * @apiSuccess {String} message relevé supprimé de la liste !
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'relevé supprimé de la liste !',
+ *     }
+ *
+ * @apiError ServerError état des lieux non modifié.
+ */
+const removeStatsMeters = async (req, res) => {
+	try {
+		await Inventory.updateOne(
+			{ _id: req.params._id },
+			{
+				$pull: {
+					lst_statsMeters: { name: { $eq: req.body.name } },
+				},
+			}
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'relevé supprimé de la liste !',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+export {
+	create,
+	update,
+	erase,
+	getAll,
+	getOne,
+	getAllForOneUser,
+	addRoomDetails,
+	removeRoomDetails,
+	addStatsMeters,
+	removeStatsMeters,
+}

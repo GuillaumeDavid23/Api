@@ -1,13 +1,7 @@
 import express from 'express'
-import {
-	create,
-	update,
-	erase,
-	getAll,
-	getOne,
-	getParticipants,
-} from '../controllers/appointment.js'
+import * as AC from '../controllers/appointment.js'
 import auth from '../middleware/auth.js'
+import checkAccess from '../middleware/checkAccess.js'
 import {
 	checkAppointmentBody,
 	checkAppointmentExistence,
@@ -19,24 +13,58 @@ import {
 
 const router = express.Router()
 
-router.post('/', auth, checkAppointmentBody(), validation, create)
+//(Create) Création d'un rendez-vous
+router.post(
+	'/',
+	auth,
+	checkAccess(['seller', 'buyer', 'agent']),
+	checkAppointmentBody(),
+	validation,
+	AC.create
+)
+
+//(Update) Mise à jour d'un rendez-vous
 router.put(
 	'/:_id',
 	auth,
+	checkAccess(['seller', 'buyer', 'agent']),
 	checkAppointmentExistence(),
 	checkAppointmentBody(),
 	validation,
-	update
+	AC.update
 )
-router.delete('/:_id', auth, checkAppointmentExistence(), validation, erase)
-router.get('/', auth, getAll)
-router.get('/:_id', auth, validateParamId(), validation, getOne)
+
+//(Delete) Suppression d'un rendez-vous
+router.delete(
+	'/:_id',
+	auth,
+	checkAccess(['seller', 'buyer', 'agent']),
+	checkAppointmentExistence(),
+	validation,
+	AC.erase
+)
+
+//(Get) Récupération de toutes les rendez-vous
+router.get('/', auth, checkAccess(['agent']), AC.getAll)
+
+//(Get) Récupération d'une rendez-vous
+router.get(
+	'/:_id',
+	auth,
+	checkAccess(['seller', 'buyer', 'agent']),
+	validateParamId(),
+	validation,
+	AC.getOne
+)
+
+//(Get) Récupération des participant à un rendez-vous
 router.get(
 	'/getParticipants/:_id',
 	auth,
+	checkAccess(['seller', 'buyer', 'agent']),
 	checkAppointmentExistence(),
 	validation,
-	getParticipants
+	AC.getParticipants
 )
 
 export default router
