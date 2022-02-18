@@ -42,9 +42,9 @@ router.post(
 	'/',
 	auth,
 	checkAccess(['agent']),
-	checkUserCommonBody(),
+	CHK.checkUserCommonBody(),
 	validation,
-	create
+	UC.create
 )
 router.post(
 	'/buyer',
@@ -221,7 +221,7 @@ router.delete(
 	'/anonymize/:_id',
 	auth,
 	checkAccess(['agent']),
-	checkUserExistence(),
+	CHK.checkUserExistence(),
 	validation,
 	anonymize
 )
