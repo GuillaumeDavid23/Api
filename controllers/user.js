@@ -595,6 +595,37 @@ const checkResetToken = async (req, res) => {
 }
 
 // SETNEWSLETTER
+/**
+ * @api {get} /api/user/setNewsletter/:_id 6 - Activer les newsletters
+ * @apiName setNewsletter
+ * @apiGroup Utilisateur
+ *
+ * @apiParam {String} _id id de l'utilisateur.
+ *
+ * @apiSuccess {User} user Objet Utilisateur.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *			status_code: 200,
+ *			message: 'Utilisateur inscrit à la newsletter !',
+ *		}
+ *
+ *  @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *		    status_code: 200,
+ *		    message: 'Vous êtes déjà inscrit à la newsletter.',
+ *		}
+ * @apiError ServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     	HTTP/1.1 500 Server Error
+ *     	{
+ *			status_code: 500,
+ *			error: error.message,
+ *		}
+ */
 const setNewsletter = async (req, res) => {
 	try {
 		const user = await findById(req.params._id)
@@ -617,6 +648,37 @@ const setNewsletter = async (req, res) => {
 }
 
 // UNSETNEWSLETTER
+/**
+ * @api {get} /api/user/unsetNewsletter/:_id 6.1 - Désactiver les newsletters
+ * @apiName unsetNewsletter
+ * @apiGroup Utilisateur
+ *
+ * @apiParam {String} _id id de l'utilisateur.
+ *
+ * @apiSuccess {String} message Utilisateur désinscrit à la newsletter !.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *			status_code: 200,
+ *			message: 'Utilisateur désinscrit à la newsletter !',
+ *		}
+ *
+ *  @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *		    status_code: 200,
+ *		    message: "Vous n'êtes pas inscrit à la newsletter.",
+ *		}
+ * @apiError ServerError.
+ *
+ * @apiErrorExample Error-Response:
+ *     	HTTP/1.1 500 Server Error
+ *     	{
+ *			status_code: 500,
+ *			error: error.message,
+ *		}
+ */
 const unsetNewsletter = async (req, res) => {
 	try {
 		const user = await findById(req.params._id)
@@ -816,13 +878,13 @@ const getBuyers = async (req, res) => {
 
 //UPDATE WishList USER
 /**
- * @api {put} /api/user/wishlist/ 2.1 - Ajouter un favori
+ * @api {put} /api/user/wishlist/:_id 2.1 - Ajouter un favori
  * @apiName addToWishlist
  * @apiGroup Utilisateur
  *
  * @apiHeader {String} Authorization
  *
- * @apiBody {ObjectId} idProperty id de la propriété à ajouter
+ * @apiParams {ObjectId} _id id de la propriété à ajouter
  *
  * @apiSuccess {String} message Favori ajouté !
  *
@@ -839,7 +901,7 @@ const addToWishlist = async (req, res) => {
 		let user = await User.findById(req.auth.user._id)
 		await User.updateOne(
 			{ _id: user._id },
-			{ $push: { 'buyer.wishlist': req.body.idProperty } }
+			{ $push: { 'buyer.wishlist': req.params._id } }
 		)
 		res.status(200).json({
 			status_code: 200,
@@ -853,15 +915,14 @@ const addToWishlist = async (req, res) => {
 	}
 }
 
-//UPDATE WishList USER
 /**
- * @api {delete} /api/user/wishlist/ 2.2 - Supprimer un favori
+ * @api {get} /api/user/wishlist/:_id 2.2 - Supprimer un favori
  * @apiName removeOfWishlist
  * @apiGroup Utilisateur
  *
  * @apiHeader {String} Authorization
  *
- * @apiBody {ObjectId} ObjectId id de la propriété à supprimer
+ * @apiParams {ObjectId} _id id de la propriété à supprimer
  *
  * @apiSuccess {String} message Favori supprimé !
  *
@@ -881,7 +942,7 @@ const removeOfWishlist = async (req, res) => {
 			{ _id: user._id },
 			{
 				$pull: {
-					'buyer.wishlist': req.body.idProperty,
+					'buyer.wishlist': req.params._id,
 				},
 			}
 		)
@@ -899,13 +960,13 @@ const removeOfWishlist = async (req, res) => {
 
 //UPDATE PropertyList USER
 /**
- * @api {put} /api/user/property/ 3.1 - Ajouter une proprieté dans la liste d'un vendeur
+ * @api {get} /api/user/property/:_id 3.1 - Ajouter une proprieté dans la liste d'un vendeur
  * @apiName addToPropertyList
  * @apiGroup Utilisateur
  *
  * @apiHeader {String} Authorization
  *
- * @apiBody {ObjectId} idProperty id de la propriété à ajouter
+ * @apiParams {ObjectId} _id id de la propriété à ajouter
  *
  * @apiSuccess {String} message Favori ajouté !
  *
@@ -922,7 +983,7 @@ const addToPropertyList = async (req, res) => {
 		let user = await User.findById(req.auth.user._id)
 		await User.updateOne(
 			{ _id: user._id },
-			{ $push: { 'seller.propertiesList': req.body.idProperty } }
+			{ $push: { 'seller.propertiesList': req.params._id } }
 		)
 		res.status(200).json({
 			status_code: 200,
@@ -938,13 +999,13 @@ const addToPropertyList = async (req, res) => {
 
 //UPDATE PropertyList USER
 /**
- * @api {delete} /api/user/property/ 3.2 - Supprimer une proprieté dans la liste d'un vendeur
+ * @api {get} /api/user/property/:_id 3.2 - Supprimer une proprieté dans la liste d'un vendeur
  * @apiName removeOfPropertyList
  * @apiGroup Utilisateur
  *
  * @apiHeader {String} Authorization
  *
- * @apiBody {ObjectId} ObjectId id de la propriété à supprimer
+ * @apiParams {ObjectId} _id id de la propriété à supprimer
  *
  * @apiSuccess {String} message Favori supprimé !
  *
@@ -964,7 +1025,7 @@ const removeOfPropertyList = async (req, res) => {
 			{ _id: user._id },
 			{
 				$pull: {
-					'seller.propertiesList': req.body.idProperty,
+					'seller.propertiesList': req.params._id,
 				},
 			}
 		)
