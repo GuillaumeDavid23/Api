@@ -47,8 +47,9 @@ const createProperty = async (req, res) => {
 		// Gestion préalable des images:
 		let imageUrl = {}
 		if (req.filesName !== undefined) {
-			imageUrl = req.filesName
-			console.log(imageUrl)
+			Object.keys(req.filesName).forEach((imgKey) => {
+				imageUrl[imgKey] = 'uploads/' + req.filesName[imgKey]
+			})
 		}
 
 		// Création et enregistrement de la propriété:
