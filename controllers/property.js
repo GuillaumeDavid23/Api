@@ -44,15 +44,21 @@ import { asyncForEach } from '../util/functions.js'
  */
 const createProperty = async (req, res) => {
 	try {
+		// Gestion préalable des images:
+		let imageUrl = {}
+		if (req.filesName !== undefined) {
+			imageUrl = req.filesName
+			console.log(imageUrl)
+		}
+
+		// Création et enregistrement de la propriété:
 		var newProperty = new Property({
 			...req.body,
 			isToSell: req.body.isToSell == 'on' ? true : false,
-			imageUrl: `${req.protocol}://${req.get('host')}/uploads/${
-				req.body.propertyRef
-			}`,
+			imageUrl,
 		})
 		newProperty = await newProperty.save()
-		await sendAlert(req.body, newProperty._id.valueOf())
+		// await sendAlert(req.body, newProperty._id.valueOf())
 		res.status(201).json({
 			status_code: 201,
 			message: 'Propriété enregistrée.',

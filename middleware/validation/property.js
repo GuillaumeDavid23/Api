@@ -174,6 +174,21 @@ const checkPropertyBody = () => {
 			.withMessage(
 				'La référence de la propriété doit faire exactement 10 caractères.'
 			),
+		body('propertyRef')
+			.if(
+				body('propertyRef')
+					.notEmpty()
+					.isAlphanumeric()
+					.isLength({ min: 10, max: 10 })
+			)
+			.custom(async (propertyRef) => {
+				let property = await Property.findOne({ propertyRef })
+				if (property)
+					return Promise.reject(
+						'La référence de la propriété doit-être unique.'
+					)
+				return true
+			}),
 	]
 }
 
