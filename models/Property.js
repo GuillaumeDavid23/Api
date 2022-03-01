@@ -22,7 +22,7 @@ const propertySchema = Mongoose.Schema(
 			required: true,
 			unique: true,
 		},
-		imageUrl: { type: String, required: false },
+		imageUrl: { type: Object },
 
 		buyers: [
 			{
