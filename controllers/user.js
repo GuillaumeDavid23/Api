@@ -468,6 +468,13 @@ const sendVerificationMail = async (id, email) => {
 	return sendMail('emailVerification', { to: email, token })
 }
 
+const checkBearer = (req, res) => {
+	const token = req.headers.authorization.split(' ')[1]
+	const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
+	console.log(decodedToken)
+	res.status(200).json({ status_code: 200, message: 'Token Valide' })
+}
+
 /**
  * @api {get} /api/user/emailVerification/:token 6.2 - Vérifier le compte utilisateur
  * @apiName verifyEmail
@@ -1249,6 +1256,7 @@ export {
 	deleteOne,
 	login,
 	signup,
+	checkBearer,
 	verifyEmail,
 	forgotPass,
 	checkResetToken,

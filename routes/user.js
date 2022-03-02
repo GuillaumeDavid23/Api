@@ -22,6 +22,8 @@ router.post(
 	UC.signup
 )
 
+router.post('/checkBearer', UC.checkBearer)
+
 //(SignUp) Inscription d'un acheteur
 router.post(
 	'/buyerSignup',
