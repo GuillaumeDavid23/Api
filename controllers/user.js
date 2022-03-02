@@ -601,8 +601,7 @@ const checkResetToken = async (req, res) => {
 			req.params.token,
 			process.env.SECRET_TOKEN
 		)
-
-		const userId = decodedToken.userId.valueOf()
+		const userId = decodedToken.user._id
 
 		const user = await User.findOne({ _id: userId })
 		if (user) {
