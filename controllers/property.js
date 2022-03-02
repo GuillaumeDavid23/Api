@@ -279,6 +279,93 @@ const deleteProperty = async (req, res) => {
 	}
 }
 
+const searchProperties = async (req, res) => {
+	try {
+		// Destructuration du body:
+		const {
+			transactionType,
+			propertyType,
+			location,
+			minPrice,
+			maxPrice,
+			roomNumber,
+			surface,
+		} = req.body
+
+		let where = {}
+
+		// Filtrage sur le type de transaction:
+		if (transactionType !== '') {
+			where['transactionType'] = transactionType
+		}
+
+		// Filtrage sur le type de propriétés:
+		if (propertyType !== '') {
+			where['propertyType'] = propertyType
+		}
+
+		// // Filtrage sur la localisation:
+		// if (location !== '') {
+		// 	where['transactionType'] = transactionType
+		// }
+
+		// // Filtrage sur le prix min:
+		// if (minPrice !== '') {
+		// 	where['transactionType'] = { $gte: minPrice }
+		// }
+
+		// // Filtrage sur le prix max:
+		// if (maxPrice !== '') {
+		// 	where['transactionType'] = { $lte: maxPrice }
+		// }
+
+		// Filtrage sur le nombre de pièces:
+		if (roomNumber !== '') {
+			where['roomNumber'] = roomNumber
+		}
+
+		// Filtrage sur la surface:
+		if (surface !== '') {
+			where['surface'] = surface
+		}
+
+		// Appel de la méthode avec la moitié des filtres:
+		let properties = await Property.find(where)
+
+		// Filtrage sur la localisation:
+		if (location !== '') {
+			properties = properties.filter(
+				(property) => property.location == location
+			)
+		}
+
+		// Filtrage sur le prix min:
+		if (minPrice !== '') {
+			properties = properties.filter(
+				(property) => property.amount >= minPrice
+			)
+		}
+
+		// Filtrage sur le prix max:
+		if (maxPrice !== '') {
+			properties = properties.filter(
+				(property) => property.amount <= maxPrice
+			)
+		}
+
+		res.status(200).json({
+			status_code: 200,
+			message: 'Propriétés filtrées.',
+			data: properties,
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
 // SENDALERT (Intervient dans create)
 const sendAlert = async (datas, newId) => {
 	try {
@@ -496,6 +583,7 @@ export {
 	getPropertyById,
 	updateProperty,
 	deleteProperty,
+	searchProperties,
 	addEquipment,
 	removeEquipment,
 	addHeater,
