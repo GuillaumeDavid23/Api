@@ -611,8 +611,7 @@ const checkResetToken = async (req, res) => {
 			req.params.token,
 			process.env.SECRET_TOKEN
 		)
-
-		const userId = decodedToken.user._id.valueOf()
+		const userId = decodedToken.user._id
 
 		const user = await User.findOne({ _id: userId })
 		if (user) {
@@ -938,11 +937,19 @@ const getBuyers = async (req, res) => {
  */
 const addToWishlist = async (req, res) => {
 	try {
+		let exist = false
 		let user = await User.findById(req.auth.user._id)
-		await User.updateOne(
-			{ _id: user._id },
-			{ $push: { 'buyer.wishlist': req.params._id } }
-		)
+		user.buyer.wishlist.forEach((element) => {
+			if (element.toString() == req.params._id) {
+				return (exist = true)
+			}
+		})
+		if (!exist) {
+			await User.updateOne(
+				{ _id: user._id },
+				{ $push: { 'buyer.wishlist': req.params._id } }
+			)
+		}
 		res.status(200).json({
 			status_code: 200,
 			message: 'Favori ajouté !',

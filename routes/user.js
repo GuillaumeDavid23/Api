@@ -187,7 +187,7 @@ router.get(
 )
 
 //(Delete) Suppression d'un favoris dans la wishlist
-router.get(
+router.delete(
 	'/wishlist/:_id',
 	auth,
 	checkAccess(['buyer']),
@@ -207,7 +207,7 @@ router.get(
 )
 
 //(Delete) Suppression d'une propriété dans la liste d'un vendeur
-router.get(
+router.delete(
 	'/property/:_id',
 	auth,
 	checkAccess(['agent']),
