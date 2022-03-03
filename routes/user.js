@@ -126,6 +126,8 @@ router.put(
 	UC.deleteOne
 )
 
+router.post('/sendMessage', UC.sendMessage)
+
 //(Get) Récuperation des utilisateurs
 router.get('/', auth, checkAccess(['agent']), UC.getAll)
 

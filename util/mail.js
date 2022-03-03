@@ -58,6 +58,19 @@ export default async (method, infos) => {
             </a><br><br>
 			Cordialement,<br>
 			L'équipe Amaizon`
+
+		case 'sendMessage':
+			var { lastname, firstname, email, tel, subject, message } = infos
+			var from = `"${lastname} ${firstname}" <${email}>`
+			var to = process.env.mailAmaizon
+			var subject = 'Contact: ' + subject
+			var body = `Un message a été reçu depuis le site Vitrine.<br><br>
+			Voici son contenu:<br>
+			${message}<br><br>
+			Voici les coordonnées de l'utilisateur à l'origine du message:<br>
+			Nom: ${firstname} ${lastname}<br>
+			Email: ${email}<br>
+			Téléphone: ${tel}`
 	}
 
 	// Envoi de l'email:
