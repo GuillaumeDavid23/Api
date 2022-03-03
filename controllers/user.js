@@ -5,7 +5,7 @@ import Property from '../models/Property.js'
 import Rental from '../models/Rental.js'
 import Transaction from '../models/Transaction.js'
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import jwt, { decode } from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import sendMail from '../util/mail.js'
 dotenv.config()
@@ -472,7 +472,7 @@ const checkBearer = (req, res) => {
 	const token = req.headers.authorization.split(' ')[1]
 	const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
 	console.log(decodedToken)
-	res.status(200).json({ status_code: 200, message: 'Token Valide' })
+	res.status(200).json({ status_code: 200, message: 'Token Valide', userInfos: decodedToken.user })
 }
 
 /**
