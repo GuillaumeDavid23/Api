@@ -23,7 +23,6 @@ const validation = (req, res, next) => {
 
 	// CAS PARTICULIER: On supprime les photos enregistrées en base dans le cas des propriétés:
 	if (req.filesName !== undefined) {
-		console.log(req.filesName)
 		Object.keys(req.filesName).forEach((imgKey) => {
 			fs.unlink('public/uploads/' + req.filesName[imgKey], (err) => {
 				if (err) console.log(err)

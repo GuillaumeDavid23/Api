@@ -471,8 +471,11 @@ const sendVerificationMail = async (id, email) => {
 const checkBearer = (req, res) => {
 	const token = req.headers.authorization.split(' ')[1]
 	const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
-	console.log(decodedToken)
-	res.status(200).json({ status_code: 200, message: 'Token Valide' })
+	res.status(200).json({
+		status_code: 200,
+		message: 'Token Valide',
+		userInfos: decodedToken,
+	})
 }
 
 /**
@@ -609,7 +612,7 @@ const checkResetToken = async (req, res) => {
 			process.env.SECRET_TOKEN
 		)
 
-		const userId = decodedToken.userId.valueOf()
+		const userId = decodedToken.user._id.valueOf()
 
 		const user = await User.findOne({ _id: userId })
 		if (user) {
@@ -1192,12 +1195,12 @@ const anonymize = async (req, res) => {
 		// 	'lst_seller._id': idToAnonymize,
 		// })
 		let transactions = await Transaction.find()
-		console.log(transactions)
+		// console.log(transactions)
 		transactions.forEach(async (transaction) => {
 			var lst_seller = transaction.lst_seller
 			lst_seller.forEach((seller) => {
 				if (seller.valueOf() == idToAnonymize) {
-					console.log(1)
+					// console.log(1)
 					seller = ObjectId(idAnonymous)
 				}
 			})

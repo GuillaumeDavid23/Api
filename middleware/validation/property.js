@@ -1,10 +1,6 @@
 import { body, param } from 'express-validator'
 import Property from '../../models/Property.js'
 
-const test = () => {
-	return [body('title').custom((title) => console.log('custom:', title))]
-}
-
 const checkPropertyBody = () => {
 	return [
 		body('title')
@@ -211,4 +207,4 @@ const checkPropertyExistence = () => {
 	]
 }
 
-export { test, checkPropertyBody, checkPropertyExistence }
+export { checkPropertyBody, checkPropertyExistence }
