@@ -45,6 +45,7 @@ export default async (method, infos) => {
             </a><br><br>
 			Cordialement,<br>
 			L'équipe Amaizon`
+			break
 
 		case 'emailVerification':
 			var from = `"Amaizon" <${process.env.mailAmaizon}>`
@@ -58,6 +59,7 @@ export default async (method, infos) => {
             </a><br><br>
 			Cordialement,<br>
 			L'équipe Amaizon`
+			break
 
 		case 'sendMessage':
 			var { lastname, firstname, email, tel, subject, message } = infos
@@ -71,6 +73,7 @@ export default async (method, infos) => {
 			Nom: ${firstname} ${lastname}<br>
 			Email: ${email}<br>
 			Téléphone: ${tel}`
+			break
 	}
 
 	// Envoi de l'email:

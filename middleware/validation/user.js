@@ -30,16 +30,24 @@ const checkUserCommonBody = () => {
 			.withMessage(
 				"Le format de l'adresse email renseigné ne correspond pas à celui d'une adresse email (example@amaizon.fr)."
 			),
+		body('email')
+			.if(body('email').notEmpty().isEmail())
+			// On check si l'email n'existe pas en base de données:
+			.custom(async (email) => {
+				let user = await User.findOne({ email })
+				if (user) return Promise.reject('Adresse email déjà utilisé !')
+				return true
+			}),
 
 		body('password')
 			.notEmpty()
 			.withMessage('Vous devez indiquer votre mot de passe.'),
-		body('password')
-			.if(body('password').notEmpty())
-			.matches(process.env.passwordRegex)
-			.withMessage(
-				'Le mot de passe ne correspond pas au format requis: Au moins 8 caractères dont au moins une majuscule, une minuscule, un chiffre.'
-			),
+		// body('password')
+		// 	.if(body('password').notEmpty())
+		// 	.matches(process.env.passwordRegex)
+		// 	.withMessage(
+		// 		'Le mot de passe ne correspond pas au format requis: Au moins 8 caractères dont au moins une majuscule, une minuscule, un chiffre.'
+		// 	),
 
 		body('phone')
 			.if(body('phone').notEmpty())
@@ -61,13 +69,13 @@ const checkBuyerBody = () => {
 			.withMessage("Il faut des informations d'acheteur"),
 
 		check('buyer.wishlist.*._id')
-			.notEmpty()
+			.if(check('buyer.wishlist.*._id').notEmpty())
 			.isMongoId()
 			.withMessage("La propriété n'est pas valide"),
 
-		body('buyer.budgetMin')
-			.notEmpty()
-			.withMessage('Un budget minimum doit être renseigné'),
+		// body('buyer.budgetMin')
+		// 	.notEmpty()
+		// 	.withMessage('Un budget minimum doit être renseigné'),
 
 		body('buyer.budgetMin')
 			.if(body('buyer.budgetMin').notEmpty())
@@ -76,9 +84,9 @@ const checkBuyerBody = () => {
 				'Le budget doit être une valeur numérique entière positive.'
 			),
 
-		body('buyer.budgetMax')
-			.notEmpty()
-			.withMessage('Un budget maximum doit être renseigné'),
+		// body('buyer.budgetMax')
+		// 	.notEmpty()
+		// 	.withMessage('Un budget maximum doit être renseigné'),
 
 		body('buyer.budgetMax')
 			.if(body('buyer.budgetMax').notEmpty())
@@ -87,9 +95,9 @@ const checkBuyerBody = () => {
 				'Le budget doit être une valeur numérique entière positive.'
 			),
 
-		body('buyer.city')
-			.notEmpty()
-			.withMessage('Une ville de recherche doit être renseigné'),
+		// body('buyer.city')
+		// 	.notEmpty()
+		// 	.withMessage('Une ville de recherche doit être renseigné'),
 
 		body('buyer.city')
 			.if(body('buyer.city').notEmpty())
@@ -98,9 +106,9 @@ const checkBuyerBody = () => {
 				'La ville désiré ne doit pas contenir de caractères spéciaux.'
 			),
 
-		body('buyer.surfaceMin')
-			.notEmpty()
-			.withMessage('Une surface minimum doit être renseigné'),
+		// body('buyer.surfaceMin')
+		// 	.notEmpty()
+		// 	.withMessage('Une surface minimum doit être renseigné'),
 
 		body('buyer.surfaceMin')
 			.if(body('buyer.surfaceMin').notEmpty())
@@ -109,9 +117,9 @@ const checkBuyerBody = () => {
 				'Le nombre de pièces doit être une valeur numérique entière positive.'
 			),
 
-		body('buyer.surfaceMax')
-			.notEmpty()
-			.withMessage('Une surface maximum doit être renseigné'),
+		// body('buyer.surfaceMax')
+		// 	.notEmpty()
+		// 	.withMessage('Une surface maximum doit être renseigné'),
 
 		body('buyer.surfaceMax')
 			.if(body('buyer.surfaceMax').notEmpty())
@@ -120,9 +128,9 @@ const checkBuyerBody = () => {
 				'Le nombre de pièces doit être une valeur numérique entière positive.'
 			),
 
-		body('buyer.type')
-			.notEmpty()
-			.withMessage('Un type de biens doit être renseigné'),
+		// body('buyer.type')
+		// 	.notEmpty()
+		// 	.withMessage('Un type de biens doit être renseigné'),
 
 		body('buyer.type')
 			.if(body('buyer.type').notEmpty())

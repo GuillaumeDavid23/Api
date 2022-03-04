@@ -13,25 +13,28 @@ const router = express.Router()
 //(Login) Connexion d'un utilisateur
 router.post('/login', CHK.checkForLogin(), validation, UC.login)
 
-//(SignUp) Inscription d'un vendeur
-router.post(
-	'/sellerSignup',
-	CHK.checkUserCommonBody(),
-	CHK.checkSellerBody(),
-	validation,
-	UC.signup
-)
+// //(SignUp) Inscription d'un vendeur
+// router.post(
+// 	'/sellerSignup',
+// 	CHK.checkUserCommonBody(),
+// 	CHK.checkSellerBody(),
+// 	validation,
+// 	UC.signup
+// )
 
 router.post('/checkBearer', UC.checkBearer)
 
-//(SignUp) Inscription d'un acheteur
-router.post(
-	'/buyerSignup',
-	CHK.checkUserCommonBody(),
-	CHK.checkBuyerBody(),
-	validation,
-	UC.signup
-)
+// //(SignUp) Inscription d'un acheteur
+// router.post(
+// 	'/buyerSignup',
+// 	CHK.checkUserCommonBody(),
+// 	CHK.checkBuyerBody(),
+// 	validation,
+// 	UC.signup
+// )
+
+//(SignUp) Inscription standard
+router.post('/signup', CHK.checkUserCommonBody(), validation, UC.signup)
 
 //(Check) Verification token pour validation de compte
 router.get('/emailVerification/:token', UC.verifyEmail)
