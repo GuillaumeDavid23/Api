@@ -383,9 +383,13 @@ const signup = async (req, res) => {
 			})
 			user = await user.save()
 			sendVerificationMail(user._id, user.email)
+			const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
+				expiresIn: '24h',
+			})
 			res.status(201).json({
 				status_code: 201,
 				message: 'Compte créé !',
+				token,
 			})
 		} catch (error) {
 			console.log(error)
@@ -426,10 +430,7 @@ const login = async (req, res) => {
 				status_code: 401,
 				error: 'Utilisateur non trouvé !',
 			})
-		if (user.status == false && deletedAt == undefined) {
-			sendVerificationMail(user._id, user.email)
-		}
-		if (user.status == false && deletedAt != undefined) {
+		if (user.status == false && user.deletedAt != undefined) {
 			return res.status(403).json({
 				status_code: 403,
 				error: 'Compte utilisateur désactivé.',
@@ -445,6 +446,14 @@ const login = async (req, res) => {
 		const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
 			expiresIn: '24h',
 		})
+		if (user.status == false && user.deletedAt == undefined) {
+			sendVerificationMail(user._id, user.email)
+			return res.status(200).json({
+				status_code: 200,
+				message: 'Vous devez vérifier votre email.',
+				token,
+			})
+		}
 		res.status(200).json({
 			status_code: 200,
 			userId: user._id,
@@ -452,6 +461,7 @@ const login = async (req, res) => {
 			message: 'Utilisateur connecté !',
 		})
 	} catch (error) {
+		console.log(error)
 		res.status(500).json({
 			status_code: 500,
 			error: error.message,
