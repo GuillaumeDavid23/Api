@@ -100,7 +100,6 @@ export default async (method, infos) => {
 			L'équipe Amaizon`
 			break
 	}
-	to = 'guillaume.david744@orange.fr'
 	// Envoi de l'email:
 	var sending = await transporter.sendMail({
 		from,
