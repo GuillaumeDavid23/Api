@@ -1256,7 +1256,7 @@ const askForAppointment = async (req, res) => {
 	try {
 		
 		const details = {
-			ref: req.params.ref,
+			ref: req.body.ref,
 			firstname: req.body.firstname,
 			lastname: req.body.lastname,
 			email: req.body.email,
