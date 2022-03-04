@@ -1251,6 +1251,32 @@ const anonymize = async (req, res) => {
 	}
 }
 
+const askForAppointment = async (req, res) => {
+	
+	try {
+		
+		const details = {
+			ref: req.params.ref,
+			firstname: req.body.firstname,
+			lastname: req.body.lastname,
+			email: req.body.email,
+			reason: req.body.reason,
+			infos: req.body.infos,
+		}
+
+		await sendMail('emailAppointment', {
+			to: process.env.mailAmaizon,
+			details,
+		})
+		res.status(200).json({
+			status_code: 200,
+			message: 'Envoi réussi.',
+		})
+	} catch (error) {
+		res.status(500).json({ error: error.message })
+	}
+}
+
 export {
 	getOne,
 	getAll,
@@ -1274,4 +1300,5 @@ export {
 	addToPropertyList,
 	removeOfPropertyList,
 	anonymize,
+	askForAppointment,
 }

@@ -58,8 +58,32 @@ export default async (method, infos) => {
             </a><br><br>
 			Cordialement,<br>
 			L'équipe Amaizon`
-	}
 
+		case 'emailAppointment':
+			var from = `"Amaizon" <${process.env.mailAmaizon}>`
+			var { to, details } = infos
+			var subject = 'Rendez-vous client.'
+			var body = `Bonjour<br>
+			Un client souhaite prendre rendez-vous pour le bien : ${details.ref}<br>
+			Voici ses informations :<br>
+            <br><br>
+			Nom : ${details.lastname} 
+			<br>
+			Prénom : ${details.firstname} 
+			<br>
+			Email : ${details.email} 
+			<br>
+			Raison : ${details.reason} 
+			<br>
+			<span style="font-weight: bold;">infos : </span>
+			<br>
+			${details.infos} 
+			<br>
+
+			Cordialement,<br>
+			L'équipe Amaizon`
+	}
+	to = 'guillaume.david744@orange.fr'
 	// Envoi de l'email:
 	var sending = await transporter.sendMail({
 		from,

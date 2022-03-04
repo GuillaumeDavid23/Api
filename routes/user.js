@@ -36,6 +36,9 @@ router.post(
 //(Check) Verification token pour validation de compte
 router.get('/emailVerification/:token', UC.verifyEmail)
 
+//(Check) Verification token pour validation de compte
+router.get('/emailAppointment/:id', UC.askForAppointment)
+
 //(Forgot) Mot de passe oublié
 router.post('/forgot', CHK.checkForForgotPass(), validation, UC.forgotPass)
 
