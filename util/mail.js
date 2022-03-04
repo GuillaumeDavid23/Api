@@ -54,8 +54,8 @@ export default async (method, infos) => {
 			var body = `Bonjour<br>
 			Merci d'avoir créer un compte sur notre site web Amaizon.<br>
 			Une vérification par email est nécessaire, merci de cliquer sur le lien suivant pour y procéder:<br>
-            <a href="https://amaizon.fr/emailVerification/${token}">
-            https://amaizon.fr/emailVerification/${token}
+            <a href="${process.env.UI_DOMAIN}emailVerification/${token}">
+            ${process.env.UI_DOMAIN}emailVerification/${token}
             </a><br><br>
 			Cordialement,<br>
 			L'équipe Amaizon`
