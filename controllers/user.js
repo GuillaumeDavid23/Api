@@ -384,7 +384,7 @@ const signup = async (req, res) => {
 			user = await user.save()
 			sendVerificationMail(user._id, user.email)
 			const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
-				expiresIn: '24h',
+				expiresIn: '5h',
 			})
 			res.status(201).json({
 				status_code: 201,
@@ -444,22 +444,45 @@ const login = async (req, res) => {
 			})
 		}
 		const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
-			expiresIn: '24h',
+			expiresIn: '5h',
 		})
-		if (user.status == false && user.deletedAt == undefined) {
-			sendVerificationMail(user._id, user.email)
-			return res.status(200).json({
+		// Insertion ou non du RefreshToken:
+		if (datas.rememberMe) {
+			const refreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN, {
+				expiresIn: '1y',
+			})
+			if (user.status == false && user.deletedAt == undefined) {
+				sendVerificationMail(user._id, user.email)
+				return res.status(200).json({
+					status_code: 200,
+					message: 'Vous devez vérifier votre email.',
+					token,
+					refreshToken,
+				})
+			}
+			res.status(200).json({
 				status_code: 200,
-				message: 'Vous devez vérifier votre email.',
+				userId: user._id,
 				token,
+				refreshToken,
+				message: 'Utilisateur connecté !',
+			})
+		} else {
+			if (user.status == false && user.deletedAt == undefined) {
+				sendVerificationMail(user._id, user.email)
+				return res.status(200).json({
+					status_code: 200,
+					message: 'Vous devez vérifier votre email.',
+					token,
+				})
+			}
+			res.status(200).json({
+				status_code: 200,
+				userId: user._id,
+				token,
+				message: 'Utilisateur connecté !',
 			})
 		}
-		res.status(200).json({
-			status_code: 200,
-			userId: user._id,
-			token,
-			message: 'Utilisateur connecté !',
-		})
 	} catch (error) {
 		console.log(error)
 		res.status(500).json({
@@ -480,12 +503,27 @@ const sendVerificationMail = async (id, email) => {
 
 const checkBearer = (req, res) => {
 	const token = req.headers.authorization.split(' ')[1]
-	const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
-	res.status(200).json({
-		status_code: 200,
-		message: 'Token Valide',
-		userInfos: decodedToken.user,
-	})
+	let decodedToken
+	try {
+		decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
+		res.status(200).json({
+			status_code: 200,
+			message: 'Token Valide',
+			userInfos: decodedToken.user,
+		})
+	} catch (error) {
+		if (error.TokenExpiredError) {
+			res.status(401).json({
+				status_code: 401,
+				message: 'Token Expiré',
+			})
+		} else {
+			res.status(401).json({
+				status_code: 401,
+				message: 'Token Invalide',
+			})
+		}
+	}
 }
 
 /**
@@ -619,15 +657,20 @@ const checkResetToken = async (req, res) => {
 	try {
 		const decodedToken = jwt.verify(
 			req.params.token,
-			process.env.SECRET_TOKEN
+			process.env.REFRESH_TOKEN
 		)
-		const userId = decodedToken.user._id
 
-		const user = await User.findOne({ _id: userId })
+		const user = await User.findOne({ _id: decodedToken.user._id })
 		if (user) {
+			const newToken = jwt.sign({ user }, process.env.SECRET_TOKEN, {
+				expiresIn: '5h',
+			})
+
 			res.status(200).json({
 				status_code: 200,
-				data: user,
+				message: 'Nouveau token généré !',
+				token: newToken,
+				userInfos: decodedToken,
 			})
 		} else {
 			res.status(204).json({
@@ -1262,9 +1305,7 @@ const anonymize = async (req, res) => {
 }
 
 const askForAppointment = async (req, res) => {
-	
 	try {
-		
 		const details = {
 			ref: req.body.ref,
 			firstname: req.body.firstname,
