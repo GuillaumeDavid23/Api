@@ -288,68 +288,97 @@ const searchProperties = async (req, res) => {
 			location,
 			minPrice,
 			maxPrice,
-			roomNumber,
-			surface,
+			roomNumberMin,
+			roomNumberMax,
+			surfaceMin,
+			surfaceMax,
+			search,
 		} = req.body
-
-		let where = {}
-
-		// Filtrage sur le type de transaction:
-		if (transactionType !== '') {
-			where['transactionType'] = transactionType
-		}
-
-		// Filtrage sur le type de propriétés:
-		if (propertyType !== '') {
-			where['propertyType'] = propertyType
-		}
 
 		// // Filtrage sur la localisation:
 		// if (location !== '') {
 		// 	where['transactionType'] = transactionType
 		// }
 
-		// // Filtrage sur le prix min:
-		// if (minPrice !== '') {
-		// 	where['transactionType'] = { $gte: minPrice }
-		// }
-
-		// // Filtrage sur le prix max:
-		// if (maxPrice !== '') {
-		// 	where['transactionType'] = { $lte: maxPrice }
-		// }
-
-		// Filtrage sur le nombre de pièces:
-		if (roomNumber !== '') {
-			where['roomNumber'] = roomNumber
+		var queryCond = {}
+		if (search) {
+			queryCond.$or = [
+				{
+					title: {
+						$regex: search,
+						$options: 'i',
+					},
+				},
+				{
+					description: {
+						$regex: search,
+						$options: 'i',
+					},
+				},
+			]
 		}
 
 		// Filtrage sur la surface:
-		if (surface !== '') {
-			where['surface'] = surface
+		if (surfaceMin && surfaceMax) {
+			// Filtrage sur le nombre de pièces max et nombre de pièces min:
+			queryCond.surface = {
+				$gte: parseInt(surfaceMin),
+				$lte: parseInt(surfaceMax),
+			}
+		} else if (surfaceMin) {
+			// Filtrage sur le nombre de pièces min:
+			queryCond.surface = { $gte: parseInt(surfaceMin) }
+		} else if (surfaceMax) {
+			// Filtrage sur le nombre de pièces max:
+			queryCond.surface = { $lte: parseInt(surfaceMax) }
+		}
+
+		// Filtrage sur le type de transaction:
+		if (transactionType) {
+			queryCond.transactionType = transactionType
+		}
+
+		// Filtrage sur le type de bien:
+		if (propertyType) {
+			queryCond.propertyType = propertyType
+		}
+
+		if (minPrice && maxPrice) {
+			// Filtrage sur le prix max et prix min:
+			queryCond.amount = {
+				$gte: parseInt(minPrice),
+				$lte: parseInt(maxPrice),
+			}
+		} else if (minPrice) {
+			// Filtrage sur le prix min:
+			queryCond.amount = { $gte: parseInt(minPrice) }
+		} else if (maxPrice) {
+			// Filtrage sur le prix max:
+			queryCond.amount = { $lte: parseInt(maxPrice) }
+		}
+
+		// Filtrage sur le nombre de pièces:
+		if (roomNumberMin && roomNumberMax) {
+			// Filtrage sur le nombre de pièces max et nombre de pièces min:
+			queryCond.roomNumber = {
+				$gte: parseInt(roomNumberMin),
+				$lte: parseInt(roomNumberMax),
+			}
+		} else if (roomNumberMin) {
+			// Filtrage sur le nombre de pièces min:
+			queryCond.roomNumber = { $gte: parseInt(roomNumberMin) }
+		} else if (roomNumberMax) {
+			// Filtrage sur le nombre de pièces max:
+			queryCond.roomNumber = { $lte: parseInt(roomNumberMax) }
 		}
 
 		// Appel de la méthode avec la moitié des filtres:
-		let properties = await Property.find(where)
+		let properties = await Property.find(queryCond)
 
 		// Filtrage sur la localisation:
 		if (location !== '') {
 			properties = properties.filter(
 				(property) => property.location == location
-			)
-		}
-
-		// Filtrage sur le prix min:
-		if (minPrice !== '') {
-			properties = properties.filter(
-				(property) => property.amount >= minPrice
-			)
-		}
-
-		// Filtrage sur le prix max:
-		if (maxPrice !== '') {
-			properties = properties.filter(
-				(property) => property.amount <= maxPrice
 			)
 		}
 
