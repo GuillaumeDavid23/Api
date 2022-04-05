@@ -229,6 +229,12 @@ router.delete(
 	UC.removeOfPropertyList
 )
 
+// Check Token Reset Password
+router.post('/checkTokenResetPassword', UC.checkTokenResetPassword)
+
+// Reset Password
+router.post('/resetPassword', UC.resetPassword)
+
 //(Get) Récupération d'un utilisateur
 router.get('/:_id', auth, validateParamId(), validation, UC.getOne)
 
