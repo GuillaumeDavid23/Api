@@ -1327,10 +1327,6 @@ const checkTokenResetPassword = async (req, res) => {
 
 	let user = await User.findOne({ _id: id })
 
-	console.log(user.token === token)
-	console.log('UI', token)
-	console.log('api', user.token)
-
 	if (user && user.token == token) {
 		res.status(200).json({ status_code: 200, message: 'Vérification OK !' })
 	} else {
@@ -1344,10 +1340,12 @@ const checkTokenResetPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
 	try {
 		const { id, password } = req.body
-		await User.updateOne({ _id: id }, { password })
-		res.status(201).json({
-			status_code: 201,
-			message: 'Mot de passe réinitialisé !',
+		bcrypt.hash(password, 10, async function (err, hash) {
+			await User.updateOne({ _id: id }, { password: hash })
+			res.status(201).json({
+				status_code: 201,
+				message: 'Mot de passe réinitialisé !',
+			})
 		})
 	} catch (error) {
 		res.status(500).json({ status_code: 500, message: error.message })
