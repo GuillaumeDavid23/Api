@@ -466,15 +466,16 @@ const sendVerificationMail = async (id, email) => {
 	return sendMail('emailVerification', { to: email, token })
 }
 
-const checkBearer = (req, res) => {
+const checkBearer = async (req, res) => {
 	const token = req.headers.authorization.split(' ')[1]
 	let decodedToken
 	try {
 		decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
+		const user = await User.findById(decodedToken.user._id)
 		res.status(200).json({
 			status_code: 200,
 			message: 'Token Valide',
-			userInfos: decodedToken.user,
+			userInfos: user,
 		})
 	} catch (error) {
 		if (error.TokenExpiredError) {
