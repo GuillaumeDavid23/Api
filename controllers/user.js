@@ -121,9 +121,9 @@ const create = async (req, res) => {
 const update = async (req, res) => {
 	try {
 		// On check si le mail est déjà pris:
-		let user = await User.find({ email: req.body.email })
+		let user = await User.findOne({ email: req.body.email })
 
-		if (user && user._id !== req.auth.user._id) {
+		if (user && user._id.toString() !== req.auth.user._id) {
 			return res.status(403).json({
 				status_code: 403,
 				message: 'Email déjà utilisé !',
