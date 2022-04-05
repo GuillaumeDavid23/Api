@@ -30,14 +30,6 @@ const checkUserCommonBody = () => {
 			.withMessage(
 				"Le format de l'adresse email renseigné ne correspond pas à celui d'une adresse email (example@amaizon.fr)."
 			),
-		body('email')
-			.if(body('email').notEmpty().isEmail())
-			// On check si l'email n'existe pas en base de données:
-			.custom(async (email) => {
-				let user = await User.findOne({ email })
-				if (user) return Promise.reject('Adresse email déjà utilisé !')
-				return true
-			}),
 
 		body('password')
 			.notEmpty()

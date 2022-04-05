@@ -138,7 +138,12 @@ router.post('/sendMessage', UC.sendMessage)
 router.get('/', auth, checkAccess(['agent']), UC.getAll)
 
 //(Check) Vérification du token
-router.get('/check/:token', CHK.checkForResetToken(), UC.checkResetToken)
+router.get(
+	'/checkResetToken/:token',
+	CHK.checkForResetToken(),
+	validation,
+	UC.checkResetToken
+)
 
 //(Update) Activation des newletters
 router.get(
