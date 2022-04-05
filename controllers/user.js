@@ -119,56 +119,21 @@ const create = async (req, res) => {
  *     }
  */
 const update = async (req, res) => {
-	let datas = req.body
-
 	try {
-		let user = await User.findOneAndUpdate(
-			{
-				_id: req.params._id,
-			},
-			{
-				...datas,
-			},
-			{ returnDocument: 'after' }
-		)
+		// On check si le mail est déjà pris:
+		let user = await User.find({ email: req.body.email })
 
-		//CHECK SI DES PROPERTIES VIDE EXISTENT AFIN d'unset
-		async function checkEmptyFields(user) {
-			let buyer = await User.find({
-				$or: [{ buyer: {} }, { buyer: null }],
-			})
-			buyer.forEach(async (element) => {
-				await User.updateOne(
-					{ _id: element._id },
-					{ $unset: { buyer: '' } },
-					{ new: true }
-				)
-			})
-
-			let seller = await User.find({
-				$or: [{ seller: {} }, { seller: null }],
-			})
-			seller.forEach(async (element) => {
-				await User.updateOne(
-					{ _id: element._id },
-					{ $unset: { seller: '' } },
-					{ new: true }
-				)
-			})
-
-			let agent = await User.find({
-				$or: [{ agent: {} }, { agent: null }],
-			})
-			agent.forEach(async (element) => {
-				await User.updateOne(
-					{ _id: element._id },
-					{ $unset: { agent: '' } },
-					{ new: true }
-				)
+		if (user && user._id !== req.auth.user._id) {
+			return res.status(403).json({
+				status_code: 403,
+				message: 'Email déjà utilisé !',
 			})
 		}
-		// checkEmptyFields(user)
+
+		await User.updateOne({ _id: req.auth.user._id }, { ...req.body })
+
 		res.status(201).json({
+			status_code: 201,
 			message: 'Utilisateur modifié !',
 		})
 	} catch (error) {
