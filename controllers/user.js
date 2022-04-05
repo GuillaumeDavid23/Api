@@ -568,12 +568,21 @@ const verifyEmail = async (req, res) => {
  */
 const forgotPass = async (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
+
 	try {
 		let user = await User.findOne({ email: datas.email })
-		if (user.status == false) {
+
+		if (!user) {
+			return res.status(404).json({
+				status_code: 404,
+				message: 'Adresse email introuvable.',
+			})
+		}
+
+		if (user.deletedAt !== undefined) {
 			return res.status(403).json({
 				status_code: 403,
-				error: 'Compte utilisateur désactivé !',
+				message: 'Compte utilisateur désactivé !',
 			})
 		}
 
@@ -583,10 +592,18 @@ const forgotPass = async (req, res) => {
 
 		await User.updateOne({ _id: user._id }, { token })
 
-		await sendMail('forgotPass', { to: datas.email, token })
+		await sendMail('forgotPass', {
+			to: datas.email,
+			userId: user._id,
+			token,
+		})
 
-		res.status(200).json({ message: 'Email de réinitialisation envoyé.' })
+		res.status(200).json({
+			status_code: 200,
+			message: 'Email de réinitialisation envoyé.',
+		})
 	} catch (error) {
+		console.log(error)
 		res.status(500).json({
 			status_code: 500,
 			error: error.message,
@@ -1306,6 +1323,36 @@ const sendMessage = (req, res) => {
 	}
 }
 
+const checkTokenResetPassword = async (req, res) => {
+	const { id, token } = req.body
+
+	let user = await User.findOne({ _id: id })
+
+	if (user && user.token == token) {
+		res.status(200).json({ status_code: 200, message: 'Vérification OK !' })
+	} else {
+		res.status(403).json({
+			status_code: 403,
+			message: 'Id ou token invalide.',
+		})
+	}
+}
+
+const resetPassword = async (req, res) => {
+	try {
+		const { id, password } = req.body
+		bcrypt.hash(password, 10, async function (err, hash) {
+			await User.updateOne({ _id: id }, { password: hash })
+			res.status(201).json({
+				status_code: 201,
+				message: 'Mot de passe réinitialisé !',
+			})
+		})
+	} catch (error) {
+		res.status(500).json({ status_code: 500, message: error.message })
+	}
+}
+
 export {
 	getOne,
 	getAll,
@@ -1331,4 +1378,6 @@ export {
 	anonymize,
 	askForAppointment,
 	sendMessage,
+	checkTokenResetPassword,
+	resetPassword,
 }

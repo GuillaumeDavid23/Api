@@ -165,6 +165,8 @@ router.get(
 	UC.unsetNewsletter
 )
 
+// SetNewsletter pour non-connecté
+
 //(Get) Récupération de tous les agents
 router.get(
 	'/agents',
@@ -228,6 +230,12 @@ router.delete(
 	validation,
 	UC.removeOfPropertyList
 )
+
+// Check Token Reset Password
+router.post('/checkTokenResetPassword', UC.checkTokenResetPassword)
+
+// Reset Password
+router.post('/resetPassword', UC.resetPassword)
 
 //(Get) Récupération d'un utilisateur
 router.get('/:_id', auth, validateParamId(), validation, UC.getOne)
