@@ -22,7 +22,7 @@ const propertySchema = Mongoose.Schema(
 			required: true,
 			unique: true,
 		},
-		imageUrl: { type: String, required: false },
+		imageUrl: { type: Object },
 
 		buyers: [
 			{
@@ -30,7 +30,6 @@ const propertySchema = Mongoose.Schema(
 				ref: 'User',
 			},
 		],
-		wishers: [{ type: Mongoose.Schema.Types.ObjectId, ref: 'User' }],
 	},
 	{ timestamps: true }
 )

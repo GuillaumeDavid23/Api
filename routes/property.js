@@ -42,6 +42,9 @@ router.post(
 	PC.createProperty
 )
 
+// Search:
+router.post('/searchProperties', PC.searchProperties)
+
 //(Get) Récupération de toutes les propriété
 router.get('/', PC.getAllProperties)
 

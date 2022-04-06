@@ -5,12 +5,12 @@ import Property from '../models/Property.js'
 import Rental from '../models/Rental.js'
 import Transaction from '../models/Transaction.js'
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import jwt, { decode } from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import sendMail from '../util/mail.js'
 dotenv.config()
 
-//CREATE USER
+//CREATE
 /**
  * @api {post} /api/user 1.2 - Créer un utilisateur
  * @apiName create
@@ -119,56 +119,21 @@ const create = async (req, res) => {
  *     }
  */
 const update = async (req, res) => {
-	let datas = req.body
-
 	try {
-		let user = await User.findOneAndUpdate(
-			{
-				_id: req.params._id,
-			},
-			{
-				...datas,
-			},
-			{ returnDocument: 'after' }
-		)
+		// On check si le mail est déjà pris:
+		let user = await User.findOne({ email: req.body.email })
 
-		//CHECK SI DES PROPERTIES VIDE EXISTENT AFIN d'unset
-		async function checkEmptyFields(user) {
-			let buyer = await User.find({
-				$or: [{ buyer: {} }, { buyer: null }],
-			})
-			buyer.forEach(async (element) => {
-				await User.updateOne(
-					{ _id: element._id },
-					{ $unset: { buyer: '' } },
-					{ new: true }
-				)
-			})
-
-			let seller = await User.find({
-				$or: [{ seller: {} }, { seller: null }],
-			})
-			seller.forEach(async (element) => {
-				await User.updateOne(
-					{ _id: element._id },
-					{ $unset: { seller: '' } },
-					{ new: true }
-				)
-			})
-
-			let agent = await User.find({
-				$or: [{ agent: {} }, { agent: null }],
-			})
-			agent.forEach(async (element) => {
-				await User.updateOne(
-					{ _id: element._id },
-					{ $unset: { agent: '' } },
-					{ new: true }
-				)
+		if (user && user._id.toString() !== req.auth.user._id) {
+			return res.status(403).json({
+				status_code: 403,
+				message: 'Email déjà utilisé !',
 			})
 		}
-		// checkEmptyFields(user)
+
+		await User.updateOne({ _id: req.auth.user._id }, { ...req.body })
+
 		res.status(201).json({
+			status_code: 201,
 			message: 'Utilisateur modifié !',
 		})
 	} catch (error) {
@@ -376,16 +341,42 @@ const signup = async (req, res) => {
 
 	if (datas.password != null) {
 		try {
+			let mailCheck = await User.findOne({ email: req.body.email })
+			// On check si le compte existe (et pas seulement pour la newsletter)
+			if (mailCheck && mailCheck.password) {
+				return res.status(403).json({
+					status_code: 403,
+					message: 'Cet email est déjà utilisé !',
+				})
+			}
+
 			let hash = await bcrypt.hash(datas.password, 10)
-			var user = new User({
-				...datas,
-				password: hash,
+			// Cas ou à un compte à été crée pour la newsletter:
+			var user
+			if (mailCheck && !mailCheck.password) {
+				await User.replaceOne(
+					{ email: req.body.email },
+					{
+						...req.body,
+						password: hash,
+					}
+				)
+			} else {
+				user = new User({
+					...datas,
+					password: hash,
+				})
+				await user.save()
+			}
+			user = await User.findOne({ email: req.body.email })
+			// sendVerificationMail(user._id, user.email)
+			const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
+				expiresIn: '5h',
 			})
-			user = await user.save()
-			sendVerificationMail(user._id, user.email)
 			res.status(201).json({
 				status_code: 201,
 				message: 'Compte créé !',
+				token,
 			})
 		} catch (error) {
 			console.log(error)
@@ -426,9 +417,6 @@ const login = async (req, res) => {
 				status_code: 401,
 				error: 'Utilisateur non trouvé !',
 			})
-		if (user.status == false && user.deletedAt == undefined) {
-			sendVerificationMail(user._id, user.email)
-		}
 		if (user.status == false && user.deletedAt != undefined) {
 			return res.status(403).json({
 				status_code: 403,
@@ -443,15 +431,47 @@ const login = async (req, res) => {
 			})
 		}
 		const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
-			expiresIn: '24h',
+			expiresIn: '5h',
 		})
-		res.status(200).json({
-			status_code: 200,
-			userId: user._id,
-			token,
-			message: 'Utilisateur connecté !',
-		})
+		// Insertion ou non du RefreshToken:
+		if (datas.rememberMe) {
+			const refreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN, {
+				expiresIn: '1y',
+			})
+			if (user.status == false && user.deletedAt == undefined) {
+				sendVerificationMail(user._id, user.email)
+				return res.status(200).json({
+					status_code: 200,
+					message: 'Vous devez vérifier votre email.',
+					token,
+					refreshToken,
+				})
+			}
+			res.status(200).json({
+				status_code: 200,
+				userId: user._id,
+				token,
+				refreshToken,
+				message: 'Utilisateur connecté !',
+			})
+		} else {
+			if (user.status == false && user.deletedAt == undefined) {
+				sendVerificationMail(user._id, user.email)
+				return res.status(200).json({
+					status_code: 200,
+					message: 'Vous devez vérifier votre email.',
+					token,
+				})
+			}
+			res.status(200).json({
+				status_code: 200,
+				userId: user._id,
+				token,
+				message: 'Utilisateur connecté !',
+			})
+		}
 	} catch (error) {
+		console.log(error)
 		res.status(500).json({
 			status_code: 500,
 			error: error.message,
@@ -466,6 +486,32 @@ const sendVerificationMail = async (id, email) => {
 
 	await User.updateOne({ _id: id }, { token })
 	return sendMail('emailVerification', { to: email, token })
+}
+
+const checkBearer = async (req, res) => {
+	const token = req.headers.authorization.split(' ')[1]
+	let decodedToken
+	try {
+		decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
+		const user = await User.findById(decodedToken.user._id)
+		res.status(200).json({
+			status_code: 200,
+			message: 'Token Valide',
+			userInfos: user,
+		})
+	} catch (error) {
+		if (error.TokenExpiredError) {
+			res.status(401).json({
+				status_code: 401,
+				message: 'Token Expiré',
+			})
+		} else {
+			res.status(401).json({
+				status_code: 401,
+				message: 'Token Invalide',
+			})
+		}
+	}
 }
 
 /**
@@ -544,12 +590,21 @@ const verifyEmail = async (req, res) => {
  */
 const forgotPass = async (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
+
 	try {
 		let user = await User.findOne({ email: datas.email })
-		if (user.status == false) {
+
+		if (!user) {
+			return res.status(404).json({
+				status_code: 404,
+				message: 'Adresse email introuvable.',
+			})
+		}
+
+		if (user.deletedAt !== undefined) {
 			return res.status(403).json({
 				status_code: 403,
-				error: 'Compte utilisateur désactivé !',
+				message: 'Compte utilisateur désactivé !',
 			})
 		}
 
@@ -559,10 +614,18 @@ const forgotPass = async (req, res) => {
 
 		await User.updateOne({ _id: user._id }, { token })
 
-		// await sendMail('forgotPass', { to: datas.email, token })
+		await sendMail('forgotPass', {
+			to: datas.email,
+			userId: user._id,
+			token,
+		})
 
-		res.status(200).json({ message: 'Email de réinitialisation envoyé.' })
+		res.status(200).json({
+			status_code: 200,
+			message: 'Email de réinitialisation envoyé.',
+		})
 	} catch (error) {
+		console.log(error)
 		res.status(500).json({
 			status_code: 500,
 			error: error.message,
@@ -599,16 +662,20 @@ const checkResetToken = async (req, res) => {
 	try {
 		const decodedToken = jwt.verify(
 			req.params.token,
-			process.env.SECRET_TOKEN
+			process.env.REFRESH_TOKEN
 		)
 
-		const userId = decodedToken.userId.valueOf()
-
-		const user = await User.findOne({ _id: userId })
+		const user = await User.findOne({ _id: decodedToken.user._id })
 		if (user) {
+			const newToken = jwt.sign({ user }, process.env.SECRET_TOKEN, {
+				expiresIn: '5h',
+			})
+
 			res.status(200).json({
 				status_code: 200,
-				data: user,
+				message: 'Nouveau token généré !',
+				token: newToken,
+				userInfos: decodedToken,
 			})
 		} else {
 			res.status(204).json({
@@ -658,7 +725,7 @@ const checkResetToken = async (req, res) => {
  */
 const setNewsletter = async (req, res) => {
 	try {
-		const user = await findById(req.params._id)
+		const user = await User.findById(req.params._id)
 		if (user.newsletter)
 			return res.status(200).json({
 				status_code: 200,
@@ -667,7 +734,7 @@ const setNewsletter = async (req, res) => {
 		await User.updateOne({ _id: req.params._id }, { newsletter: true })
 		res.status(200).json({
 			status_code: 200,
-			message: 'Utilisateur inscrit à la newsletter !',
+			message: 'Vous êtes inscrit à la newsletter !',
 		})
 	} catch (error) {
 		res.status(500).json({
@@ -711,7 +778,7 @@ const setNewsletter = async (req, res) => {
  */
 const unsetNewsletter = async (req, res) => {
 	try {
-		const user = await findById(req.params._id)
+		const user = await User.findById(req.params._id)
 		if (!user.newsletter)
 			return res.status(200).json({
 				status_code: 200,
@@ -720,13 +787,26 @@ const unsetNewsletter = async (req, res) => {
 		await User.updateOne({ _id: req.params._id }, { newsletter: false })
 		res.status(200).json({
 			status_code: 200,
-			message: 'Utilisateur désinscrit à la newsletter !',
+			message: 'Vous êtes désinscrit de la newsletter !',
 		})
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
 			error: error.message,
 		})
+	}
+}
+
+const setNewsletterForUnknown = async (req, res) => {
+	try {
+		let user = new User({ email: req.body.email, newsletter: true })
+		await user.save()
+		res.status(200).json({
+			status_code: 200,
+			message: 'Vous êtes inscrit à la newsletter !',
+		})
+	} catch (error) {
+		res.status(500).json({ status_code: 500, message: error.message })
 	}
 }
 
@@ -928,11 +1008,19 @@ const getBuyers = async (req, res) => {
  */
 const addToWishlist = async (req, res) => {
 	try {
+		let exist = false
 		let user = await User.findById(req.auth.user._id)
-		await User.updateOne(
-			{ _id: user._id },
-			{ $push: { 'buyer.wishlist': req.params._id } }
-		)
+		user.buyer.wishlist.forEach((element) => {
+			if (element.toString() == req.params._id) {
+				return (exist = true)
+			}
+		})
+		if (!exist) {
+			await User.updateOne(
+				{ _id: user._id },
+				{ $push: { 'buyer.wishlist': req.params._id } }
+			)
+		}
 		res.status(200).json({
 			status_code: 200,
 			message: 'Favori ajouté !',
@@ -1185,12 +1273,12 @@ const anonymize = async (req, res) => {
 		// 	'lst_seller._id': idToAnonymize,
 		// })
 		let transactions = await Transaction.find()
-		console.log(transactions)
+		// console.log(transactions)
 		transactions.forEach(async (transaction) => {
 			var lst_seller = transaction.lst_seller
 			lst_seller.forEach((seller) => {
 				if (seller.valueOf() == idToAnonymize) {
-					console.log(1)
+					// console.log(1)
 					seller = ObjectId(idAnonymous)
 				}
 			})
@@ -1234,6 +1322,72 @@ const anonymize = async (req, res) => {
 	}
 }
 
+const askForAppointment = async (req, res) => {
+	try {
+		const details = {
+			ref: req.body.ref,
+			firstname: req.body.firstname,
+			lastname: req.body.lastname,
+			email: req.body.email,
+			reason: req.body.reason,
+			infos: req.body.infos,
+		}
+
+		await sendMail('emailAppointment', {
+			to: process.env.mailAmaizon,
+			details,
+		})
+		res.status(200).json({
+			status_code: 200,
+			message: 'Envoi réussi.',
+		})
+	} catch (error) {
+		res.status(500).json({ error: error.message })
+	}
+}
+
+const sendMessage = (req, res) => {
+	try {
+		sendMail('sendMessage', req.body)
+		res.status(200).json({ status_code: 200, message: 'Message envoyé.' })
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
+const checkTokenResetPassword = async (req, res) => {
+	const { id, token } = req.body
+
+	let user = await User.findOne({ _id: id })
+
+	if (user && user.token == token) {
+		res.status(200).json({ status_code: 200, message: 'Vérification OK !' })
+	} else {
+		res.status(403).json({
+			status_code: 403,
+			message: 'Id ou token invalide.',
+		})
+	}
+}
+
+const resetPassword = async (req, res) => {
+	try {
+		const { id, password } = req.body
+		bcrypt.hash(password, 10, async function (err, hash) {
+			await User.updateOne({ _id: id }, { password: hash })
+			res.status(201).json({
+				status_code: 201,
+				message: 'Mot de passe réinitialisé !',
+			})
+		})
+	} catch (error) {
+		res.status(500).json({ status_code: 500, message: error.message })
+	}
+}
+
 export {
 	getOne,
 	getAll,
@@ -1242,11 +1396,13 @@ export {
 	deleteOne,
 	login,
 	signup,
+	checkBearer,
 	verifyEmail,
 	forgotPass,
 	checkResetToken,
 	setNewsletter,
 	unsetNewsletter,
+	setNewsletterForUnknown,
 	getAgents,
 	checkAgentAvailabilities,
 	getBuyers,
@@ -1256,4 +1412,8 @@ export {
 	addToPropertyList,
 	removeOfPropertyList,
 	anonymize,
+	askForAppointment,
+	sendMessage,
+	checkTokenResetPassword,
+	resetPassword,
 }

@@ -6,7 +6,7 @@ import { asyncForEach } from '../util/functions.js'
 
 // CREATE
 /**
- * @api {post} /api/property Créer une propriété
+ * @api {post} /api/property 1 - Créer une propriété
  * @apiName createProperty
  * @apiGroup Propriété
  *
@@ -44,15 +44,22 @@ import { asyncForEach } from '../util/functions.js'
  */
 const createProperty = async (req, res) => {
 	try {
+		// Gestion préalable des images:
+		let imageUrl = {}
+		if (req.filesName !== undefined) {
+			Object.keys(req.filesName).forEach((imgKey) => {
+				imageUrl[imgKey] = 'uploads/' + req.filesName[imgKey]
+			})
+		}
+
+		// Création et enregistrement de la propriété:
 		var newProperty = new Property({
 			...req.body,
 			isToSell: req.body.isToSell == 'on' ? true : false,
-			imageUrl: `${req.protocol}://${req.get('host')}/uploads/${
-				req.body.propertyRef
-			}`,
+			imageUrl,
 		})
 		newProperty = await newProperty.save()
-		await sendAlert(req.body, newProperty._id.valueOf())
+		// await sendAlert(req.body, newProperty._id.valueOf())
 		res.status(201).json({
 			status_code: 201,
 			message: 'Propriété enregistrée.',
@@ -64,7 +71,7 @@ const createProperty = async (req, res) => {
 
 // READ
 /**
- * @api {get} /api/property Récupérer toutes les propriétés
+ * @api {get} /api/property 3 - Récupérer toutes les propriétés
  * @apiName getAllProperties
  * @apiGroup Propriété
  *
@@ -95,7 +102,7 @@ const getAllProperties = async (req, res) => {
 
 // READ ONE
 /**
- * @api {get} /api/property/:id Récupérer une propriété
+ * @api {get} /api/property/:id 3.1 - Récupérer une propriété
  * @apiName getPropertyById
  * @apiGroup Propriété
  *
@@ -138,7 +145,7 @@ const getPropertyById = async (req, res) => {
 
 // UPDATE
 /**
- * @api {put} /api/property/:_id Mettre à jour une propriété
+ * @api {put} /api/property/:_id 2 - Mettre à jour une propriété
  * @apiName updateProperty
  * @apiGroup Propriété
  *
@@ -208,7 +215,7 @@ const updateProperty = async (req, res) => {
 
 // DELETE
 /**
- * @api {delete} /api/property/:_id Supprimer une propriété
+ * @api {delete} /api/property/:_id 4 - Supprimer une propriété
  * @apiName deleteProperty
  * @apiGroup Propriété
  *
@@ -272,6 +279,122 @@ const deleteProperty = async (req, res) => {
 	}
 }
 
+const searchProperties = async (req, res) => {
+	try {
+		// Destructuration du body:
+		const {
+			transactionType,
+			propertyType,
+			location,
+			minPrice,
+			maxPrice,
+			roomNumberMin,
+			roomNumberMax,
+			surfaceMin,
+			surfaceMax,
+			search,
+		} = req.body
+
+		// // Filtrage sur la localisation:
+		// if (location !== '') {
+		// 	where['transactionType'] = transactionType
+		// }
+
+		var queryCond = {}
+		if (search) {
+			queryCond.$or = [
+				{
+					title: {
+						$regex: search,
+						$options: 'i',
+					},
+				},
+				{
+					description: {
+						$regex: search,
+						$options: 'i',
+					},
+				},
+			]
+		}
+
+		// Filtrage sur la surface:
+		if (surfaceMin && surfaceMax) {
+			// Filtrage sur le nombre de pièces max et nombre de pièces min:
+			queryCond.surface = {
+				$gte: parseInt(surfaceMin),
+				$lte: parseInt(surfaceMax),
+			}
+		} else if (surfaceMin) {
+			// Filtrage sur le nombre de pièces min:
+			queryCond.surface = { $gte: parseInt(surfaceMin) }
+		} else if (surfaceMax) {
+			// Filtrage sur le nombre de pièces max:
+			queryCond.surface = { $lte: parseInt(surfaceMax) }
+		}
+
+		// Filtrage sur le type de transaction:
+		if (transactionType) {
+			queryCond.transactionType = transactionType
+		}
+
+		// Filtrage sur le type de bien:
+		if (propertyType) {
+			queryCond.propertyType = propertyType
+		}
+
+		if (minPrice && maxPrice) {
+			// Filtrage sur le prix max et prix min:
+			queryCond.amount = {
+				$gte: parseInt(minPrice),
+				$lte: parseInt(maxPrice),
+			}
+		} else if (minPrice) {
+			// Filtrage sur le prix min:
+			queryCond.amount = { $gte: parseInt(minPrice) }
+		} else if (maxPrice) {
+			// Filtrage sur le prix max:
+			queryCond.amount = { $lte: parseInt(maxPrice) }
+		}
+
+		// Filtrage sur le nombre de pièces:
+		if (roomNumberMin && roomNumberMax) {
+			// Filtrage sur le nombre de pièces max et nombre de pièces min:
+			queryCond.roomNumber = {
+				$gte: parseInt(roomNumberMin),
+				$lte: parseInt(roomNumberMax),
+			}
+		} else if (roomNumberMin) {
+			// Filtrage sur le nombre de pièces min:
+			queryCond.roomNumber = { $gte: parseInt(roomNumberMin) }
+		} else if (roomNumberMax) {
+			// Filtrage sur le nombre de pièces max:
+			queryCond.roomNumber = { $lte: parseInt(roomNumberMax) }
+		}
+
+		// Appel de la méthode avec la moitié des filtres:
+		let properties = await Property.find(queryCond)
+
+		// Filtrage sur la localisation:
+		if (location !== '') {
+			properties = properties.filter(
+				(property) => property.location == location
+			)
+		}
+
+		res.status(200).json({
+			status_code: 200,
+			message: 'Propriétés filtrées.',
+			data: properties,
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
 // SENDALERT (Intervient dans create)
 const sendAlert = async (datas, newId) => {
 	try {
@@ -308,7 +431,7 @@ const sendAlert = async (datas, newId) => {
 
 //UPDATE list_equipments
 /**
- * @api {put} /api/property/equipment/:_id 8 - Ajouter un équipement
+ * @api {put} /api/property/equipment/:_id 7 - Ajouter un équipement
  * @apiName addEquipment
  * @apiGroup Propriété
  *
@@ -351,7 +474,7 @@ const addEquipment = async (req, res) => {
 }
 
 /**
- * @api {delete} /api/property/equipment/:_id 9 - Supprimer un équipement
+ * @api {delete} /api/property/equipment/:_id 8 - Supprimer un équipement
  * @apiName removeEquipment
  * @apiGroup Propriété
  *
@@ -395,7 +518,7 @@ const removeEquipment = async (req, res) => {
 
 //UPDATE list_equipments
 /**
- * @api {put} /api/property/heater/:_id 6 - Ajouter un chauffage
+ * @api {put} /api/property/heater/:_id 5 - Ajouter un chauffage
  * @apiName addHeater
  * @apiGroup Propriété
  *
@@ -441,7 +564,7 @@ const addHeater = async (req, res) => {
 }
 
 /**
- * @api {delete} /api/property/heater/:_id 7 - Supprimer un chauffage
+ * @api {delete} /api/property/heater/:_id 6 - Supprimer un chauffage
  * @apiName removeHeater
  * @apiGroup Propriété
  *
@@ -489,6 +612,7 @@ export {
 	getPropertyById,
 	updateProperty,
 	deleteProperty,
+	searchProperties,
 	addEquipment,
 	removeEquipment,
 	addHeater,

@@ -13,26 +13,34 @@ const router = express.Router()
 //(Login) Connexion d'un utilisateur
 router.post('/login', CHK.checkForLogin(), validation, UC.login)
 
-//(SignUp) Inscription d'un vendeur
-router.post(
-	'/sellerSignup',
-	CHK.checkUserCommonBody(),
-	CHK.checkSellerBody(),
-	validation,
-	UC.signup
-)
+// //(SignUp) Inscription d'un vendeur
+// router.post(
+// 	'/sellerSignup',
+// 	CHK.checkUserCommonBody(),
+// 	CHK.checkSellerBody(),
+// 	validation,
+// 	UC.signup
+// )
 
-//(SignUp) Inscription d'un acheteur
-router.post(
-	'/buyerSignup',
-	CHK.checkUserCommonBody(),
-	CHK.checkBuyerBody(),
-	validation,
-	UC.signup
-)
+router.post('/checkBearer', UC.checkBearer)
+
+// //(SignUp) Inscription d'un acheteur
+// router.post(
+// 	'/buyerSignup',
+// 	CHK.checkUserCommonBody(),
+// 	CHK.checkBuyerBody(),
+// 	validation,
+// 	UC.signup
+// )
+
+//(SignUp) Inscription standard
+router.post('/signup', CHK.checkUserCommonBody(), validation, UC.signup)
 
 //(Check) Verification token pour validation de compte
 router.get('/emailVerification/:token', UC.verifyEmail)
+
+//(Mailing) Demande de rendez-vous
+router.post('/emailAppointment', UC.askForAppointment)
 
 //(Forgot) Mot de passe oublié
 router.post('/forgot', CHK.checkForForgotPass(), validation, UC.forgotPass)
@@ -124,11 +132,18 @@ router.put(
 	UC.deleteOne
 )
 
+router.post('/sendMessage', UC.sendMessage)
+
 //(Get) Récuperation des utilisateurs
 router.get('/', auth, checkAccess(['agent']), UC.getAll)
 
 //(Check) Vérification du token
-router.get('/check/:token', CHK.checkForResetToken(), UC.checkResetToken)
+router.get(
+	'/checkResetToken/:token',
+	CHK.checkForResetToken(),
+	validation,
+	UC.checkResetToken
+)
 
 //(Update) Activation des newletters
 router.get(
@@ -149,6 +164,9 @@ router.get(
 	validation,
 	UC.unsetNewsletter
 )
+
+// SetNewsletter pour non-connecté
+router.post('/setNewsletterForUnknown', UC.setNewsletterForUnknown)
 
 //(Get) Récupération de tous les agents
 router.get(
@@ -185,7 +203,7 @@ router.get(
 )
 
 //(Delete) Suppression d'un favoris dans la wishlist
-router.get(
+router.delete(
 	'/wishlist/:_id',
 	auth,
 	checkAccess(['buyer']),
@@ -205,7 +223,7 @@ router.get(
 )
 
 //(Delete) Suppression d'une propriété dans la liste d'un vendeur
-router.get(
+router.delete(
 	'/property/:_id',
 	auth,
 	checkAccess(['agent']),
@@ -213,6 +231,12 @@ router.get(
 	validation,
 	UC.removeOfPropertyList
 )
+
+// Check Token Reset Password
+router.post('/checkTokenResetPassword', UC.checkTokenResetPassword)
+
+// Reset Password
+router.post('/resetPassword', UC.resetPassword)
 
 //(Get) Récupération d'un utilisateur
 router.get('/:_id', auth, validateParamId(), validation, UC.getOne)

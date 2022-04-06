@@ -14,6 +14,8 @@ import {
 
 const app = express()
 
+const __dirname = path.resolve()
+
 app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', '*')
 	res.setHeader(
@@ -28,9 +30,9 @@ app.use((req, res, next) => {
 })
 
 app.use(express.json()).use(express.urlencoded({ extended: true }))
+app.use(express.static(path.join(__dirname + '/public')))
 
 // Intégration des routes:
-app.use('/api/images', express.static(path.join(path.dirname('uploads'))))
 app.use('/api/appointment', appointmentRoutes)
 app.use('/api/inventory', inventoryRoutes)
 app.use('/api/property', propertyRoutes)

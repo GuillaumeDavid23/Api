@@ -1,10 +1,6 @@
 import { body, param } from 'express-validator'
 import Property from '../../models/Property.js'
 
-const test = () => {
-	return [body('title').custom((title) => console.log('custom:', title))]
-}
-
 const checkPropertyBody = () => {
 	return [
 		body('title')
@@ -174,6 +170,21 @@ const checkPropertyBody = () => {
 			.withMessage(
 				'La référence de la propriété doit faire exactement 10 caractères.'
 			),
+		body('propertyRef')
+			.if(
+				body('propertyRef')
+					.notEmpty()
+					.isAlphanumeric()
+					.isLength({ min: 10, max: 10 })
+			)
+			.custom(async (propertyRef) => {
+				let property = await Property.findOne({ propertyRef })
+				if (property)
+					return Promise.reject(
+						'La référence de la propriété doit-être unique.'
+					)
+				return true
+			}),
 	]
 }
 
@@ -196,4 +207,4 @@ const checkPropertyExistence = () => {
 	]
 }
 
-export { test, checkPropertyBody, checkPropertyExistence }
+export { checkPropertyBody, checkPropertyExistence }

@@ -34,17 +34,18 @@ export default async (method, infos) => {
 
 		case 'forgotPass':
 			var from = `"Amaizon" <${process.env.mailAmaizon}>`
-			var { to, token } = infos
+			var { to, userId, token } = infos
 			var subject = 'Réinitialisation de mot de passe.'
 			var body = `Bonjour<br>
 			Une demande de réinitialisation de mot de passe a été sollicité de votre part.
             Veuillez vous rendre sur la page dédié en cliquant 
             sur ce lien:<br>
-            <a href="https://amaizon.fr/resetPassword/${userId}/${token}">
-            https://amaizon.fr/resetPassword/${token}
+            <a href="${process.env.UI_DOMAIN}resetPassword/${userId}/${token}">
+            https://amaizon.fr/resetPassword/${userId}/${token}
             </a><br><br>
 			Cordialement,<br>
 			L'équipe Amaizon`
+			break
 
 		case 'emailVerification':
 			var from = `"Amaizon" <${process.env.mailAmaizon}>`
@@ -53,13 +54,52 @@ export default async (method, infos) => {
 			var body = `Bonjour<br>
 			Merci d'avoir créer un compte sur notre site web Amaizon.<br>
 			Une vérification par email est nécessaire, merci de cliquer sur le lien suivant pour y procéder:<br>
-            <a href="https://amaizon.fr/emailVerification/${token}">
-            https://amaizon.fr/emailVerification/${token}
+            <a href="${process.env.UI_DOMAIN}emailVerification/${token}">
+            ${process.env.UI_DOMAIN}emailVerification/${token}
             </a><br><br>
 			Cordialement,<br>
 			L'équipe Amaizon`
-	}
+			break
 
+		case 'sendMessage':
+			var { lastname, firstname, email, tel, subject, message } = infos
+			var from = `"${lastname} ${firstname}" <${email}>`
+			var to = process.env.mailAmaizon
+			var subject = 'Contact: ' + subject
+			var body = `Un message a été reçu depuis le site Vitrine.<br><br>
+			Voici son contenu:<br>
+			${message}<br><br>
+			Voici les coordonnées de l'utilisateur à l'origine du message:<br>
+			Nom: ${firstname} ${lastname}<br>
+			Email: ${email}<br>
+			Téléphone: ${tel}`
+			break
+
+		case 'emailAppointment':
+			var from = `"Amaizon" <${process.env.mailAmaizon}>`
+			var { to, details } = infos
+			var subject = 'Rendez-vous client.'
+			var body = `Bonjour<br>
+			Un client souhaite prendre rendez-vous pour le bien : ${details.ref}<br>
+			Voici ses informations :<br>
+            <br><br>
+			Nom : ${details.lastname} 
+			<br>
+			Prénom : ${details.firstname} 
+			<br>
+			Email : ${details.email} 
+			<br>
+			Raison : ${details.reason} 
+			<br>
+			<span style="font-weight: bold;">infos : </span>
+			<br>
+			${details.infos} 
+			<br>
+
+			Cordialement,<br>
+			L'équipe Amaizon`
+			break
+	}
 	// Envoi de l'email:
 	var sending = await transporter.sendMail({
 		from,
