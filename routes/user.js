@@ -166,6 +166,7 @@ router.get(
 )
 
 // SetNewsletter pour non-connecté
+router.post('/setNewsletterForUnknown', UC.setNewsletterForUnknown)
 
 //(Get) Récupération de tous les agents
 router.get(

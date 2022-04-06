@@ -341,13 +341,35 @@ const signup = async (req, res) => {
 
 	if (datas.password != null) {
 		try {
+			let mailCheck = await User.findOne({ email: req.body.email })
+			// On check si le compte existe (et pas seulement pour la newsletter)
+			if (mailCheck && mailCheck.password) {
+				return res.status(403).json({
+					status_code: 403,
+					message: 'Cet email est déjà utilisé !',
+				})
+			}
+
 			let hash = await bcrypt.hash(datas.password, 10)
-			var user = new User({
-				...datas,
-				password: hash,
-			})
-			user = await user.save()
-			sendVerificationMail(user._id, user.email)
+			// Cas ou à un compte à été crée pour la newsletter:
+			var user
+			if (mailCheck && !mailCheck.password) {
+				await User.replaceOne(
+					{ email: req.body.email },
+					{
+						...req.body,
+						password: hash,
+					}
+				)
+			} else {
+				user = new User({
+					...datas,
+					password: hash,
+				})
+				await user.save()
+			}
+			user = await User.findOne({ email: req.body.email })
+			// sendVerificationMail(user._id, user.email)
 			const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
 				expiresIn: '5h',
 			})
@@ -703,7 +725,7 @@ const checkResetToken = async (req, res) => {
  */
 const setNewsletter = async (req, res) => {
 	try {
-		const user = await findById(req.params._id)
+		const user = await User.findById(req.params._id)
 		if (user.newsletter)
 			return res.status(200).json({
 				status_code: 200,
@@ -712,7 +734,7 @@ const setNewsletter = async (req, res) => {
 		await User.updateOne({ _id: req.params._id }, { newsletter: true })
 		res.status(200).json({
 			status_code: 200,
-			message: 'Utilisateur inscrit à la newsletter !',
+			message: 'Vous êtes inscrit à la newsletter !',
 		})
 	} catch (error) {
 		res.status(500).json({
@@ -756,7 +778,7 @@ const setNewsletter = async (req, res) => {
  */
 const unsetNewsletter = async (req, res) => {
 	try {
-		const user = await findById(req.params._id)
+		const user = await User.findById(req.params._id)
 		if (!user.newsletter)
 			return res.status(200).json({
 				status_code: 200,
@@ -765,13 +787,26 @@ const unsetNewsletter = async (req, res) => {
 		await User.updateOne({ _id: req.params._id }, { newsletter: false })
 		res.status(200).json({
 			status_code: 200,
-			message: 'Utilisateur désinscrit à la newsletter !',
+			message: 'Vous êtes désinscrit de la newsletter !',
 		})
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
 			error: error.message,
 		})
+	}
+}
+
+const setNewsletterForUnknown = async (req, res) => {
+	try {
+		let user = new User({ email: req.body.email, newsletter: true })
+		await user.save()
+		res.status(200).json({
+			status_code: 200,
+			message: 'Vous êtes inscrit à la newsletter !',
+		})
+	} catch (error) {
+		res.status(500).json({ status_code: 500, message: error.message })
 	}
 }
 
@@ -1367,6 +1402,7 @@ export {
 	checkResetToken,
 	setNewsletter,
 	unsetNewsletter,
+	setNewsletterForUnknown,
 	getAgents,
 	checkAgentAvailabilities,
 	getBuyers,
