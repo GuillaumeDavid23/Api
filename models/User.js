@@ -34,6 +34,8 @@ const userSchema = mongoose.Schema(
 			surfaceMin: { type: Number },
 			surfaceMax: { type: Number },
 			type: { type: String },
+			propertyType: { type: String },
+			rooms: { type: Number },
 		},
 
 		agent: {
