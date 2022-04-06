@@ -10,7 +10,7 @@ import dotenv from 'dotenv'
 import sendMail from '../util/mail.js'
 dotenv.config()
 
-//CREATE USER
+//CREATE
 /**
  * @api {post} /api/user 1.2 - Créer un utilisateur
  * @apiName create
