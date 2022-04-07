@@ -7,15 +7,15 @@ import Inventory from '../models/Inventory.js'
  *
  * @apiHeader {String} Authorization Token d'authentification
  *
- * @apiBody {ObejectId} id_agent ID de l'agent
+ * @apiBody {ObjectId} id_agent ID de l'agent
  * @apiBody {Boolean} inOut Etat des lieux de sortie ou d'entrée
  * @apiBody {String} userReference Référence client
- * @apiBody {Date} date DAte de l'état des lieux
+ * @apiBody {Date} date Date de l'état des lieux
  * @apiBody {String} previousBuyerRef Référence du précédent client
  * @apiBody {Array} lst_statsMeters Liste des relevés compteurs
  * @apiBody {Array} lst_roomDetails	Liste de l'état des pièces
  *
- * @apiSuccess {String} message Message de completion.
+ * @apiSuccess {String} message Message de complétion.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
@@ -24,10 +24,10 @@ import Inventory from '../models/Inventory.js'
  *       	"message": "Etat des lieux enregistré.",
  *     }
  *
- * @apiError ValidationError Agent inexistant.
- * @apiError ValidationError Utilisateur inexistant.
- * @apiError ValidationError Utilisateur précédent inexistant.
- * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError AgentValidationError Agent inexistant.
+ * @apiError UserValidationError Utilisateur inexistant.
+ * @apiError PreviousUserValidationError Utilisateur précédent inexistant.
+ * @apiError BodyValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample id_agentError:
@@ -68,9 +68,7 @@ import Inventory from '../models/Inventory.js'
  */
 const create = async (req, res) => {
 	try {
-		const inventory = new Inventory({
-			...req.body,
-		})
+		const inventory = new Inventory({ ...req.body })
 		await inventory.save()
 		res.status(201).json({
 			status_code: 201,
@@ -88,7 +86,7 @@ const create = async (req, res) => {
  *
  * @apiHeader {String} Authorization Token d'authentification
  *
- * @apiBody {ObejectId} id_agent ID de l'agent
+ * @apiBody {ObjectId} id_agent ID de l'agent
  * @apiBody {Boolean} inOut Etat des lieux de sortie ou d'entrée
  * @apiBody {String} userReference Référence client
  * @apiBody {Date} date Date de l'état des lieux
@@ -105,11 +103,11 @@ const create = async (req, res) => {
  *       	"message": "Etat des lieux modifié.",
  *     }
  *
- * @apiError ValidationError Agent inexistant.
- * @apiError ValidationError Utilisateur inexistant.
- * @apiError ValidationError Utilisateur précédent inexistant.
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
- * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError AgentValidationError Agent inexistant.
+ * @apiError UserValidationError Utilisateur inexistant.
+ * @apiError PreviousUserValidationError Utilisateur précédent inexistant.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError BodyValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample id_agentError:
@@ -163,7 +161,6 @@ const update = async (req, res) => {
 	}
 }
 
-// DELETE
 /**
  * @api {delete} /api/appointment 5 - Supprimer un état des lieux
  * @apiName delete
@@ -173,7 +170,7 @@ const update = async (req, res) => {
  *
  * @apiParam {String} _id ID de l'etat des lieux.
  *
- * @apiSuccess {String} message Message de completion.
+ * @apiSuccess {String} message Message de complétion.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -182,8 +179,8 @@ const update = async (req, res) => {
  *       	"message": "Etat des lieux supprimé.",
  *     }
  *
- * @apiError ValidationError Etat des lieux non trouvé !
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError InventoryValidationError Etat des lieux non trouvé !
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample _idError:
@@ -217,7 +214,7 @@ const erase = async (req, res) => {
  *
  * @apiHeader {String} Authorization Token d'authentification
  *
- * @apiSuccess {Inventory} inventory Objet Etat des lieux.
+ * @apiSuccess {Inventory} inventory Objet Etats des lieux.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -262,7 +259,7 @@ const getAll = async () => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 204 OK
  *
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  */
 const getOne = async (req, res) => {
@@ -282,7 +279,6 @@ const getOne = async (req, res) => {
 	}
 }
 
-// READ ONE JOIN
 /**
  * @api {get} /api/inventory/getAllForOneUser/:_id Récupérer les inventaires d'un utilisateur
  * @apiName getAllForOneUser
@@ -290,7 +286,7 @@ const getOne = async (req, res) => {
  *
  * @apiParam {String} _id ID de l'état des lieux.
  *
- * @apiSuccess {Array} appointment Objet Etat des lieux.
+ * @apiSuccess {Array} appointment Objet Etats des lieux.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -300,8 +296,8 @@ const getOne = async (req, res) => {
  * 		"inventories": {inventories}
  *     }
  *
- * @apiError ValidationError Utilisateur non trouvé !
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError UserValidationError Utilisateur non trouvé !
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample _idError:
@@ -331,7 +327,6 @@ const getAllForOneUser = async (req, res) => {
 	}
 }
 
-//UPDATE lst_roomDetails
 /**
  * @api {put} /api/inventory/room/:_id 8 - Ajouter l'état d'une pièce
  * @apiName addRoomDetails
@@ -348,10 +343,24 @@ const getAllForOneUser = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": 'état de la pièce ajouté !',
+ *       "message": 'Etat de la pièce ajouté !',
  *     }
  *
- * @apiError ServerError inventory non modifié.
+ * @apiError InventoryValidationError Etat des lieux non trouvé !
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Etat des lieux non trouvé."
+ * 				}
+ * 			]
+ *     }
  */
 const addRoomDetails = async (req, res) => {
 	try {
@@ -368,7 +377,7 @@ const addRoomDetails = async (req, res) => {
 		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'etat de la piece ajouté à la liste !',
+			message: 'Etat de la piece ajouté à la liste !',
 		})
 	} catch (error) {
 		res.status(500).json({
@@ -394,10 +403,24 @@ const addRoomDetails = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": 'état de la poièce supprimé de la liste',
+ *       "message": 'Etat de la pièce supprimé de la liste',
  *     }
  *
- * @apiError ServerError état des lieux non modifié.
+ * @apiError InventoryValidationError Inventaire non trouvé !
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Etat des lieux non trouvé."
+ * 				}
+ * 			]
+ *     }
  */
 const removeRoomDetails = async (req, res) => {
 	try {
@@ -411,7 +434,7 @@ const removeRoomDetails = async (req, res) => {
 		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'etat de la pièce supprimé de la liste !',
+			message: 'Etat de la pièce supprimé de la liste !',
 		})
 	} catch (error) {
 		res.status(500).json({
@@ -421,7 +444,6 @@ const removeRoomDetails = async (req, res) => {
 	}
 }
 
-//UPDATE lst_statsMeters
 /**
  * @api {put} /api/inventory/statsmeters/:_id 6 - Ajouter un relevé de compteur
  * @apiName addStatsMeters
@@ -438,10 +460,24 @@ const removeRoomDetails = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": 'relevé ajouté à la liste !',
+ *       "message": 'Relevé ajouté à la liste !',
  *     }
  *
- * @apiError ServerError état des lieux non modifié.
+ * @apiError InventoryValidationError Inventaire non trouvé !
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Etat des lieux non trouvé."
+ * 				}
+ * 			]
+ *     }
  */
 const addStatsMeters = async (req, res) => {
 	try {
@@ -458,7 +494,7 @@ const addStatsMeters = async (req, res) => {
 		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'relevé ajouté à la liste !',
+			message: 'Relevé ajouté à la liste !',
 		})
 	} catch (error) {
 		res.status(500).json({
@@ -484,10 +520,24 @@ const addStatsMeters = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": 'relevé supprimé de la liste !',
+ *       "message": 'Relevé supprimé de la liste !',
  *     }
  *
- * @apiError ServerError état des lieux non modifié.
+ * @apiError InventoryValidationError Inventaire non trouvé !
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ * 		"status_code": 422,
+ *		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Etat des lieux non trouvé."
+ * 				}
+ * 			]
+ *     }
  */
 const removeStatsMeters = async (req, res) => {
 	try {
@@ -501,7 +551,7 @@ const removeStatsMeters = async (req, res) => {
 		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'relevé supprimé de la liste !',
+			message: 'Relevé supprimé de la liste !',
 		})
 	} catch (error) {
 		res.status(500).json({

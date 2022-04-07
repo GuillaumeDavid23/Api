@@ -2,10 +2,7 @@ import express from 'express'
 import * as IC from '../controllers/inventory.js'
 import auth from '../middleware/auth.js'
 import checkAccess from '../middleware/checkAccess.js'
-import {
-	checkInventoryBody,
-	checkInventoryExistence,
-} from '../middleware/validation/inventory.js'
+import * as valid from '../middleware/validation/inventory.js'
 import { checkUserExistence } from '../middleware/validation/user.js'
 import {
 	validateParamId,
@@ -14,19 +11,42 @@ import {
 
 const router = express.Router()
 //(Update) Ajout d'un état de pièce dans lst_roomDetails
-router.put('/room/:_id', auth, checkAccess(['agent']), IC.addRoomDetails)
+router.put(
+	'/room/:_id',
+	auth,
+	checkAccess(['agent']),
+	valid.checkInventoryExistence(),
+	validation,
+	IC.addRoomDetails
+)
 
 //(Delete) Suppression d'un état de pièce dans lst_roomDetails
-router.delete('/room/:_id', auth, checkAccess(['agent']), IC.removeRoomDetails)
+router.delete(
+	'/room/:_id',
+	auth,
+	checkAccess(['agent']),
+	valid.checkInventoryExistence(),
+	validation,
+	IC.removeRoomDetails
+)
 
 //(Update) Ajout d'un relevé dans lst_statsMeters
-router.put('/statsmeters/:_id', auth, checkAccess(['agent']), IC.addStatsMeters)
+router.put(
+	'/statsmeters/:_id',
+	auth,
+	checkAccess(['agent']),
+	valid.checkInventoryExistence(),
+	validation,
+	IC.addStatsMeters
+)
 
 //(Delete) Suppression d'un relevé dans lst_statsMeters
 router.delete(
 	'/statsmeters/:_id',
 	auth,
 	checkAccess(['agent']),
+	valid.checkInventoryExistence(),
+	validation,
 	IC.removeStatsMeters
 )
 
@@ -35,7 +55,7 @@ router.post(
 	'/',
 	auth,
 	checkAccess(['agent']),
-	checkInventoryBody(),
+	valid.checkInventoryBody(),
 	validation,
 	IC.create
 )
@@ -45,8 +65,8 @@ router.put(
 	'/:_id',
 	auth,
 	checkAccess(['agent']),
-	checkInventoryExistence(),
-	checkInventoryBody(),
+	valid.checkInventoryExistence(),
+	valid.checkInventoryBody(),
 	validation,
 	IC.update
 )
@@ -56,7 +76,7 @@ router.delete(
 	'/:_id',
 	auth,
 	checkAccess(['agent']),
-	checkInventoryExistence(),
+	valid.checkInventoryExistence(),
 	validation,
 	IC.erase
 )

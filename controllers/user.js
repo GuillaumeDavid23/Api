@@ -5,12 +5,11 @@ import Property from '../models/Property.js'
 import Rental from '../models/Rental.js'
 import Transaction from '../models/Transaction.js'
 import bcrypt from 'bcrypt'
-import jwt, { decode } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import sendMail from '../util/mail.js'
 dotenv.config()
 
-//CREATE
 /**
  * @api {post} /api/user 1.2 - Créer un utilisateur
  * @apiName create
@@ -80,7 +79,6 @@ const create = async (req, res) => {
 	}
 }
 
-//UPDATE USER
 /**
  * @api {put} /api/user/:_id 1.3 - Mettre à jour un utilisateur
  * @apiName update
@@ -110,7 +108,7 @@ const create = async (req, res) => {
  *       "message": 'Utilisateur modifié !',
  *     }
  *
- * @apiError ServerError Utilisateur non modifié.
+ * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample ServerError:
  *     HTTP/1.1 500 Internal Server Error
@@ -143,7 +141,6 @@ const update = async (req, res) => {
 	}
 }
 
-//GET ONE USER
 /**
  * @api {get} /api/user/:_id 1.4 - Récupérer un utilisateur
  * @apiName getOne
@@ -195,7 +192,6 @@ const getOne = async (req, res) => {
 	}
 }
 
-//GET ALL USER
 /**
  * @api {get} /api/user/ 1.5 - Récupérer tous les utilisateurs
  * @apiName getAll
@@ -247,7 +243,6 @@ const getAll = async (req, res) => {
 	}
 }
 
-//GET DELETE
 /**
  * @api {PUT} /api/user/delete/:_id 1.6 - Supprimer un utilisateur
  * @apiName deleteOne
@@ -299,7 +294,6 @@ const deleteOne = async (req, res) => {
 	}
 }
 
-//SIGNUP USER
 /**
  * @api {post} /api/user/signup 1.1 - Inscrire un utilisateur
  * @apiName signup
@@ -393,7 +387,6 @@ const signup = async (req, res) => {
 	}
 }
 
-//LOGIN USER
 /**
  * @api {post} /api/user/login 1 - Authentifier un utilisateur
  * @apiName login
@@ -479,6 +472,7 @@ const login = async (req, res) => {
 	}
 }
 
+// Méthode intervenants dans d'autres méthodes:
 const sendVerificationMail = async (id, email) => {
 	let token = jwt.sign({ userId: id }, process.env.SECRET_TOKEN, {
 		expiresIn: '5h',
@@ -488,6 +482,39 @@ const sendVerificationMail = async (id, email) => {
 	return sendMail('emailVerification', { to: email, token })
 }
 
+/**
+ * @api {post} /api/user/login 1 - Checker le token Bearer
+ * @apiName checkBearer
+ * @apiGroup Utilisateur
+ *
+ *
+ * @apiSuccess 200 Utilisateur connecté
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ * 		 "status_code": 200,
+ *       "message": 'Token Valide',
+ * 		 "userInfos": {userInfos}
+ *     }
+ *
+ * @apiError 401 Token Expiré
+ * @apiError 401 Token Invalide
+ *
+ * @apiErrorExample Token Expiré:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ * 		"status_code": 401,
+ * 		"message": "Token Expiré.",
+ *     }
+ *
+ * @apiErrorExample Token Invalide:
+ *     HTTP/1.1 401 Unauthorized
+ *     {
+ * 		"status_code": 401,
+ * 		"message": "Token Invalide.",
+ *     }
+ */
 const checkBearer = async (req, res) => {
 	const token = req.headers.authorization.split(' ')[1]
 	let decodedToken
@@ -564,7 +591,6 @@ const verifyEmail = async (req, res) => {
 	}
 }
 
-//USER FORGOT PASSWORD
 /**
  * @api {post} /api/forgot 5 - Créer un token de réinitilisation
  * @apiName forgotPass
@@ -633,7 +659,6 @@ const forgotPass = async (req, res) => {
 	}
 }
 
-//CHECK RESEST PASSWORD TOKEN
 /**
  * @api {get} /api/user/check/:token 5.1 - Vérifier le token utilisateur
  * @apiName checkResetToken
@@ -691,7 +716,6 @@ const checkResetToken = async (req, res) => {
 	}
 }
 
-// SETNEWSLETTER
 /**
  * @api {get} /api/user/setNewsletter/:_id 6 - Activer les newsletters
  * @apiName setNewsletter
@@ -744,7 +768,6 @@ const setNewsletter = async (req, res) => {
 	}
 }
 
-// UNSETNEWSLETTER
 /**
  * @api {get} /api/user/unsetNewsletter/:_id 6.1 - Désactiver les newsletters
  * @apiName unsetNewsletter
@@ -797,6 +820,24 @@ const unsetNewsletter = async (req, res) => {
 	}
 }
 
+/**
+ * @api {get} /api/user/setNewsletterForUnknown/ 6 - Activer les newsletters pour un non-enregistré
+ * @apiName setNewsletterForUnknown
+ * @apiGroup Utilisateur
+ *
+ * @apiParam {String} _id id de l'utilisateur.
+ *
+ * @apiSuccess {User} user Objet Utilisateur.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *			status_code: 200,
+ *			message: 'Vous êtes inscrit à la newsletter !',
+ *		}
+ *
+ * @apiError ServerError.
+ */
 const setNewsletterForUnknown = async (req, res) => {
 	try {
 		let user = new User({ email: req.body.email, newsletter: true })
@@ -810,7 +851,6 @@ const setNewsletterForUnknown = async (req, res) => {
 	}
 }
 
-//GET ALL AGENTS
 /**
  * @api {get} /api/user/agents 4 - Récupérer tous les agents
  * @apiName getAgents
@@ -850,7 +890,6 @@ const getAgents = async (req, res) => {
 	}
 }
 
-//Check AVAILABILITIES OF AGENT
 /**
  * @api {post} /api/user/agentAvailabilities 4.1 - Vérifier les disponibilités d'un agent
  * @apiName checkAgentAvailabilities
@@ -945,7 +984,6 @@ const checkAgentAvailabilities = async (req, res) => {
 	}
 }
 
-//GET ALL BUYERS
 /**
  * @api {get} /api/user/buyers 2 - Récupérer tous les acheteurs
  * @apiName getBuyers
@@ -986,7 +1024,6 @@ const getBuyers = async (req, res) => {
 	}
 }
 
-//UPDATE WishList USER
 /**
  * @api {get} /api/user/wishlist/:_id 2.1 - Ajouter un favori
  * @apiName addToWishlist
@@ -1076,7 +1113,6 @@ const removeOfWishlist = async (req, res) => {
 	}
 }
 
-//UPDATE PropertyList USER
 /**
  * @api {get} /api/user/property/:_id 3.1 - Ajouter une proprieté dans la liste d'un vendeur
  * @apiName addToPropertyList
@@ -1115,7 +1151,6 @@ const addToPropertyList = async (req, res) => {
 	}
 }
 
-//UPDATE PropertyList USER
 /**
  * @api {get} /api/user/property/:_id 3.2 - Supprimer une proprieté dans la liste d'un vendeur
  * @apiName removeOfPropertyList
@@ -1159,7 +1194,6 @@ const removeOfPropertyList = async (req, res) => {
 	}
 }
 
-//GET ALL SELLERS
 /**
  * @api {get} /api/user/sellers  3 - Récupérer tous les vendeurs
  * @apiName getSellers
@@ -1177,6 +1211,7 @@ const removeOfPropertyList = async (req, res) => {
  *     }
  *
  * @apiError UserNotFound Aucun utilisateur.
+ * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 400 Not Found
@@ -1322,6 +1357,29 @@ const anonymize = async (req, res) => {
 	}
 }
 
+/**
+ * @api {post} /api/user 1.2 - Demander un rendez-vous
+ * @apiName askForAppointment
+ * @apiGroup Utilisateur
+ *
+ * @apiBody {String} ref Référence de l'utilisateur
+ * @apiBody {String} firstname Prénom de l'utilisateur
+ * @apiBody {String} lastname Nom de l'utilisateur
+ * @apiBody {String} email Email de l'utilisateur
+ * @apiBody {String} reason Raison de la demande de rendez-vous
+ * @apiBody {String} infos Infos sur le rendez-vous
+ *
+ * @apiSuccess {String} message Message de complétion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ * 		 "status_code": 200,
+ *       "message": 'Envoi réussi  !',
+ *     }
+ *
+ * @apiError ServerError Erreur serveur.
+ */
 const askForAppointment = async (req, res) => {
 	try {
 		const details = {
@@ -1346,6 +1404,28 @@ const askForAppointment = async (req, res) => {
 	}
 }
 
+/**
+ * @api {post} /api/user 1.2 - Demander un rendez-vous
+ * @apiName askForAppointment
+ * @apiGroup Utilisateur
+ *
+ * @apiBody {String} firstname Prénom de l'utilisateur
+ * @apiBody {String} lastname Nom de l'utilisateur
+ * @apiBody {String} email Email de l'utilisateur
+ * @apiBody {String} subject Raison de la demande de rendez-vous
+ * @apiBody {String} message Infos sur le rendez-vous
+ *
+ * @apiSuccess {String} message Message de complétion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ * 		 "status_code": 200,
+ *       "message": 'Message envoyé !',
+ *     }
+ *
+ * @apiError ServerError Erreur serveur.
+ */
 const sendMessage = (req, res) => {
 	try {
 		sendMail('sendMessage', req.body)
@@ -1358,6 +1438,32 @@ const sendMessage = (req, res) => {
 	}
 }
 
+/**
+ * @api {get} /api/user 1.2 - Checker le token ResetPassword
+ * @apiName checkTokenResetPassword
+ * @apiGroup Utilisateur
+ *
+ * @apiBody {String} id Id de l'utilisateur
+ * @apiBody {String} token Token de l'utilisateur enregistré en BDD
+ *
+ * @apiSuccess {String} message Message de complétion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ * 		 "status_code": 200,
+ *       "message": 'Vérification OK !',
+ *     }
+ *
+ * @apiError InvalidCredentialsError Id ou Token invalide.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Not Found
+ *     {
+ *       "error": "Id ou token invalide."
+ *     }
+ */
 const checkTokenResetPassword = async (req, res) => {
 	const { id, token } = req.body
 
@@ -1373,6 +1479,25 @@ const checkTokenResetPassword = async (req, res) => {
 	}
 }
 
+/**
+ * @api {get} /api/user 1.2 - Réinitialiser le mot de passe
+ * @apiName resetPassword
+ * @apiGroup Utilisateur
+ *
+ * @apiBody {String} id Id de l'utilisateur
+ * @apiBody {String} password Mot de passe de l'utilisateur
+ *
+ * @apiSuccess {String} message Message de complétion.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ * 		 "status_code": 201,
+ *       "message": 'Mot de passe réinitialisé !',
+ *     }
+ *
+ * @apiError ServerError Erreur serveur.
+ */
 const resetPassword = async (req, res) => {
 	try {
 		const { id, password } = req.body

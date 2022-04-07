@@ -224,6 +224,78 @@ const checkUserExistence = () => {
 	]
 }
 
+// const checkSellerExistence = () => {
+// 	return [
+// 		param('_id')
+// 			.notEmpty()
+// 			.withMessage("Vous devez indiquer l'identifiant en paramètres."),
+// 		param('_id')
+// 			.if(param('_id').notEmpty())
+// 			.isMongoId()
+// 			.withMessage("L'identifiant renseigné doit-être de type MongoId."),
+// 		// On check l'existence de l'utilisateur et s'il est un vendeur:
+// 		param('_id')
+// 			.if(param('_id').notEmpty().isMongoId())
+// 			.custom(async (_id) => {
+// 				let user = await User.findOne({ _id })
+// 				if (!user) return Promise.reject('Utilisateur inexistant !')
+// 				if (!user.seller)
+// 					return Promise.reject(
+// 						"Cette utilisateur n'est pas un vendeur !"
+// 					)
+// 				return true
+// 			}),
+// 	]
+// }
+
+// const checkBuyerExistence = () => {
+// 	return [
+// 		param('_id')
+// 			.notEmpty()
+// 			.withMessage("Vous devez indiquer l'identifiant en paramètres."),
+// 		param('_id')
+// 			.if(param('_id').notEmpty())
+// 			.isMongoId()
+// 			.withMessage("L'identifiant renseigné doit-être de type MongoId."),
+// 		// On check l'existence de l'utilisateur et s'il est un acheteur:
+// 		param('_id')
+// 			.if(param('_id').notEmpty().isMongoId())
+// 			.custom(async (_id) => {
+// 				let user = await User.findOne({ _id })
+// 				if (!user) return Promise.reject('Utilisateur inexistant !')
+// 				if (!user.buyer)
+// 					return Promise.reject(
+// 						"Cette utilisateur n'est pas un acheteur !"
+// 					)
+// 				return true
+// 			}),
+// 	]
+// }
+
+// const checkAgentExistence = () => {
+// 	return [
+// 		param('_id')
+// 			.notEmpty()
+// 			.withMessage("Vous devez indiquer l'identifiant en paramètres."),
+// 		param('_id')
+// 			.if(param('_id').notEmpty())
+// 			.isMongoId()
+// 			.withMessage("L'identifiant renseigné doit-être de type MongoId."),
+// 		// On check l'existence de l'utilisateur et s'il est un acheteur:
+// 		param('_id')
+// 			.if(param('_id').notEmpty().isMongoId())
+// 			.custom(async (_id) => {
+// 				let user = await User.findOne({ _id })
+// 				if (!user) return Promise.reject('Utilisateur inexistant !')
+// 				if (!user.agent)
+// 					return Promise.reject(
+// 						"Cette utilisateur n'est pas un agent !"
+// 					)
+// 				return true
+// 			}),
+// 	]
+// }
+
 export {
 	checkUserCommonBody,
 	checkBuyerBody,
@@ -233,4 +305,7 @@ export {
 	checkForForgotPass,
 	checkForResetToken,
 	checkUserExistence,
+	// checkSellerExistence,
+	// checkBuyerExistence,
+	// checkAgentExistence,
 }

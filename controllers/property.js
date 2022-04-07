@@ -4,7 +4,6 @@ import sendMail from '../util/mail.js'
 import fs from 'fs'
 import { asyncForEach } from '../util/functions.js'
 
-// CREATE
 /**
  * @api {post} /api/property 1 - Créer une propriété
  * @apiName createProperty
@@ -39,7 +38,7 @@ import { asyncForEach } from '../util/functions.js'
  *       	"message": "Propriété enregistrée.",
  *     }
  *
- * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError BodyValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  */
 const createProperty = async (req, res) => {
@@ -69,7 +68,6 @@ const createProperty = async (req, res) => {
 	}
 }
 
-// READ
 /**
  * @api {get} /api/property 3 - Récupérer toutes les propriétés
  * @apiName getAllProperties
@@ -100,7 +98,6 @@ const getAllProperties = async (req, res) => {
 	}
 }
 
-// READ ONE
 /**
  * @api {get} /api/property/:id 3.1 - Récupérer une propriété
  * @apiName getPropertyById
@@ -121,7 +118,7 @@ const getAllProperties = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 204 OK
  *
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  */
 const getPropertyById = async (req, res) => {
@@ -143,7 +140,6 @@ const getPropertyById = async (req, res) => {
 	}
 }
 
-// UPDATE
 /**
  * @api {put} /api/property/:_id 2 - Mettre à jour une propriété
  * @apiName updateProperty
@@ -181,9 +177,22 @@ const getPropertyById = async (req, res) => {
  *       	"message": "Propriété actualisée.",
  *     }
  *
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
- * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError PropertyValidationError Propriété non trouvée.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError BodyValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ * 		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Propriété non trouvé."
+ * 				}
+ * 			]
+ *     }
  */
 const updateProperty = async (req, res) => {
 	let datas = Object.keys(req.params).length === 0 ? req.query : req.params
@@ -213,7 +222,6 @@ const updateProperty = async (req, res) => {
 	}
 }
 
-// DELETE
 /**
  * @api {delete} /api/property/:_id 4 - Supprimer une propriété
  * @apiName deleteProperty
@@ -232,8 +240,8 @@ const updateProperty = async (req, res) => {
  *       	"message": "Propriété supprimée !",
  *     }
  *
- * @apiError ValidationError Propriété non trouvé.
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError PropertyValidationError Propriété non trouvé.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample _idError:
@@ -279,6 +287,34 @@ const deleteProperty = async (req, res) => {
 	}
 }
 
+/**
+ * @api {post} /api/property/searchProperties 3 - Rechercher des propriétés
+ * @apiName searchProperties
+ * @apiGroup Propriété
+ *
+ * @apiBody {String} search="Super Maison"
+ * @apiBody {Number} minPrice="200000"
+ * @apiBody {Number} maxPrice="300000"
+ * @apiBody {String} propertyType="Maison"
+ * @apiBody {Number} surfaceMin="80"
+ * @apiBody {Number} surfaceMax="100"
+ * @apiBody {Number} roomNumberMin="3"
+ * @apiBody {Number} roomNumberMax="5"
+ * @apiBody {String} transactionType="Achat"
+ *
+ * @apiSuccess {Array} properties Liste de Propriétés
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *  		"status_code": 200,
+ *       	"message": "Propriétés filtrées.",
+ *       	"data": {properties},
+ *     }
+ *
+ * @apiError BodyValidationError Erreurs générales sur les formats de données.
+ * @apiError ServerError Erreur Serveur
+ */
 const searchProperties = async (req, res) => {
 	try {
 		// Destructuration du body:
@@ -429,7 +465,6 @@ const sendAlert = async (datas, newId) => {
 	}
 }
 
-//UPDATE list_equipments
 /**
  * @api {put} /api/property/equipment/:_id 7 - Ajouter un équipement
  * @apiName addEquipment
@@ -446,10 +481,24 @@ const sendAlert = async (datas, newId) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": 'équipement ajouté !',
+ *       "message": 'Equipement ajouté !',
  *     }
  *
- * @apiError ServerError inventory non modifié.
+ * @apiError PropertyValidationError Propriété non trouvé.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ * 		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Propriété non trouvé."
+ * 				}
+ * 			]
+ *     }
  */
 const addEquipment = async (req, res) => {
 	try {
@@ -463,7 +512,7 @@ const addEquipment = async (req, res) => {
 		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'équipement ajouté à la liste !',
+			message: 'Equipement ajouté à la liste !',
 		})
 	} catch (error) {
 		res.status(500).json({
@@ -480,7 +529,7 @@ const addEquipment = async (req, res) => {
  *
  * @apiHeader {String} Authorization
  *
- * @apiParam {ObjectId} _id id de l'état des lieux
+ * @apiParam {ObjectId} _id id de la propriété
  *
  * @apiBody {String} name nom de l'équipement à supprimer
  *
@@ -489,10 +538,24 @@ const addEquipment = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": 'équipement supprimé de la liste',
+ *       "message": 'Equipement supprimé de la liste',
  *     }
  *
- * @apiError ServerError état des lieux non modifié.
+ * @apiError PropertyValidationError Propriété non trouvé.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ * 		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Propriété non trouvé."
+ * 				}
+ * 			]
+ *     }
  */
 const removeEquipment = async (req, res) => {
 	try {
@@ -506,7 +569,7 @@ const removeEquipment = async (req, res) => {
 		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'équipement supprimé de la liste !',
+			message: 'Equipement supprimé de la liste !',
 		})
 	} catch (error) {
 		res.status(500).json({
@@ -516,7 +579,6 @@ const removeEquipment = async (req, res) => {
 	}
 }
 
-//UPDATE list_equipments
 /**
  * @api {put} /api/property/heater/:_id 5 - Ajouter un chauffage
  * @apiName addHeater
@@ -534,10 +596,24 @@ const removeEquipment = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": 'chauffage ajouté !',
+ *       "message": 'Chauffage ajouté !',
  *     }
  *
- * @apiError ServerError inventory non modifié.
+ * @apiError PropertyValidationError Propriété non trouvé.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ * 		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Propriété non trouvé."
+ * 				}
+ * 			]
+ *     }
  */
 const addHeater = async (req, res) => {
 	try {
@@ -553,7 +629,7 @@ const addHeater = async (req, res) => {
 		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'chauffage ajouté à la liste !',
+			message: 'Chauffage ajouté à la liste !',
 		})
 	} catch (error) {
 		res.status(500).json({
@@ -570,7 +646,7 @@ const addHeater = async (req, res) => {
  *
  * @apiHeader {String} Authorization
  *
- * @apiParam {ObjectId} _id id de l'état des lieux
+ * @apiParam {ObjectId} _id id de la propriété
  *
  * @apiBody {String} name nom de l'chauffage à supprimer
  *
@@ -579,10 +655,24 @@ const addHeater = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *       "message": 'chauffage supprimé de la liste',
+ *       "message": 'Chauffage supprimé de la liste',
  *     }
  *
- * @apiError ServerError état des lieux non modifié.
+ * @apiError PropertyValidationError Propriété non trouvé.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ * 		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Propriété non trouvé."
+ * 				}
+ * 			]
+ *     }
  */
 const removeHeater = async (req, res) => {
 	try {
@@ -596,7 +686,7 @@ const removeHeater = async (req, res) => {
 		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'chauffage supprimé de la liste !',
+			message: 'Chauffage supprimé de la liste !',
 		})
 	} catch (error) {
 		res.status(500).json({

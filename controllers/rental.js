@@ -1,7 +1,7 @@
 import Rental from '../models/Rental.js'
 
 /**
- * @api {post} /api/inventory Créer une Location
+ * @api {post} /api/rental 1 - Créer une Location
  * @apiName create
  * @apiGroup Location
  *
@@ -24,10 +24,10 @@ import Rental from '../models/Rental.js'
  *       	"message": "Location enregistré !"",
  *     }
  *
- * @apiError ValidationError Agent inexistant.
- * @apiError ValidationError Utilisateur inexistant.
- * @apiError ValidationError Utilisateur précédent inexistant.
- * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError AgentValidationError Agent inexistant.
+ * @apiError UserValidationError Utilisateur inexistant.
+ * @apiError PreviousUserValidationError Utilisateur précédent inexistant.
+ * @apiError BodyValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample id_agentError:
@@ -82,7 +82,7 @@ const create = async (req, res) => {
 }
 
 /**
- * @api {put} /api/inventory/:_id Modifier un Location
+ * @api {put} /api/inventory/:_id 2 - Modifier une location
  * @apiName update
  * @apiGroup Location
  *
@@ -105,11 +105,12 @@ const create = async (req, res) => {
  *       	"message": 'Location modifiée.',
  *     }
  *
- * @apiError ValidationError Agent inexistant.
- * @apiError ValidationError Utilisateur inexistant.
- * @apiError ValidationError Utilisateur précédent inexistant.
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
- * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError AgentValidationError Agent inexistant.
+ * @apiError UserValidationError Utilisateur inexistant.
+ * @apiError PreviousUserValidationError Utilisateur précédent inexistant.
+ * @apiError RentalValidationError Location non trouvé.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError BodyValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample id_agentError:
@@ -169,7 +170,7 @@ const update = async (req, res) => {
 }
 
 /**
- * @api {delete} /api/appointment Supprimer un état des lieux
+ * @api {delete} /api/appointment 3 - Supprimer une location
  * @apiName delete
  * @apiGroup Location
  *
@@ -186,8 +187,8 @@ const update = async (req, res) => {
  *       	"message": "Location supprimé.",
  *     }
  *
- * @apiError ValidationError Location non trouvé !
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError RentalValidationError Location non trouvé.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample _idError:
@@ -232,13 +233,13 @@ const erase = async (req, res) => {
 }
 
 /**
- * @api {get} /api/transaction/ Récupérer tous les états des lieux
+ * @api {get} /api/rental/ 4 - Récupérer toutes les locations
  * @apiName getAll
- * @apiGroup Location
+ * @apiGroup Rental
  *
  * @apiHeader {String} Authorization Token d'authentification
  *
- * @apiSuccess {Inventory} inventory Objet Location.
+ * @apiSuccess {Rental} rental Objet Location.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -248,6 +249,7 @@ const erase = async (req, res) => {
  *		"rentals": {rentals},
  *     }
  *
+ * @apiError PropertyValidationError Location non trouvé.
  * @apiError ServerError Erreur Serveur.
  */
 const getAll = async (req, res) => {
@@ -264,13 +266,13 @@ const getAll = async (req, res) => {
 }
 
 /**
- * @api {get} /api/transaction/:_id Récupérer un état des lieux
+ * @api {get} /api/rental/:_id 5 - Récupérer un état des lieux
  * @apiName getOne
- * @apiGroup Location
+ * @apiGroup Rental
  *
  * @apiHeader {String} Authorization Token d'authentification
  *
- * @apiSuccess {Inventory} inventory Objet Location.
+ * @apiSuccess {Rental} rental Objet Location.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -283,7 +285,7 @@ const getAll = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 204 OK
  *
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  */
 const getOne = async (req, res) => {

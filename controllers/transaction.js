@@ -23,7 +23,7 @@ import Transaction from '../models/Transaction.js'
  *       "message": "Transaction enregistrée.",
  *     }
  *
- * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError BodyValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  */
 const create = async (req, res) => {
@@ -66,8 +66,8 @@ const create = async (req, res) => {
  *     }
  *
  * @apiError ValidationError Transaction non trouvé.
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
- * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError BodyValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample _idError:
@@ -119,7 +119,7 @@ const update = async (req, res) => {
  *     }
  *
  * @apiError ValidationError Transaction non trouvé.
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample _idError:
@@ -201,7 +201,7 @@ const getAll = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 204 OK
  *
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  */
 const getOne = async (req, res) => {
@@ -221,7 +221,7 @@ const getOne = async (req, res) => {
 		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
-//UPDATE SELLER LIST USER
+
 /**
  * @api {put} /api/transaction/seller/:_id 8 - Ajouter un vendeur
  * @apiName addSeller
@@ -303,7 +303,6 @@ const removeSeller = async (req, res) => {
 	}
 }
 
-//UPDATE BUYER LIST USER
 /**
  * @api {put} /api/transaction/buyer/:_id 6 - Ajouter un acheteur
  * @apiName addBuyer

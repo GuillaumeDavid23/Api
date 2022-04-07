@@ -1,6 +1,5 @@
 import Appointment from '../models/Appointment.js'
 
-// CREATE
 /**
  * @api {post} /api/appointment Créer un rendez-vous
  * @apiName create
@@ -15,7 +14,7 @@ import Appointment from '../models/Appointment.js'
  * @apiBody {String} id_buyer="61fa4b6976ee39da9692d563"
  * @apiBody {String} id_agent="61fa4b6976ee39da9692d562"
  *
- * @apiSuccess {String} message Message de completion.
+ * @apiSuccess {String} message Message de complétion.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
@@ -24,10 +23,10 @@ import Appointment from '../models/Appointment.js'
  *		"message": "Rendez-vous enregistré.",
  *     }
  *
- * @apiError ValidationError Date de fin antérieure à la date de début.
- * @apiError ValidationError Acheteur inexistant.
- * @apiError ValidationError Agent inexistant.
- * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError DateValidationError Date de fin antérieure à la date de début.
+ * @apiError BuyerValidationError Acheteur inexistant.
+ * @apiError AgentValidationError Agent inexistant.
+ * @apiError BodyValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample dateEndError:
@@ -79,9 +78,8 @@ const create = async (req, res) => {
 	}
 }
 
-// UPDATE
 /**
- * @api {post} /api/appointment Modifier un rendez-vous
+ * @api {put} /api/appointment/:id Modifier un rendez-vous
  * @apiName update
  * @apiGroup Rendez-vous
  *
@@ -105,11 +103,11 @@ const create = async (req, res) => {
  *		"message": "Rendez-vous modifié.",
  *     }
  *
- * @apiError ValidationError Date de fin antérieure à la date de début.
- * @apiError ValidationError Acheteur inexistant.
- * @apiError ValidationError Agent inexistant.
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
- * @apiError ValidationError Erreurs générales sur les formats de données.
+ * @apiError DateValidationError Date de fin antérieure à la date de début.
+ * @apiError BuyerValidationError Acheteur inexistant.
+ * @apiError AgentValidationError Agent inexistant.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError BodyValidationError Erreurs générales sur les formats de données.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample dateEndError:
@@ -160,9 +158,8 @@ const update = async (req, res) => {
 	}
 }
 
-// DELETE
 /**
- * @api {post} /api/appointment Supprimer un rendez-vous
+ * @api {delete} /api/appointment/:id Supprimer un rendez-vous
  * @apiName delete
  * @apiGroup Rendez-vous
  *
@@ -179,8 +176,8 @@ const update = async (req, res) => {
  *		"message": "Rendez-vous supprimé.",
  *     }
  *
- * @apiError ValidationError Rendez-vous non trouvé.
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError AppointmentValidationError Rendez-vous non trouvé.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample _idError:
@@ -207,7 +204,6 @@ const erase = async (req, res) => {
 	}
 }
 
-// READ
 /**
  * @api {get} /api/appointment Récupérer tout les rendez-vous
  * @apiName getAll
@@ -238,9 +234,8 @@ const getAll = async (req, res) => {
 	}
 }
 
-// READ ONE
 /**
- * @api {get} /api/property/:id Récupérer un rendez-vous
+ * @api {get} /api/property/:_id Récupérer un rendez-vous
  * @apiName getOne
  * @apiGroup Rendez-vous
  *
@@ -259,7 +254,7 @@ const getAll = async (req, res) => {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 204 OK
  *
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  */
 const getOne = async (req, res) => {
@@ -279,9 +274,8 @@ const getOne = async (req, res) => {
 	}
 }
 
-// READ ONE JOIN
 /**
- * @api {get} /api/property/:id Récupérer les participants d'un rendez-vous
+ * @api {get} /api/property/:_id Récupérer les participants d'un rendez-vous
  * @apiName getParticipants
  * @apiGroup Rendez-vous
  *
@@ -298,8 +292,8 @@ const getOne = async (req, res) => {
  *		"agent": {agent},
  *     }
  *
- * @apiError ValidationError Rendez-vous non trouvé !
- * @apiError ValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError AppointmentValidationError Rendez-vous non trouvé !
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
  * @apiError ServerError Erreur serveur.
  *
  * @apiErrorExample _idError:
