@@ -1400,26 +1400,6 @@ const resetPassword = async (req, res) => {
 	}
 }
 
-const getAgentInfoFromBuyer = async (req, res)=>{return
-	const {id} = req.body
-
-	try {
-		await User.findOne({_id:id}).populate({
-			path:'buyer.agent',
-			select:'firstname lastname agent.phonePro email'
-		})
-		
-	} catch (error) {
-		console.error("Controller::getAgentInfoFromBuyer")
-		console.error(error)
-	}finally{
-		res.status(500).json({
-			status_code:500,
-			message:"Not Implemented Yet"
-		})
-	}
-}
-
 export {
 	getOne,
 	getAll,
