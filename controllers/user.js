@@ -505,7 +505,7 @@ const checkBearer = async (req, res) => {
 		const user = await User.findById(decodedToken.user._id).populate({
 			path:'buyer.agent',
 			select:'firstname lastname agent.phonePro email'
-		})
+		}).populate('buyer.wishlist')
 		res.status(200).json({
 			status_code: 200,
 			message: 'Token Valide',
@@ -849,7 +849,7 @@ const setNewsletterForUnknown = async (req, res) => {
  */
 const getAgents = async (req, res) => {
 	try {
-		let agents = await User.find({ agent: { $exists: true } }).populate('agent.customers')
+		let agents = await User.find({ agent: { $exists: true }, 'agent.phonePro': {$exists:true} }).populate('agent.customers')
 		res.status(200).json({
 			status_code: 200,
 			datas: agents,
