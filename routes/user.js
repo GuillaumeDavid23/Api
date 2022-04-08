@@ -170,12 +170,7 @@ router.get(
 router.post('/setNewsletterForUnknown', UC.setNewsletterForUnknown)
 
 //(Get) Récupération de tous les agents
-router.get(
-	'/agents',
-	auth,
-	checkAccess(['buyer', 'seller', 'agent']),
-	UC.getAgents
-)
+router.get('/agents', UC.getAgents)
 
 //(Get) Récupération de tous les acheteurs
 router.get('/buyers', auth, checkAccess(['agent']), UC.getBuyers)

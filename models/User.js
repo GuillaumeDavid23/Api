@@ -36,6 +36,7 @@ const userSchema = mongoose.Schema(
 		},
 
 		agent: {
+			position: { type: String },
 			phonePro: { type: String },
 		},
 

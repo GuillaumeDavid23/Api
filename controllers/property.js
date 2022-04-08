@@ -47,7 +47,7 @@ const createProperty = async (req, res) => {
 		let imageUrl = {}
 		if (req.filesName !== undefined) {
 			Object.keys(req.filesName).forEach((imgKey) => {
-				imageUrl[imgKey] = 'uploads/' + req.filesName[imgKey]
+				imageUrl[imgKey] = 'property/' + req.filesName[imgKey]
 			})
 		}
 

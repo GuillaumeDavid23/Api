@@ -363,7 +363,7 @@ const signup = async (req, res) => {
 				await user.save()
 			}
 			user = await User.findOne({ email: req.body.email })
-			// sendVerificationMail(user._id, user.email)
+			sendVerificationMail(user._id, user.email)
 			const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
 				expiresIn: '5h',
 			})
@@ -877,7 +877,7 @@ const setNewsletterForUnknown = async (req, res) => {
  */
 const getAgents = async (req, res) => {
 	try {
-		let agents = await User.find({ role: 'Agent' })
+		let agents = await User.find({ agent: { $exists: true } })
 		res.status(200).json({
 			status_code: 200,
 			datas: agents,
