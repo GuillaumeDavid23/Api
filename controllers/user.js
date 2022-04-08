@@ -173,7 +173,10 @@ const update = async (req, res) => {
  */
 const getOne = async (req, res) => {
 	try {
-		const user = await User.findById(req.params._id)
+		const user = await User.findById(req.params._id).populate({
+			path: 'buyer.agent',
+			select: 'firstname lastname agent.phonePro email',
+		})
 		if (user) {
 			res.status(200).json({
 				message: 'Utilissateur récupéré !',
@@ -223,7 +226,10 @@ const getOne = async (req, res) => {
  */
 const getAll = async (req, res) => {
 	try {
-		const users = await User.find({ status: true })
+		const users = await User.find({ status: true }).populate({
+			path: 'buyer.agent',
+			select: 'firstname lastname agent.phonePro email',
+		})
 		if (users) {
 			res.status(200).json({
 				status_code: 200,
@@ -404,7 +410,10 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 	try {
-		const user = await User.findOne({ email: datas.email })
+		const user = await User.findOne({ email: datas.email }).populate({
+			path: 'buyer.agent',
+			select: 'firstname lastname agent.phonePro email',
+		})
 		if (!user)
 			return res.status(401).json({
 				status_code: 401,
@@ -521,6 +530,11 @@ const checkBearer = async (req, res) => {
 	try {
 		decodedToken = jwt.verify(token, process.env.SECRET_TOKEN)
 		const user = await User.findById(decodedToken.user._id)
+			.populate({
+				path: 'buyer.agent',
+				select: 'firstname lastname agent.phonePro email',
+			})
+			.populate('buyer.wishlist')
 		res.status(200).json({
 			status_code: 200,
 			message: 'Token Valide',
@@ -878,6 +892,7 @@ const setNewsletterForUnknown = async (req, res) => {
 const getAgents = async (req, res) => {
 	try {
 		let agents = await User.find({ agent: { $exists: true } })
+		// let agents = await User.find({ agent: { $exists: true }, 'agent.phonePro': {$exists:true} }).populate('agent.customers')
 		res.status(200).json({
 			status_code: 200,
 			datas: agents,

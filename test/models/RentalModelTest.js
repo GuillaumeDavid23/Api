@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import { expect } from 'chai'
-import { mongo_path } from './util.js'
+import { mongo_path } from '../util.js'
 
 mongoose.Promise = global.Promise
 
@@ -103,7 +103,7 @@ describe('Le RentalModel ', () => {
 					{ amount: 800 }
 				)
 					.then((rental) => {
-						// expect(rental).to.be.an('Object').and.not.to.be.empty
+						expect(rental).to.be.an('Object').and.not.to.be.empty
 
 						done()
 					})
@@ -166,7 +166,7 @@ describe('Le RentalModel ', () => {
 				})
 		})
 
-		it.skip('créer une annonce sans date de fin effective', () => {
+		it('créer une annonce sans date de fin effective', () => {
 			const r = new Rental({ ...rental_default, effectiveEndDate: '' })
 
 			r.save()

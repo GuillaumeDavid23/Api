@@ -1,4 +1,5 @@
-import mongoose from '../db/db.js'
+import mongoose from 'mongoose'
+// import mongoose from '../db/db.js'
 import Property from './Property.js'
 // import seeder from 'mongoose-seeder'
 
@@ -18,6 +19,7 @@ const userSchema = mongoose.Schema(
 
 		//Roles:
 		buyer: {
+			agent: {type:mongoose.Schema.Types.ObjectId, ref:'User', default:null},
 			wishlist: {
 				type: [
 					{
@@ -33,11 +35,14 @@ const userSchema = mongoose.Schema(
 			surfaceMin: { type: Number },
 			surfaceMax: { type: Number },
 			type: { type: String },
+			propertyType: { type: String },
+			rooms: { type: Number },
 		},
 
 		agent: {
 			position: { type: String },
 			phonePro: { type: String },
+			customers: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 		},
 
 		seller: {
