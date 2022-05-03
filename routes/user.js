@@ -13,6 +13,8 @@ const router = express.Router()
 //(Login) Connexion d'un utilisateur
 router.post('/login', CHK.checkForLogin(), validation, UC.login)
 
+//(Login) Connexion d'un utilisateur
+router.post('/loginAgent', CHK.checkForLogin(), validation, UC.agentLogin)
 // //(SignUp) Inscription d'un vendeur
 // router.post(
 // 	'/sellerSignup',
