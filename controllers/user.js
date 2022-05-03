@@ -492,7 +492,7 @@ const sendVerificationMail = async (id, email) => {
 }
 
 /**
- * @api {post} /api/user/login 1 - Checker le token Bearer
+ * @api {post} /api/user/checkBearer 1 - Checker le token Bearer
  * @apiName checkBearer
  * @apiGroup Utilisateur
  *
