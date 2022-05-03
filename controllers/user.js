@@ -55,7 +55,8 @@ const create = async (req, res) => {
 	const saltRounds = 10
 	let datas = req.body
 	try {
-		const user = new User({ ...datas })
+		const user = new User({ ...datas,
+		roles: ['agent'] })
 		const mailCheck = await User.findOne({ email: user.email })
 		if (mailCheck) {
 			return res.status(403).json({
@@ -359,12 +360,14 @@ const signup = async (req, res) => {
 					{
 						...req.body,
 						password: hash,
+						roles: ["user"]
 					}
 				)
 			} else {
 				user = new User({
 					...datas,
 					password: hash,
+					roles: ['user'],
 				})
 				await user.save()
 			}
@@ -392,7 +395,101 @@ const signup = async (req, res) => {
 		})
 	}
 }
-
+/**
+ * @api {post} /api/user/loginAgent 1 - Authentifier un utilisateur
+ * @apiName Agent Login
+ * @apiGroup Utilisateur
+ *
+ * @apiBody {String} email
+ * @apiBody {String} password
+ *
+ * @apiSuccess 200 Utilisateur connecté
+ *
+ * @apiError 401 Mot de passe incorrect
+ * @apiError 401 mauvais rôle
+ * @apiError 401 Utilisateur non trouvé !
+ * @apiError 403 Compte désactivé
+ *
+ */
+const agentLogin = async (req, res) => {
+	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
+	try {
+		const user = await User.findOne({ email: datas.email })
+		
+		if (!user){
+			return res.status(401).json({
+				status_code: 401,
+				error: 'Utilisateur non trouvé !',
+			})
+		}
+		console.log(user);
+		if (!user.roles.includes('agent')) {
+			return res.status(401).json({
+				status_code: 401,
+				error: 'Mauvais rôle !',
+			})
+		}
+		if (user.status == false && user.deletedAt != undefined) {
+			return res.status(403).json({
+				status_code: 403,
+				error: 'Compte utilisateur désactivé.',
+			})
+		}
+		let valid = await bcrypt.compare(datas.password, user.password)
+		if (!valid) {
+			return res.status(401).json({
+				status_code: 401,
+				error: 'Mot de passe incorrect !',
+			})
+		}
+		const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
+			expiresIn: '5h',
+		})
+		// Insertion ou non du RefreshToken:
+		if (datas.rememberMe) {
+			const refreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN, {
+				expiresIn: '1y',
+			})
+			if (user.status == false && user.deletedAt == undefined) {
+				sendVerificationMail(user._id, user.email)
+				return res.status(200).json({
+					status_code: 200,
+					message: 'Vous devez vérifier votre email.',
+					token,
+					refreshToken,
+				})
+			}
+			res.status(200).json({
+				status_code: 200,
+				userId: user._id,
+				token,
+				refreshToken,
+				message: 'Utilisateur connecté !',
+			})
+		} else {
+			if (user.status == false && user.deletedAt == undefined) {
+				sendVerificationMail(user._id, user.email)
+				return res.status(200).json({
+					status_code: 200,
+					message: 'Vous devez vérifier votre email.',
+					token,
+				})
+			}
+			res.status(200).json({
+				status_code: 200,
+				userId: user._id,
+				token,
+				message: 'Utilisateur connecté !',
+			})
+		}
+	} catch (error) {
+		console.log(error)
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
 /**
  * @api {post} /api/user/login 1 - Authentifier un utilisateur
  * @apiName login
@@ -1535,6 +1632,7 @@ export {
 	update,
 	deleteOne,
 	login,
+	agentLogin,
 	signup,
 	checkBearer,
 	verifyEmail,
