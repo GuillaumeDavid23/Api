@@ -422,7 +422,6 @@ const agentLogin = async (req, res) => {
 				error: 'Utilisateur non trouvé !',
 			})
 		}
-		console.log(user);
 		if (!user.roles.includes('agent')) {
 			return res.status(401).json({
 				status_code: 401,
@@ -465,6 +464,7 @@ const agentLogin = async (req, res) => {
 				token,
 				refreshToken,
 				message: 'Utilisateur connecté !',
+				data: user,
 			})
 		} else {
 			if (user.status == false && user.deletedAt == undefined) {
@@ -480,6 +480,7 @@ const agentLogin = async (req, res) => {
 				userId: user._id,
 				token,
 				message: 'Utilisateur connecté !',
+				data: user,
 			})
 		}
 	} catch (error) {
