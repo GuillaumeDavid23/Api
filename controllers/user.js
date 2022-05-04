@@ -414,7 +414,10 @@ const signup = async (req, res) => {
 const agentLogin = async (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 	try {
-		const user = await User.findOne({ email: datas.email })
+		const user = await User.findOne({ email: datas.email }).populate({
+			path: 'agent.customers',
+			select: 'firstname lastname phone email',
+		})
 		
 		if (!user){
 			return res.status(401).json({
