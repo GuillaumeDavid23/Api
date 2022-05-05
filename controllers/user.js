@@ -55,8 +55,7 @@ const create = async (req, res) => {
 	const saltRounds = 10
 	let datas = req.body
 	try {
-		const user = new User({ ...datas,
-		roles: ['agent'] })
+		const user = new User({ ...datas, roles: ['agent'] })
 		const mailCheck = await User.findOne({ email: user.email })
 		if (mailCheck) {
 			return res.status(403).json({
@@ -369,7 +368,7 @@ const signup = async (req, res) => {
 					{
 						...req.body,
 						password: hash,
-						roles: ["user"]
+						roles: ['user'],
 					}
 				)
 			} else {
@@ -428,7 +427,7 @@ const agentLogin = async (req, res) => {
 			select: 'firstname lastname phone email',
 		})
 
-		if (!user){
+		if (!user) {
 			return res.status(401).json({
 				status_code: 401,
 				error: 'Utilisateur non trouvé !',
