@@ -422,6 +422,7 @@ const signup = async (req, res) => {
 const agentLogin = async (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 	try {
+		datas.email = datas.email.toLowerCase()
 		const user = await User.findOne({ email: datas.email }).populate({
 			path: 'agent.customers',
 			select: 'firstname lastname phone email',
@@ -519,6 +520,7 @@ const agentLogin = async (req, res) => {
 const login = async (req, res) => {
 	let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 	try {
+		datas.email = datas.email.toLowerCase()
 		const user = await User.findOne({ email: datas.email }).populate({
 			path: 'buyer.agent',
 			select: 'firstname lastname agent.phonePro email',
