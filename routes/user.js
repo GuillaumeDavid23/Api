@@ -88,29 +88,42 @@ router.post(
 	UC.create
 )
 
-//(Update) Mise à jour d'un acheteur
+//(Update) Mise à jour d'un user
 router.put(
-	'/buyer/:_id',
+	'/:_id',
 	auth,
 	checkAccess(['agent', 'buyer']),
 	CHK.checkUserExistence(),
-	CHK.checkUserCommonBody(),
-	CHK.checkBuyerBody(),
+	// CHK.checkUserCommonBody(),
+	// CHK.checkBuyerBody(),
+	// CHK.checkSellerBody(),
 	validation,
 	UC.update
 )
 
-//(Update) Mise à jour d'un vendeur
-router.put(
-	'/seller/:_id',
-	auth,
-	checkAccess(['agent', 'seller']),
-	CHK.checkUserExistence(),
-	CHK.checkUserCommonBody(),
-	CHK.checkSellerBody(),
-	validation,
-	UC.update
-)
+// //(Update) Mise à jour d'un acheteur
+// router.put(
+// 	'/buyer/:_id',
+// 	auth,
+// 	checkAccess(['agent', 'buyer']),
+// 	CHK.checkUserExistence(),
+// 	CHK.checkUserCommonBody(),
+// 	CHK.checkBuyerBody(),
+// 	validation,
+// 	UC.update
+// )
+
+// //(Update) Mise à jour d'un vendeur
+// router.put(
+// 	'/seller/:_id',
+// 	auth,
+// 	checkAccess(['agent', 'seller']),
+// 	CHK.checkUserExistence(),
+// 	CHK.checkUserCommonBody(),
+// 	CHK.checkSellerBody(),
+// 	validation,
+// 	UC.update
+// )
 
 //(Update) Mise à jour d'un agent
 router.put(

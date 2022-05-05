@@ -119,17 +119,26 @@ const create = async (req, res) => {
  */
 const update = async (req, res) => {
 	try {
+		if (
+			req.params._id !== req.auth.user._id &&
+			!req.auth.user.roles.includes('agent')
+		) {
+			return res.status(403).json({
+				status_code: 403,
+				message: 'Pas autorisé !',
+			})
+		}
 		// On check si le mail est déjà pris:
 		let user = await User.findOne({ email: req.body.email })
 
-		if (user && user._id.toString() !== req.auth.user._id) {
+		if (user && user._id.toString() !== req.params._id) {
 			return res.status(403).json({
 				status_code: 403,
 				message: 'Email déjà utilisé !',
 			})
 		}
 
-		await User.updateOne({ _id: req.auth.user._id }, { ...req.body })
+		await User.updateOne({ _id: req.params._id }, { ...req.body })
 
 		res.status(201).json({
 			status_code: 201,
@@ -160,7 +169,7 @@ const update = async (req, res) => {
  *
  * @apiError UserNotFound Aucun utilisateur.
  * @apiError ServerError Erreur serveur.
- * 
+ *
  * @apiErrorExample UserNotFound:
  *     HTTP/1.1 204 Internal Server Error
  *     {
@@ -218,7 +227,7 @@ const getOne = async (req, res) => {
  *     {
  *       "error": "Aucun utilisateur trouvé !"
  *     }
- * 
+ *
  * @apiErrorExample ServerError:
  *     HTTP/1.1 500 Internal Server Error
  *     {
@@ -418,7 +427,7 @@ const agentLogin = async (req, res) => {
 			path: 'agent.customers',
 			select: 'firstname lastname phone email',
 		})
-		
+
 		if (!user){
 			return res.status(401).json({
 				status_code: 401,
@@ -970,7 +979,7 @@ const setNewsletterForUnknown = async (req, res) => {
  * @api {get} /api/user/agents 4 - Récupérer tous les agents
  * @apiName getAgents
  * @apiGroup Utilisateur
- * 
+ *
  * @apiHeader {String} Authorization Token d'Authentification
  *
  * @apiSuccess {User} datas Objet Agents.
@@ -1104,7 +1113,7 @@ const checkAgentAvailabilities = async (req, res) => {
  * @api {get} /api/user/buyers 2 - Récupérer tous les acheteurs
  * @apiName getBuyers
  * @apiGroup Utilisateur
- * 
+ *
  * @apiHeader {String} Authorization Token d'Authentification
  *
  * @apiSuccess {User} user Objet Buyers.
@@ -1314,7 +1323,7 @@ const removeOfPropertyList = async (req, res) => {
  * @api {get} /api/user/sellers  3 - Récupérer tous les vendeurs
  * @apiName getSellers
  * @apiGroup Utilisateur
- * 
+ *
  * @apiHeader {String} Authorization Token d'Authentification
  *
  * @apiSuccess {User} user Objet Sellers.
