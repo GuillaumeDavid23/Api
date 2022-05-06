@@ -19,7 +19,7 @@ const userSchema = mongoose.Schema(
 		roles: {type: [{type: String}]},
 		//Roles:
 		buyer: {
-			agent: {type:mongoose.Schema.Types.ObjectId, ref:'User', default:null},
+			agent: {type:mongoose.Schema.Types.ObjectId, ref:'User', default:undefined},
 			wishlist: {
 				type: [
 					{
@@ -42,7 +42,9 @@ const userSchema = mongoose.Schema(
 		agent: {
 			position: { type: String },
 			phonePro: { type: String },
-			customers: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
+			customers: {
+				type: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+				default: undefined,}
 		},
 
 		seller: {

@@ -48,9 +48,11 @@ const checkUserCommonBody = () => {
 				'Le format du téléphone indiqué ne correspond pas celui utilisé en France.'
 			),
 
-		body('newsletter').isBoolean(
-			'La valeur "newsletter" doit-être de type booléen (0/1 ou false/true).'
-		),
+		body('newsletter')
+			.if(body('newsletter').notEmpty())
+			.isBoolean(
+				'La valeur "newsletter" doit-être de type booléen (0/1 ou false/true).'
+			),
 	]
 }
 
