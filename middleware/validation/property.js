@@ -14,9 +14,6 @@ const checkPropertyBody = () => {
 			),
 
 		body('description')
-			.notEmpty()
-			.withMessage('Vous devez indiquer une description.'),
-		body('description')
 			.if(body('description').notEmpty())
 			.isString()
 			.withMessage(
@@ -40,10 +37,8 @@ const checkPropertyBody = () => {
 			),
 		body('location')
 			.if(body('location').notEmpty())
-			.isString()
-			.withMessage(
-				"L'adresse doit correspondre à une chaine de caractères sans caractères spéciaux."
-			),
+			.isArray()
+			.withMessage("L'adresse doit correspondre à un tableau."),
 
 		body('propertyType')
 			.notEmpty()
@@ -87,43 +82,18 @@ const checkPropertyBody = () => {
 				'Le type de transaction ne doit contenir que des lettres.'
 			),
 
-		// body('list_equipment')
-		// 	.notEmpty()
-		// 	.withMessage('Vous devez indiquer la liste des équipements.'),
-		// body('list_equipment')
-		// 	.if(body('list_equipment').notEmpty())
-		// 	.isArray()
-		// 	.withMessage('La liste des équipements doit-être un tableau.'),
+		body('list_equipments')
+			.if(body('list_equipments').notEmpty())
+			.isArray()
+			.withMessage('La liste des équipements doit-être un tableau.'),
 
-		// body('list_heater')
-		// 	.notEmpty()
-		// 	.withMessage(
-		// 		'Vous devez indiquer les paramètres de chauffage de la propriété.'
-		// 	),
-		// body('list_heater')
-		// 	.if(body('list_heater').notEmpty())
-		// 	.isArray()
-		// 	.withMessage(
-		// 		"Les paramètres de chauffage doivent-être sous la forme d'un tableau."
-		// 	),
-
-		// body('list_water')
-		// 	.notEmpty()
-		// 	.withMessage(
-		// 		"Vous devez indiquer les paramètres de consommation d'eau de la propriété."
-		// 	),
-		// body('list_water')
-		// 	.if(body('list_water').notEmpty())
-		// 	.isArray()
-		// 	.withMessage(
-		// 		"Les paramètres de consommation d'eau doivent-être sous la forme d'un tableau."
-		// 	),
-
-		body('electricMeterRef')
-			.notEmpty()
+		body('list_heater')
+			.if(body('list_heater').notEmpty())
+			.isArray()
 			.withMessage(
-				'Vous devez indiquer la référence du compteur éléctrique.'
+				"Les paramètres de chauffage doivent-être sous la forme d'un tableau."
 			),
+
 		body('electricMeterRef')
 			.if(body('electricMeterRef').notEmpty())
 			.isAlphanumeric()
@@ -131,11 +101,6 @@ const checkPropertyBody = () => {
 				'La référence du compteur éléctrique ne doit contenir que des lettres et des chiffres.'
 			),
 
-		body('gasMeterRef')
-			.notEmpty()
-			.withMessage(
-				'Vous devez indiquer la référence du compteur de gaz.'
-			),
 		body('gasMeterRef')
 			.if(body('gasMeterRef').notEmpty())
 			.isAlphanumeric()

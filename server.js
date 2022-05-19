@@ -1,6 +1,8 @@
 import http from 'http'
 import app from './app.js'
 
+const hostname = '192.168.1.215'
+
 const normalizePort = (val) => {
 	const port = parseInt(val, 10)
 
@@ -46,4 +48,4 @@ server.on('listening', () => {
 	console.log('Listening on ' + bind)
 })
 
-server.listen(port)
+server.listen(port, hostname)
