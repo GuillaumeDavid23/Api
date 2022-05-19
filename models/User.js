@@ -16,7 +16,7 @@ const userSchema = mongoose.Schema(
 		status: { type: Boolean, default: false },
 		ref: { type: String },
 		deletedAt: { type: Date },
-		roles: {type: [{type: String}]},
+		roles: {type: String, default: "user"},
 		//Roles:
 		buyer: {
 			agent: {type:mongoose.Schema.Types.ObjectId, ref:'User', default:undefined},

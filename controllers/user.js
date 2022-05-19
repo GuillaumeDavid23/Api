@@ -55,7 +55,7 @@ const create = async (req, res) => {
 	const saltRounds = 10
 	let datas = req.body
 	try {
-		const user = new User({ ...datas, roles: ['agent'] })
+		const user = new User({ ...datas })
 		const mailCheck = await User.findOne({ email: user.email })
 		if (mailCheck) {
 			return res.status(403).json({
@@ -63,14 +63,23 @@ const create = async (req, res) => {
 				error: 'Un compte avec cette adresse email existe déjà !',
 			})
 		}
+		if (req.auth.user.roles == 'agent' && user.roles == 'user') {
+			console.log('test');
+			await User.updateOne(
+				{ _id: req.auth.user._id },
+				{ $push: { 'agent.customers': user._id } }
+			)
+		}
 		bcrypt.hash(user.password, saltRounds, async function (err, hash) {
 			user.password = hash
 			await user.save()
 			res.status(201).json({
 				status_code: 201,
 				message: 'Utilisateur créé !',
+				user: user
 			})
 		})
+		
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
@@ -120,7 +129,7 @@ const update = async (req, res) => {
 	try {
 		if (
 			req.params._id !== req.auth.user._id &&
-			!req.auth.user.roles.includes('agent')
+			!req.auth.user.roles === 'agent'
 		) {
 			return res.status(403).json({
 				status_code: 403,
