@@ -45,8 +45,8 @@ router.post(
 // Search:
 router.post('/searchProperties', PC.searchProperties)
 
-//(Get) Récupération de toutes les propriété
-router.get('/', PC.getAllProperties)
+//(Get) Récupération de toutes les propriétés
+router.get('/', auth, checkAccess(['agent']), PC.getAllProperties)
 
 //(Get) Récupération d'une propriété
 router.get('/:_id', validateParamId(), validation, PC.getPropertyById)

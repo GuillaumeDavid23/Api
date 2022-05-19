@@ -54,7 +54,6 @@ const createProperty = async (req, res) => {
 		// Création et enregistrement de la propriété:
 		var newProperty = new Property({
 			...req.body,
-			isToSell: req.body.isToSell == 'on' ? true : false,
 			imageUrl,
 		})
 		newProperty = await newProperty.save()
@@ -87,7 +86,7 @@ const createProperty = async (req, res) => {
  */
 const getAllProperties = async (req, res) => {
 	try {
-		let properties = await Property.find()
+		let properties = await Property.find({ deletedAt: { $exists: false } })
 		res.status(200).json({
 			status_code: 200,
 			message: 'Liste des propriétés récupérée.',
@@ -126,6 +125,10 @@ const getPropertyById = async (req, res) => {
 
 	try {
 		let property = await Property.findById(data._id)
+
+		// On reformatte l'adresse pour ne garder que la ville dans la localisation:
+		property.location = property.location[2]
+
 		if (property) {
 			res.status(200).json({
 				status_code: 200,
@@ -268,7 +271,10 @@ const deleteProperty = async (req, res) => {
 			fs.unlink(
 				'uploads/' + property.imageUrl.split('/uploads/')[1],
 				async () => {
-					await Property.deleteOne({ _id: req.params._id })
+					await Property.updateOne(
+						{ _id: req.params._id },
+						{ deletedAt: Date.now() }
+					)
 					return res.status(200).json({
 						status_code: 200,
 						message: 'Propriété et ses images supprimées !',
@@ -276,7 +282,10 @@ const deleteProperty = async (req, res) => {
 				}
 			)
 		} else {
-			await Property.deleteOne({ _id: req.params._id })
+			await Property.updateOne(
+				{ _id: req.params._id },
+				{ deletedAt: Date.now() }
+			)
 			return res.status(200).json({
 				status_code: 200,
 				message: 'Propriété supprimée.',
@@ -408,15 +417,24 @@ const searchProperties = async (req, res) => {
 			queryCond.roomNumber = { $lte: parseInt(roomNumberMax) }
 		}
 
+		// Ajout des conditions sur isToSell et deletedAt:
+		queryCond['isToSell'] = true
+		queryCond['deletedAt'] = { $exists: false }
+
 		// Appel de la méthode avec la moitié des filtres:
 		let properties = await Property.find(queryCond)
 
 		// Filtrage sur la localisation:
 		if (location !== '') {
 			properties = properties.filter(
-				(property) => property.location == location
+				(property) => property.location[2] == location
 			)
 		}
+
+		// Suite au filtrage on retire l'adresse complete pour ne laisser que la ville:
+		properties.forEach((property) => {
+			property.location = property.location[2]
+		})
 
 		res.status(200).json({
 			status_code: 200,
@@ -443,7 +461,7 @@ const sendAlert = async (datas, newId) => {
 					preferences.budgetMin <= datas.amount) ||
 				(preferences.budgetMax &&
 					preferences.budgetMax >= datas.amount) ||
-				(preferences.city && preferences.city === datas.location) ||
+				(preferences.city && preferences.city === datas.location[2]) ||
 				(preferences.surfaceMin &&
 					preferences.surfaceMin <= datas.surface) ||
 				(preferences.surfaceMax &&
