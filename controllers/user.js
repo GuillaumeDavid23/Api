@@ -64,7 +64,7 @@ const create = async (req, res) => {
 			})
 		}
 		if (req.auth.user.roles == 'agent' && user.roles == 'user') {
-			console.log('test');
+			console.log('test')
 			await User.updateOne(
 				{ _id: req.auth.user._id },
 				{ $push: { 'agent.customers': user._id } }
@@ -76,10 +76,9 @@ const create = async (req, res) => {
 			res.status(201).json({
 				status_code: 201,
 				message: 'Utilisateur créé !',
-				user: user
+				user: user,
 			})
 		})
-		
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
@@ -443,7 +442,7 @@ const agentLogin = async (req, res) => {
 				error: 'Utilisateur non trouvé !',
 			})
 		}
-		if (!user.roles.includes('agent')) {
+		if (user.roles !== 'agent') {
 			return res.status(401).json({
 				status_code: 401,
 				error: 'Mauvais rôle !',
