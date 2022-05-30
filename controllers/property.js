@@ -61,6 +61,7 @@ const createProperty = async (req, res) => {
 		res.status(201).json({
 			status_code: 201,
 			message: 'Propriété enregistrée.',
+			datas: newProperty._id,
 		})
 	} catch (error) {
 		res.status(500).json({ status_code: 500, error: error.message })

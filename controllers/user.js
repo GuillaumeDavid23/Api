@@ -64,7 +64,6 @@ const create = async (req, res) => {
 			})
 		}
 		if (req.auth.user.roles == 'agent' && user.roles == 'user') {
-			console.log('test')
 			await User.updateOne(
 				{ _id: req.auth.user._id },
 				{ $push: { 'agent.customers': user._id } }
@@ -1647,6 +1646,59 @@ const resetPassword = async (req, res) => {
 	}
 }
 
+const searchClient = async (req, res) => {
+	try {
+		let users = await User.find({
+			lastname: { $regex: req.params.lastname + '.*' },
+		})
+
+		res.status(200).json({
+			status_code: 200,
+			message: 'Liste des clients filtrés récupérée !',
+			datas: users,
+		})
+	} catch (error) {
+		res.status(500).json({ status_code: 500, message: error.message })
+	}
+}
+
+const createSeller = async (req, res) => {
+	try {
+		let user = await User.findOne({ _id: req.params.userId })
+		let property = await Property.findOne({ _id: req.params.propertyId })
+
+		let seller = {}
+		if (user) {
+			let userKeys = Object.keys(JSON.parse(JSON.stringify(user)))
+			if (userKeys.includes('seller')) {
+				let propertiesList = user.seller.propertiesList
+				propertiesList.push(property)
+				seller = { propertiesList }
+			} else {
+				seller = { propertiesList: [property] }
+			}
+		} else {
+			return res.status(404).json({
+				status_code: 404,
+				message: 'Utilisateur introuvable..',
+			})
+		}
+
+		await User.updateOne(
+			{ _id: req.params.userId },
+			{ roles: 'seller', seller }
+		)
+
+		res.status(200).json({
+			status_code: 200,
+			message: 'Valeurs Sellers crée au sein du client !',
+		})
+	} catch (error) {
+		console.log(error)
+		res.status(500).json({ status_code: 500, message: error.message })
+	}
+}
+
 export {
 	getOne,
 	getAll,
@@ -1676,4 +1728,6 @@ export {
 	sendMessage,
 	checkTokenResetPassword,
 	resetPassword,
+	searchClient,
+	createSeller,
 }

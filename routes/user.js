@@ -147,11 +147,29 @@ router.put(
 	UC.deleteOne
 )
 
+//(PUT) Création d'un client:
+router.put(
+	'/createSeller/:userId/:propertyId',
+	auth,
+	checkAccess(['agent']),
+	// CHK.checkUserExistence(),
+	// validation,
+	UC.createSeller
+)
+
 // Formulaire de contact:
 router.post('/sendMessage', UC.sendMessage)
 
 //(Get) Récuperation des utilisateurs
 router.get('/', auth, checkAccess(['agent']), UC.getAll)
+
+//(GET) Recherche d'un client:
+router.get(
+	'/searchClient/:lastname',
+	auth,
+	checkAccess(['agent']),
+	UC.searchClient
+)
 
 //(Check) Vérification du token
 router.get(
