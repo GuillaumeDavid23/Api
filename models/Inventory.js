@@ -12,12 +12,13 @@ const inventoryShema = mongoose.Schema(
 			ref: 'Rental',
 			required: true,
 		},
-		inOut: { type: Boolean, required: true },
+		inOut: { type: Boolean, required: true }, // In == true // Out == false
 		userReference: { type: String, required: true },
 		date: { type: Date, required: true },
 		previousBuyerRef: { type: String, required: false },
 		lst_statsMeters: { type: Array, required: true },
 		lst_roomDetails: { type: Array, required: true },
+		lst_equipements: { type: Array, required: true },
 	},
 	{ timestamps: true }
 )
