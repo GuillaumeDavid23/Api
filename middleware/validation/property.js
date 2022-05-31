@@ -37,8 +37,10 @@ const checkPropertyBody = () => {
 			),
 		body('location')
 			.if(body('location').notEmpty())
-			.isArray()
-			.withMessage("L'adresse doit correspondre à un tableau."),
+			.isString()
+			.withMessage(
+				"L'adresse doit correspondre à une chaine de caractères."
+			),
 
 		body('propertyType')
 			.notEmpty()
@@ -84,14 +86,16 @@ const checkPropertyBody = () => {
 
 		body('list_equipments')
 			.if(body('list_equipments').notEmpty())
-			.isArray()
-			.withMessage('La liste des équipements doit-être un tableau.'),
+			.isString()
+			.withMessage(
+				'La liste des équipements doit-être une chaine de caractères.'
+			),
 
 		body('list_heater')
 			.if(body('list_heater').notEmpty())
-			.isArray()
+			.isString()
 			.withMessage(
-				"Les paramètres de chauffage doivent-être sous la forme d'un tableau."
+				"Les paramètres de chauffage doivent-être sous la forme d'une chaine de caractères."
 			),
 
 		body('electricMeterRef')

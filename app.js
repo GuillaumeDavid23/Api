@@ -1,5 +1,4 @@
 import express from 'express'
-import db from './db/db.js'
 import path from 'path'
 
 // Imports des routes:

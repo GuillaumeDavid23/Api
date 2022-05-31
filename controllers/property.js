@@ -51,6 +51,15 @@ const createProperty = async (req, res) => {
 			})
 		}
 
+		// Formattage des tableaux:
+		req.body.location = req.body.location.split(',')
+		if (req.body.list_equipments !== undefined) {
+			req.body.list_equipments = req.body.list_equipments.split(',')
+		}
+		if (req.body.list_heater !== undefined) {
+			req.body.list_heater = req.body.list_heater.split(',')
+		}
+
 		// Création et enregistrement de la propriété:
 		var newProperty = new Property({
 			...req.body,

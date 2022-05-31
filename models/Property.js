@@ -31,7 +31,7 @@ const propertySchema = Mongoose.Schema(
 			},
 		],
 
-		verified: { type: Boolean, required: true },
+		verified: { type: Boolean, required: true, default: false },
 		deletedAt: { type: Date },
 	},
 	{ timestamps: true }
