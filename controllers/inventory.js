@@ -1,5 +1,6 @@
 import Inventory from '../models/Inventory.js'
-
+import Rental from '../models/Rental.js'
+import Property from '../models/Property.js'
 /**
  * @api {post} /api/inventory 1 - Créer un Etat des lieux
  * @apiName create
@@ -68,7 +69,15 @@ import Inventory from '../models/Inventory.js'
  */
 const create = async (req, res) => {
 	try {
-		const inventory = new Inventory({ ...req.body })
+		const property = await Property.findOne({
+			PropertyRef: req.body.PropertyRef,
+		})
+		const rental = await Rental.findOne({ id_property: property._id })
+		const inventory = new Inventory({ ...req.body, id_rental: rental._id})
+		await Rental.updateOne(
+			{ _id: rental._id },
+			{ $push: { 'id_inventories': inventory._id } }
+		)
 		await inventory.save()
 		res.status(201).json({
 			status_code: 201,
@@ -208,7 +217,7 @@ const erase = async (req, res) => {
 }
 
 /**
- * @api {get} /api/transaction/ 3 - Récupérer tous les états des lieux
+ * @api {get} /api/inventory/ 3 - Récupérer tous les états des lieux
  * @apiName getAll
  * @apiGroup Etat des lieux
  *
@@ -226,9 +235,12 @@ const erase = async (req, res) => {
  *
  * @apiError ServerError Erreur Serveur.
  */
-const getAll = async () => {
+const getAll = async (req, res) => {
 	try {
-		let inventories = await Inventory.find()
+		let inventories = await Inventory.find().populate({
+			path: 'id_agent',
+			select: 'firstname lastname',
+		})
 		res.status(200).json({
 			status_code: 200,
 			message: 'Etats des lieux récupérés.',
