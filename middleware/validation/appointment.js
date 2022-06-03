@@ -80,9 +80,6 @@ const checkAppointmentBody = () => {
 			}),
 
 		body('id_agent')
-			.notEmpty()
-			.withMessage("Vous devez indiquer l'identifiant de l'agent."),
-		body('id_agent')
 			.if(body('id_agent').notEmpty())
 			.isMongoId()
 			.withMessage(

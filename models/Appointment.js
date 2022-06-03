@@ -1,8 +1,7 @@
 import mongoose from '../db/db.js'
+import timeZone from 'mongoose-timezone'
 
-const Schema = mongoose.Schema
-
-const appointmentShema = Schema(
+const appointmentShema = mongoose.Schema(
 	{
 		dateBegin: { type: Date, required: true },
 		dateEnd: { type: Date, required: true },
@@ -25,5 +24,7 @@ const appointmentShema = Schema(
 	},
 	{ timestamps: true }
 )
+
+appointmentShema.plugin(timeZone)
 
 export default mongoose.model('Appointment', appointmentShema)

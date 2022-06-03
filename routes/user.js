@@ -213,11 +213,9 @@ router.get('/sellers', auth, checkAccess(['agent']), UC.getSellers)
 
 //(Get) Récupération des disponibilité d'un agent
 router.get(
-	'/agentAvailabilities/:_id',
+	'/agentAvailabilities',
 	auth,
 	checkAccess(['buyer', 'seller', 'agent']),
-	CHK.checkUserExistence(),
-	validation,
 	UC.checkAgentAvailabilities
 )
 

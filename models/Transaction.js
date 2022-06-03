@@ -1,8 +1,7 @@
 import mongoose from '../db/db.js'
+import timeZone from 'mongoose-timezone'
 
-const Schema = mongoose.Schema
-
-const transactionShema = Schema(
+const transactionShema = mongoose.Schema(
 	{
 		id_agent: {
 			type: 'ObjectId',
@@ -34,5 +33,7 @@ const transactionShema = Schema(
 	},
 	{ timestamps: true }
 )
+
+transactionShema.plugin(timeZone)
 
 export default mongoose.model('Transaction', transactionShema)
