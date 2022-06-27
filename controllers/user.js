@@ -1649,7 +1649,7 @@ const resetPassword = async (req, res) => {
 const searchClient = async (req, res) => {
 	try {
 		let users = await User.find({
-			lastname: { $regex: req.params.lastname + '.*' },
+			roles: 'user',
 		})
 
 		res.status(200).json({
