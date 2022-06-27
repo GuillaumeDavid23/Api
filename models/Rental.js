@@ -1,5 +1,5 @@
 import mongoose from '../db/db.js'
-const ObjectId = mongoose.Types.ObjectId
+import timeZone from 'mongoose-timezone'
 
 const rentalShema = mongoose.Schema(
 	{
@@ -10,25 +10,27 @@ const rentalShema = mongoose.Schema(
 		status: { type: Boolean, required: true },
 		keysNumber: { type: Number, required: true },
 		id_property: {
-			type: ObjectId,
+			type: 'ObjectId',
 			ref: 'Property',
 			required: true,
 		},
 		id_buyers: [
 			{
-				type: ObjectId,
+				type: 'ObjectId',
 				ref: 'User',
 				required: true,
 			},
 		],
 		id_inventories: [
 			{
-				type: ObjectId,
+				type: 'ObjectId',
 				ref: 'Inventory',
 			},
 		],
 	},
 	{ timestamps: true }
 )
+
+rentalShema.plugin(timeZone)
 
 export default mongoose.model('Rental', rentalShema)

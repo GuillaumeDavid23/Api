@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 // import mongoose from '../db/db.js'
 import Property from './Property.js'
 // import seeder from 'mongoose-seeder'
+import timeZone from 'mongoose-timezone'
 
 const userSchema = mongoose.Schema(
 	{
@@ -16,10 +17,14 @@ const userSchema = mongoose.Schema(
 		status: { type: Boolean, default: false },
 		ref: { type: String },
 		deletedAt: { type: Date },
-		roles: {type: String, default: "user"},
+		roles: { type: String, default: 'user' },
 		//Roles:
 		buyer: {
-			agent: {type:mongoose.Schema.Types.ObjectId, ref:'User', default:undefined},
+			agent: {
+				type: mongoose.Schema.Types.ObjectId,
+				ref: 'User',
+				default: undefined,
+			},
 			wishlist: {
 				type: [
 					{
@@ -43,8 +48,9 @@ const userSchema = mongoose.Schema(
 			position: { type: String },
 			phonePro: { type: String },
 			customers: {
-				type: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
-				default: undefined,}
+				type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+				default: undefined,
+			},
 		},
 
 		seller: {
@@ -74,5 +80,7 @@ const userSchema = mongoose.Schema(
 // } catch (error) {
 // 	console.log(error.message)
 // }
+
+userSchema.plugin(timeZone)
 
 export default mongoose.model('User', userSchema)

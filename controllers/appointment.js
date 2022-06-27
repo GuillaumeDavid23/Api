@@ -1,4 +1,6 @@
 import Appointment from '../models/Appointment.js'
+import User from '../models/User.js'
+import { asyncForEach } from '../util/functions.js'
 
 /**
  * @api {post} /api/appointment Créer un rendez-vous
@@ -67,7 +69,10 @@ import Appointment from '../models/Appointment.js'
  */
 const create = async (req, res) => {
 	try {
-		const appointment = new Appointment({ ...req.body })
+		const appointment = new Appointment({
+			...req.body,
+			id_agent: req.auth.user._id,
+		})
 		await appointment.save()
 		res.status(201).json({
 			status_code: 201,
@@ -194,7 +199,7 @@ const update = async (req, res) => {
  */
 const erase = async (req, res) => {
 	try {
-		await Appointment.deleteOne({ _id: req.params.id })
+		await Appointment.deleteOne({ _id: req.params._id })
 		res.status(200).json({
 			status_code: 200,
 			message: 'Rendez-vous supprimé.',
@@ -274,6 +279,38 @@ const getOne = async (req, res) => {
 	}
 }
 
+const getAllForAnAgent = async (req, res) => {
+	try {
+		// Récupération des rendez-vous:
+		let appointments = await Appointment.find({
+			id_agent: req.auth.user._id,
+		})
+
+		// Récupération de l'utilisateur:
+		let formattedAppointments = []
+		await asyncForEach(appointments, async (appointment) => {
+			let buyer = await User.findById(appointment.id_buyer)
+			let { _id, dateBegin, dateEnd, outdoor, address } = appointment
+			formattedAppointments.push({
+				_id,
+				dateBegin,
+				dateEnd,
+				outdoor,
+				address,
+				buyer,
+			})
+		})
+
+		res.status(200).json({
+			status_code: 200,
+			message: 'Rendez-vous pour un agent récupérés.',
+			datas: formattedAppointments,
+		})
+	} catch (error) {
+		res.status(500).json({ status_code: 500, error: error.message })
+	}
+}
+
 /**
  * @api {get} /api/property/:_id Récupérer les participants d'un rendez-vous
  * @apiName getParticipants
@@ -324,4 +361,12 @@ const getParticipants = async (req, res) => {
 	}
 }
 
-export { create, update, erase, getAll, getOne, getParticipants }
+export {
+	create,
+	update,
+	erase,
+	getAll,
+	getOne,
+	getAllForAnAgent,
+	getParticipants,
+}

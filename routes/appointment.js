@@ -47,6 +47,14 @@ router.delete(
 //(Get) Récupération de toutes les rendez-vous
 router.get('/', auth, checkAccess(['agent']), AC.getAll)
 
+//(Get) Récupération de toutes les rendez-vous pour un agent
+router.get(
+	'/getAllForAnAgent',
+	auth,
+	checkAccess(['agent']),
+	AC.getAllForAnAgent
+)
+
 //(Get) Récupération d'une rendez-vous
 router.get(
 	'/:_id',
