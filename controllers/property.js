@@ -154,6 +154,49 @@ const getPropertyById = async (req, res) => {
 }
 
 /**
+ * @api {get} /api/property/charts 3.1 - Récupérer les stats
+ * @apiName getPropertyById
+ * @apiGroup Propriété
+ *
+ * @apiParam {ObjectId} _id ID de la propriété.
+ *
+ * @apiSuccess {Property} property Objet Propriété.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ * 		"status_code": 200,
+ *       	"message": "Propriété récupérée.",
+ *       	"charts": {property},
+ *     }
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 204 OK
+ *
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ */
+const getCharts = async (req, res) => {
+	try {
+		let countMaison = await Property.count({propertyType: "Maison"})
+		let countAppart = await Property.count({ propertyType: 'Appartement' })
+		console.log(countMaison);
+		let charts = [countMaison, countAppart]
+
+		if (countMaison > 0) {
+			res.status(200).json({
+				status_code: 200,
+				message: 'Stats récupérée.',
+				charts,
+			})
+		} else {
+			res.status(204)
+		}
+	} catch (error) {
+		res.status(500).json({ status_code: 500, error: error.message })
+	}
+}
+/**
  * @api {put} /api/property/:_id 2 - Mettre à jour une propriété
  * @apiName updateProperty
  * @apiGroup Propriété
@@ -348,8 +391,9 @@ const searchProperties = async (req, res) => {
 			surfaceMin,
 			surfaceMax,
 			search,
+			isToSell
 		} = req.body
-
+		
 		// // Filtrage sur la localisation:
 		// if (location !== '') {
 		// 	where['transactionType'] = transactionType
@@ -366,6 +410,12 @@ const searchProperties = async (req, res) => {
 				},
 				{
 					description: {
+						$regex: search,
+						$options: 'i',
+					},
+				},
+				{
+					propertyRef: {
 						$regex: search,
 						$options: 'i',
 					},
@@ -427,9 +477,11 @@ const searchProperties = async (req, res) => {
 			queryCond.roomNumber = { $lte: parseInt(roomNumberMax) }
 		}
 
-		// Ajout des conditions sur isToSell et deletedAt:
-		queryCond['isToSell'] = true
-		queryCond['deletedAt'] = { $exists: false }
+		if (isToSell != 'agent') {
+			// Ajout des conditions sur isToSell et deletedAt:
+			queryCond['isToSell'] = true
+			queryCond['deletedAt'] = { $exists: false }
+		}
 
 		// Appel de la méthode avec la moitié des filtres:
 		let properties = await Property.find(queryCond)
@@ -735,4 +787,5 @@ export {
 	removeEquipment,
 	addHeater,
 	removeHeater,
+	getCharts,
 }
