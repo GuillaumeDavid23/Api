@@ -180,7 +180,6 @@ const getCharts = async (req, res) => {
 	try {
 		let countMaison = await Property.count({propertyType: "Maison"})
 		let countAppart = await Property.count({ propertyType: 'Appartement' })
-		console.log(countMaison);
 		let charts = [countMaison, countAppart]
 
 		if (countMaison > 0) {
