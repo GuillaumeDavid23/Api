@@ -165,7 +165,7 @@ router.get('/', auth, checkAccess(['agent']), UC.getAll)
 
 //(GET) Recherche d'un client:
 router.get(
-	'/searchClient',
+	'/searchClient/:lastname',
 	auth,
 	checkAccess(['agent']),
 	UC.searchClient
