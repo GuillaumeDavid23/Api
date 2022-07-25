@@ -59,8 +59,7 @@ const checkUserCommonBody = () => {
 const checkBuyerBody = () => {
 	return [
 		body('buyer')
-			.notEmpty()
-			.withMessage("Il faut des informations d'acheteur"),
+			.if(check('buyer').notEmpty()),
 
 		check('buyer.wishlist.*._id')
 			.if(check('buyer.wishlist.*._id').notEmpty())

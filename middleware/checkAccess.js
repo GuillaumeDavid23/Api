@@ -6,18 +6,13 @@ const checkAccess = (roles) => {
 
 			roles.forEach((role) => {
 				switch (role) {
-					case 'buyer':
-						if (user.buyer) {
-							isAllowed = 1
-						}
-						break
-					case 'seller':
-						if (user.seller) {
+					case 'user':
+						if (user.roles === 'user') {
 							isAllowed = 1
 						}
 						break
 					case 'agent':
-						if (user.agent) {
+						if (user.roles === 'agent') {
 							isAllowed = 1
 						}
 						break

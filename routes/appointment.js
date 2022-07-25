@@ -17,7 +17,7 @@ const router = express.Router()
 router.post(
 	'/',
 	auth,
-	checkAccess(['seller', 'buyer', 'agent']),
+	checkAccess(['user', 'agent']),
 	checkAppointmentBody(),
 	validation,
 	AC.create
@@ -27,7 +27,7 @@ router.post(
 router.put(
 	'/:_id',
 	auth,
-	checkAccess(['seller', 'buyer', 'agent']),
+	checkAccess(['user', 'agent']),
 	checkAppointmentExistence(),
 	checkAppointmentBody(),
 	validation,
@@ -38,7 +38,7 @@ router.put(
 router.delete(
 	'/:_id',
 	auth,
-	checkAccess(['seller', 'buyer', 'agent']),
+	checkAccess(['user', 'agent']),
 	checkAppointmentExistence(),
 	validation,
 	AC.erase
@@ -59,7 +59,7 @@ router.get(
 router.get(
 	'/:_id',
 	auth,
-	checkAccess(['seller', 'buyer', 'agent']),
+	checkAccess(['user', 'agent']),
 	validateParamId(),
 	validation,
 	AC.getOne
@@ -69,7 +69,7 @@ router.get(
 router.get(
 	'/getParticipants/:_id',
 	auth,
-	checkAccess(['seller', 'buyer', 'agent']),
+	checkAccess(['user', 'agent']),
 	checkAppointmentExistence(),
 	validation,
 	AC.getParticipants

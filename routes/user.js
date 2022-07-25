@@ -15,25 +15,8 @@ router.post('/login', CHK.checkForLogin(), validation, UC.login)
 
 //(Login) Connexion d'un utilisateur
 router.post('/loginAgent', CHK.checkForLogin(), validation, UC.agentLogin)
-// //(SignUp) Inscription d'un vendeur
-// router.post(
-// 	'/sellerSignup',
-// 	CHK.checkUserCommonBody(),
-// 	CHK.checkSellerBody(),
-// 	validation,
-// 	UC.signup
-// )
 
 router.post('/checkBearer', UC.checkBearer)
-
-// //(SignUp) Inscription d'un acheteur
-// router.post(
-// 	'/buyerSignup',
-// 	CHK.checkUserCommonBody(),
-// 	CHK.checkBuyerBody(),
-// 	validation,
-// 	UC.signup
-// )
 
 //(SignUp) Inscription standard
 router.post('/signup', CHK.checkUserCommonBody(), validation, UC.signup)
@@ -53,25 +36,7 @@ router.post(
 	auth,
 	checkAccess(['agent']),
 	CHK.checkUserCommonBody(),
-	validation,
-	UC.create
-)
-router.post(
-	'/buyer',
-	auth,
-	checkAccess(['agent']),
-	CHK.checkUserCommonBody(),
 	CHK.checkBuyerBody(),
-	validation,
-	UC.create
-)
-
-//(Create) Création admin d'un vendeur
-router.post(
-	'/seller',
-	auth,
-	checkAccess(['agent']),
-	CHK.checkUserCommonBody(),
 	CHK.checkSellerBody(),
 	validation,
 	UC.create
@@ -92,38 +57,14 @@ router.post(
 router.put(
 	'/:_id',
 	auth,
-	checkAccess(['agent', 'buyer']),
+	checkAccess(['agent', 'user']),
 	CHK.checkUserExistence(),
-	// CHK.checkUserCommonBody(),
-	// CHK.checkBuyerBody(),
-	// CHK.checkSellerBody(),
+	CHK.checkUserCommonBody(),
+	CHK.checkBuyerBody(),
+	CHK.checkSellerBody(),
 	validation,
 	UC.update
 )
-
-// //(Update) Mise à jour d'un acheteur
-// router.put(
-// 	'/buyer/:_id',
-// 	auth,
-// 	checkAccess(['agent', 'buyer']),
-// 	CHK.checkUserExistence(),
-// 	CHK.checkUserCommonBody(),
-// 	CHK.checkBuyerBody(),
-// 	validation,
-// 	UC.update
-// )
-
-// //(Update) Mise à jour d'un vendeur
-// router.put(
-// 	'/seller/:_id',
-// 	auth,
-// 	checkAccess(['agent', 'seller']),
-// 	CHK.checkUserExistence(),
-// 	CHK.checkUserCommonBody(),
-// 	CHK.checkSellerBody(),
-// 	validation,
-// 	UC.update
-// )
 
 //(Update) Mise à jour d'un agent
 router.put(
@@ -141,13 +82,13 @@ router.put(
 router.put(
 	'/delete/:_id',
 	auth,
-	checkAccess(['buyer', 'seller', 'agent']),
+	checkAccess(['user', 'agent']),
 	CHK.checkUserExistence(),
 	validation,
 	UC.deleteOne
 )
 
-//(PUT) Création d'un client:
+//(PUT) Création d'un vendeur:
 router.put(
 	'/createSeller/:userId/:propertyId',
 	auth,
@@ -183,7 +124,7 @@ router.get(
 router.get(
 	'/setNewsletter/:_id',
 	auth,
-	checkAccess(['buyer', 'seller', 'agent']),
+	checkAccess(['user', 'agent']),
 	CHK.checkUserExistence(),
 	validation,
 	UC.setNewsletter
@@ -193,7 +134,7 @@ router.get(
 router.get(
 	'/unsetNewsletter/:_id',
 	auth,
-	checkAccess(['buyer', 'seller', 'agent']),
+	checkAccess(['user', 'agent']),
 	CHK.checkUserExistence(),
 	validation,
 	UC.unsetNewsletter
@@ -212,7 +153,7 @@ router.get('/customers', auth, checkAccess(['agent']), UC.getCustomers)
 router.get(
 	'/agentAvailabilities',
 	auth,
-	checkAccess(['buyer', 'seller', 'agent']),
+	checkAccess(['user', 'agent']),
 	UC.checkAgentAvailabilities
 )
 
@@ -220,7 +161,7 @@ router.get(
 router.get(
 	'/wishlist/:_id',
 	auth,
-	checkAccess(['buyer']),
+	checkAccess(['user']),
 	checkPropertyExistence(),
 	validation,
 	UC.addToWishlist
@@ -230,7 +171,7 @@ router.get(
 router.delete(
 	'/wishlist/:_id',
 	auth,
-	checkAccess(['buyer']),
+	checkAccess(['user']),
 	checkPropertyExistence(),
 	validation,
 	UC.removeOfWishlist
