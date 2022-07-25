@@ -68,6 +68,7 @@ const create = async (req, res) => {
 				{ _id: req.auth.user._id },
 				{ $push: { 'agent.customers': user._id } }
 			)
+			user.buyer.agent = req.auth.user._id
 		}
 		bcrypt.hash(user.password, saltRounds, async function (err, hash) {
 			user.password = hash
