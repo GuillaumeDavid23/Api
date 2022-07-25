@@ -206,10 +206,7 @@ router.post('/setNewsletterForUnknown', UC.setNewsletterForUnknown)
 router.get('/agents', UC.getAgents)
 
 //(Get) Récupération de tous les acheteurs
-router.get('/buyers', auth, checkAccess(['agent']), UC.getBuyers)
-
-//(Get) Récupération de tous les vendeurs
-router.get('/sellers', auth, checkAccess(['agent']), UC.getSellers)
+router.get('/customers', auth, checkAccess(['agent']), UC.getCustomers)
 
 //(Get) Récupération des disponibilité d'un agent
 router.get(

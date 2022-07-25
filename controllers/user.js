@@ -68,6 +68,7 @@ const create = async (req, res) => {
 				{ _id: req.auth.user._id },
 				{ $push: { 'agent.customers': user._id } }
 			)
+			user.buyer.agent = req.auth.user._id
 		}
 		bcrypt.hash(user.password, saltRounds, async function (err, hash) {
 			user.password = hash
@@ -1118,18 +1119,18 @@ const checkAgentAvailabilities = async (req, res) => {
 }
 
 /**
- * @api {get} /api/user/buyers 2 - Récupérer tous les acheteurs
- * @apiName getBuyers
+ * @api {get} /api/user/buyers 2 - Récupérer tous les clients
+ * @apiName getCustomers
  * @apiGroup Utilisateur
  *
  * @apiHeader {String} Authorization Token d'Authentification
  *
- * @apiSuccess {User} user Objet Buyers.
+ * @apiSuccess {User} user Objet User.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *      "message": 'Tous les acheteurs : récupérés !',
+ *      "message": 'Tous les clients récupérés !',
 		"datas": {...},
  *     }
  *
@@ -1141,9 +1142,9 @@ const checkAgentAvailabilities = async (req, res) => {
  *       "error": "Aucun acheteur trouvé !"
  *     }
  */
-const getBuyers = async (req, res) => {
+const getCustomers = async (req, res) => {
 	try {
-		const user = await User.find({ status: true, buyer: { $exists: true } })
+		const user = await User.find({ status: true, roles : 'user' })
 		if (user) {
 			res.status(200).json({ status_code: 200, user })
 		} else {
@@ -1717,7 +1718,7 @@ export {
 	setNewsletterForUnknown,
 	getAgents,
 	checkAgentAvailabilities,
-	getBuyers,
+	getCustomers,
 	addToWishlist,
 	removeOfWishlist,
 	getSellers,
