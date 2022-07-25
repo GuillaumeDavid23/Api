@@ -1,5 +1,7 @@
 import express from 'express'
 import path from 'path'
+import moment from 'moment'
+moment.locale('fr')
 
 // Imports des routes:
 import {
@@ -14,6 +16,17 @@ import {
 const app = express()
 
 const __dirname = path.resolve()
+
+const logger = (req, res, next) => {
+	console.log(
+		`${moment().format('YYYY-MM-Do - HH:mm:ss')}> ${
+			req.originalUrl
+		} called from ${req.ip}`
+	)
+	next()
+}
+
+app.use(logger)
 
 app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', '*')
