@@ -1144,7 +1144,7 @@ const checkAgentAvailabilities = async (req, res) => {
  */
 const getCustomers = async (req, res) => {
 	try {
-		const user = await User.find({ status: true, roles : 'user' })
+		const user = await User.find({ status: true, roles: 'user' })
 		if (user) {
 			res.status(200).json({ status_code: 200, user })
 		} else {
@@ -1701,16 +1701,16 @@ const createSeller = async (req, res) => {
 
 const getSellerForOneProperty = async (req, res) => {
 	try {
-		let users = await User.find()
-		users.forEach((user) => {
+		let sellers = await User.find({ seller: { $exists: true } })
+		sellers.forEach((seller) => {
 			if (
-				user.roles === 'seller' &&
-				user.seller.propertiesList.includes(req.params.propertyId)
+				seller.seller.propertiesList &&
+				seller.seller.propertiesList.includes(req.params.propertyId)
 			) {
 				return res.status(200).json({
 					status_code: 200,
 					message: 'Vendeur trouvé !',
-					datas: user,
+					datas: seller,
 				})
 			}
 		})
