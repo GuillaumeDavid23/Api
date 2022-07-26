@@ -162,7 +162,13 @@ const getPropertyById = async (req, res) => {
 		let property = await Property.findById(data._id)
 
 		// On reformatte l'adresse pour ne garder que la ville dans la localisation:
-		property.location = property.location[2]
+		// property['fullLocation'] = property.location
+		// property.location = property.location[2]
+		property = {
+			...property._doc,
+			fullLocation: property.location,
+			location: property.location[2],
+		}
 
 		if (property) {
 			res.status(200).json({
@@ -203,7 +209,7 @@ const getPropertyById = async (req, res) => {
  */
 const getCharts = async (req, res) => {
 	try {
-		let countMaison = await Property.count({propertyType: "Maison"})
+		let countMaison = await Property.count({ propertyType: 'Maison' })
 		let countAppart = await Property.count({ propertyType: 'Appartement' })
 		let charts = [countMaison, countAppart]
 
@@ -278,7 +284,7 @@ const updateProperty = async (req, res) => {
 	let datas = Object.keys(req.params).length === 0 ? req.query : req.params
 
 	try {
-		req.file
+		req.body = req.file
 			? {
 					...JSON.parse(req.body),
 					imageUrl: `${req.protocol}://${req.get('host')}/uploads/${
@@ -286,6 +292,19 @@ const updateProperty = async (req, res) => {
 					}`,
 			  }
 			: { ...req.body }
+
+		// Suppression de la Ref
+		delete req.body.propertyRef
+
+		// Formattage des tableaux:
+		req.body.location = req.body.location.split(',')
+		console.log(req.body.list_equipments)
+		if (req.body.list_equipments !== undefined) {
+			req.body.list_equipments = req.body.list_equipments.split(',')
+		}
+		if (req.body.list_heater !== undefined) {
+			req.body.list_heater = req.body.list_heater.split(',')
+		}
 
 		await Property.updateOne(
 			{ _id: datas._id },
@@ -296,6 +315,7 @@ const updateProperty = async (req, res) => {
 		res.status(200).json({
 			status_code: 200,
 			message: 'Propriété modifiée !',
+			datas: datas._id,
 		})
 	} catch (error) {
 		res.status(500).json({ status_code: 500, error: error.message })
@@ -415,9 +435,9 @@ const searchProperties = async (req, res) => {
 			surfaceMin,
 			surfaceMax,
 			search,
-			isToSell
+			isToSell,
 		} = req.body
-		
+
 		// // Filtrage sur la localisation:
 		// if (location !== '') {
 		// 	where['transactionType'] = transactionType

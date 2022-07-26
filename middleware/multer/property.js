@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
 		let datas = Object.keys(req.body).length === 0 ? req.query : req.body
 		const name = datas.propertyRef + '-' + file.fieldname
 		const extension = MIME_TYPES[file.mimetype]
-		let fullFileName = name + '-' + Date.now() + '.' + extension
+		let fullFileName = name + '.png'
 		callback(null, fullFileName)
 
 		// Insertion des noms de fichiers dans la requête:
