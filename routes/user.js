@@ -13,7 +13,7 @@ const router = express.Router()
 //(Login) Connexion d'un utilisateur
 router.post('/login', CHK.checkForLogin(), validation, UC.login)
 
-//(Login) Connexion d'un utilisateur
+//(Login) Connexion d'un agent
 router.post('/loginAgent', CHK.checkForLogin(), validation, UC.agentLogin)
 
 router.post('/checkBearer', UC.checkBearer)
@@ -30,7 +30,7 @@ router.post('/emailAppointment', UC.askForAppointment)
 //(Forgot) Mot de passe oublié
 router.post('/forgot', CHK.checkForForgotPass(), validation, UC.forgotPass)
 
-//(Create) Création admin d'un acheteur
+//(Create) Création admin d'un utilisateur
 router.post(
 	'/',
 	auth,
