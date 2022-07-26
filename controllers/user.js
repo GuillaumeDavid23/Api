@@ -1316,6 +1316,48 @@ const removeOfPropertyList = async (req, res) => {
 	}
 }
 
+/**
+ * @api {get} /api/user/getSellerForOneProperty/:propertyId/ 7 - Récupération du vendeur d'une propriété
+ * @apiName getSellerForOneProperty
+ * @apiGroup Agent
+ *
+ * @apiParam {String} _id id de la propriété.
+ *
+ * @apiSuccess {User} user Objet Utilisateur.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *			status_code: 200,
+ *			message: 'Vendeur trouvé !',
+ *			datas: user,
+ *		}
+ *
+ * @apiError ServerError.
+ */
+const getSellerForOneProperty = async (req, res) => {
+	try {
+		let users = await User.find()
+		users.forEach((user) => {
+			if (
+				user.roles === 'seller' &&
+				user.seller.propertiesList.includes(req.params.propertyId)
+			) {
+				return res.status(200).json({
+					status_code: 200,
+					message: 'Vendeur trouvé !',
+					datas: user,
+				})
+			}
+		})
+
+		res.status(204)
+	} catch (error) {
+		console.log(error)
+		res.status(500).json({ status_code: 500, message: error.message })
+	}
+}
+
 // TODO: COMMENTAIRE DE DOC A FAIRE UNE FOIS FINIS
 const anonymize = async (req, res) => {
 	try {
@@ -1793,47 +1835,7 @@ const setNewsletterForUnknown = async (req, res) => {
 	}
 }
 
-/**
- * @api {get} /api/user/getSellerForOneProperty/:propertyId/ 3 - Récupération du vendeur d'une propriété
- * @apiName getSellerForOneProperty
- * @apiGroup Agent
- *
- * @apiParam {String} _id id de la propriété.
- *
- * @apiSuccess {User} user Objet Utilisateur.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *			status_code: 200,
- *			message: 'Vendeur trouvé !',
- *			datas: user,
- *		}
- *
- * @apiError ServerError.
- */
-const getSellerForOneProperty = async (req, res) => {
-	try {
-		let users = await User.find()
-		users.forEach((user) => {
-			if (
-				user.roles === 'seller' &&
-				user.seller.propertiesList.includes(req.params.propertyId)
-			) {
-				return res.status(200).json({
-					status_code: 200,
-					message: 'Vendeur trouvé !',
-					datas: user,
-				})
-			}
-		})
 
-		res.status(204)
-	} catch (error) {
-		console.log(error)
-		res.status(500).json({ status_code: 500, message: error.message })
-	}
-}
 
 
 
