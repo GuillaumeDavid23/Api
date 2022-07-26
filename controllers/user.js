@@ -1694,6 +1694,28 @@ const createSeller = async (req, res) => {
 			message: 'Valeurs Sellers crée au sein du client !',
 		})
 	} catch (error) {
+		res.status(500).json({ status_code: 500, message: error.message })
+	}
+}
+
+const getSellerForOneProperty = async (req, res) => {
+	try {
+		let users = await User.find()
+		users.forEach((user) => {
+			if (
+				user.roles === 'seller' &&
+				user.seller.propertiesList.includes(req.params.propertyId)
+			) {
+				return res.status(200).json({
+					status_code: 200,
+					message: 'Vendeur trouvé !',
+					datas: user,
+				})
+			}
+		})
+
+		res.status(204)
+	} catch (error) {
 		console.log(error)
 		res.status(500).json({ status_code: 500, message: error.message })
 	}
@@ -1730,4 +1752,5 @@ export {
 	resetPassword,
 	searchClient,
 	createSeller,
+	getSellerForOneProperty,
 }

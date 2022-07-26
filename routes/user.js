@@ -47,6 +47,9 @@ router.post('/pushAgentAvatar', multer, (req, res) => {
 //(Check) Verification token pour validation de compte
 router.get('/emailVerification/:token', UC.verifyEmail)
 
+//(GET) Récupération du vendeur d'une propriété:
+router.get('/getSellerForOneProperty/:propertyId', UC.getSellerForOneProperty)
+
 //(Mailing) Demande de rendez-vous
 router.post('/emailAppointment', UC.askForAppointment)
 

@@ -124,9 +124,9 @@ const checkPropertyBody = () => {
 				'La valeur "A vendre" doit-être de type booléen (0/1 ou false/true).'
 			),
 
-		body('propertyRef')
-			.notEmpty()
-			.withMessage('Vous devez indiquer la référence de la propriété.'),
+		// body('propertyRef')
+		// 	.notEmpty()
+		// 	.withMessage('Vous devez indiquer la référence de la propriété.'),
 		body('propertyRef')
 			.if(body('propertyRef').notEmpty())
 			.isAlphanumeric()
@@ -139,21 +139,21 @@ const checkPropertyBody = () => {
 			.withMessage(
 				'La référence de la propriété doit faire exactement 10 caractères.'
 			),
-		body('propertyRef')
-			.if(
-				body('propertyRef')
-					.notEmpty()
-					.isAlphanumeric()
-					.isLength({ min: 10, max: 10 })
-			)
-			.custom(async (propertyRef) => {
-				let property = await Property.findOne({ propertyRef })
-				if (property)
-					return Promise.reject(
-						'La référence de la propriété doit-être unique.'
-					)
-				return true
-			}),
+		// body('propertyRef')
+		// 	.if(
+		// 		body('propertyRef')
+		// 			.notEmpty()
+		// 			.isAlphanumeric()
+		// 			.isLength({ min: 10, max: 10 })
+		// 	)
+		// 	.custom(async (propertyRef) => {
+		// 		let property = await Property.findOne({ propertyRef })
+		// 		if (property)
+		// 			return Promise.reject(
+		// 				'La référence de la propriété doit-être unique.'
+		// 			)
+		// 		return true
+		// 	}),
 	]
 }
 
