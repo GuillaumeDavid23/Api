@@ -27,6 +27,11 @@ router.post('/pushAgentAvatar', multer, (req, res) => {
 	res.status(200).json({ status_code: 200, message: 'Avatar ajouté !' })
 })
 
+// Push d'une photo d'un utilisateur:
+router.post('/pushUserAvatar', multer, (req, res) => {
+	res.status(200).json({ status_code: 200, message: 'Avatar ajouté !' })
+})
+
 //(Check) Verification token pour validation de compte
 router.get('/emailVerification/:token', UC.verifyEmail)
 

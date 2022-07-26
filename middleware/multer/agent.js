@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
 		let _id =
 			Object.keys(req.body).length === 0 ? req.query._id : req.body._id
 		const extension = MIME_TYPES[file.mimetype]
-		let fullFileName = _id + '.png'
+		let fullFileName = _id + '.' + extension
 		callback(null, fullFileName)
 	},
 })
