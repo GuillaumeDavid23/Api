@@ -70,6 +70,32 @@ const create = async (req, res) => {
 			)
 			user.buyer.agent = req.auth.user._id
 		}
+
+		//On compte le nombre d'utilisateur dans la base
+		User.countDocuments({}, function (err, c) {
+			let prefix
+			//Genération du préfixe pour la référence utilisateur
+			if (user.roles === 'user') {
+				prefix = 'CL'
+			} else {
+				prefix = 'AG'
+			}
+
+			//On ajoute notre utilisateur sur le count
+			c++;
+
+			//Génération du nombre de 0
+			let number = c.toString()
+			while (number.length <= 8) {
+				number = '0' + number 
+			}
+
+			//Création de la ref
+			let ref = prefix + number
+
+			//Assignation de la référence
+			user.ref = ref
+		})
 		bcrypt.hash(user.password, saltRounds, async function (err, hash) {
 			user.password = hash
 			await user.save()
@@ -1144,7 +1170,7 @@ const checkAgentAvailabilities = async (req, res) => {
  */
 const getCustomers = async (req, res) => {
 	try {
-		const user = await User.find({ status: true, roles : 'user' })
+		const user = await User.find({ status: true, roles: 'user' })
 		if (user) {
 			res.status(200).json({ status_code: 200, user })
 		} else {

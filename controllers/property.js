@@ -65,6 +65,31 @@ const createProperty = async (req, res) => {
 			...req.body,
 			imageUrl,
 		})
+		//On compte le nombre d'utilisateur dans la base
+		Property.countDocuments({}, function (err, c) {
+			let prefix
+			//Genération du préfixe pour la référence utilisateur
+			if (newProperty.propertyType === 'Maison') {
+				prefix = 'MA'
+			} else {
+				prefix = 'AP'
+			}
+
+			//On ajoute notre utilisateur sur le count
+			c++
+
+			//Génération du nombre de 0
+			let number = c.toString()
+			while (number.length <= 8) {
+				number = '0' + number
+			}
+
+			//Création de la ref
+			let ref = prefix + number
+
+			//Assignation de la référence
+			newProperty.propertyRef = ref
+		})
 		newProperty = await newProperty.save()
 		// await sendAlert(req.body, newProperty._id.valueOf())
 		res.status(201).json({
