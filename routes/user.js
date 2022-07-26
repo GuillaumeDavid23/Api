@@ -8,6 +8,7 @@ import {
 	validateParamId,
 	validation,
 } from '../middleware/validation/validation.js'
+import multer from '../middleware/multer/agent.js'
 
 const router = express.Router()
 //(Login) Connexion d'un utilisateur
@@ -21,8 +22,16 @@ router.post('/checkBearer', UC.checkBearer)
 //(SignUp) Inscription standard
 router.post('/signup', CHK.checkUserCommonBody(), validation, UC.signup)
 
+// Push d'une photo d'un agent:
+router.post('/pushAgentAvatar', multer, (req, res) => {
+	res.status(200).json({ status_code: 200, message: 'Avatar ajouté !' })
+})
+
 //(Check) Verification token pour validation de compte
 router.get('/emailVerification/:token', UC.verifyEmail)
+
+//(GET) Récupération du vendeur d'une propriété:
+router.get('/getSellerForOneProperty/:propertyId', UC.getSellerForOneProperty)
 
 //(Mailing) Demande de rendez-vous
 router.post('/emailAppointment', UC.askForAppointment)

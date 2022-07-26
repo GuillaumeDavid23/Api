@@ -10,7 +10,7 @@ import {
 	validateParamId,
 	validation,
 } from '../middleware/validation/validation.js'
-import multer from '../middleware/multer-config.js'
+import multer from '../middleware/multer/property.js'
 
 const router = express.Router()
 
