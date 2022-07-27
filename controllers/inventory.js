@@ -237,10 +237,20 @@ const erase = async (req, res) => {
  */
 const getAll = async (req, res) => {
 	try {
-		let inventories = await Inventory.find().populate({
-			path: 'id_agent',
-			select: 'firstname lastname',
-		})
+		let inventories = await Inventory.find()
+			.populate({
+				path: 'id_agent',
+				select: 'firstname lastname',
+			})
+			.populate({
+				path: 'id_rental',
+				select: 'id_property',
+				populate: {
+					path: 'id_property',
+					select: '_id title propertyRef imageUrl'
+				}
+			})
+			
 		res.status(200).json({
 			status_code: 200,
 			message: 'Etats des lieux récupérés.',
