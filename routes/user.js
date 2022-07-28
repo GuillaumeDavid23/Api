@@ -159,7 +159,7 @@ router.get('/agents', UC.getAgents)
 router.get('/customers', auth, checkAccess(['agent']), UC.getCustomers)
 
 //(Get) Récupération des disponibilité d'un agent
-router.get(
+router.post(
 	'/agentAvailabilities',
 	auth,
 	checkAccess(['user', 'agent']),
