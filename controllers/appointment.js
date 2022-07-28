@@ -1,6 +1,9 @@
 import Appointment from '../models/Appointment.js'
 import User from '../models/User.js'
 import { asyncForEach } from '../util/functions.js'
+import moment from 'moment'
+import 'moment/locale/fr.js'
+moment.locale('fr')
 
 /**
  * @api {post} /api/appointment Créer un rendez-vous
@@ -229,12 +232,21 @@ const erase = async (req, res) => {
 const getAll = async (req, res) => {
 	try {
 		let appointments = await Appointment.find()
+
+		// TimeZone date:
+		appointments = JSON.parse(JSON.stringify(appointments))
+		appointments.forEach((appointment) => {
+			appointment.dateBegin = moment(appointment.dateBegin).format()
+			appointment.dateEnd = moment(appointment.dateEnd).format()
+		})
+
 		res.status(200).json({
 			status_code: 200,
 			message: 'Rendez-vous récupérés.',
 			appointments,
 		})
 	} catch (error) {
+		console.log(error)
 		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
