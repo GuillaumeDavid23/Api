@@ -8,6 +8,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import sendMail from '../util/mail.js'
+import moment from 'moment'
 dotenv.config()
 
 /**
@@ -201,7 +202,7 @@ const login = async (req, res) => {
 /**
  * @api {put} /api/user/:_id 3 - Mettre à jour un utilisateur
  * @apiName update
- * @apiGroup Utilisateur 
+ * @apiGroup Utilisateur
  *
  * @apiHeader {String} Authorization
  *
@@ -520,7 +521,17 @@ const checkAgentAvailabilities = async (req, res) => {
 		appointments.forEach((appoint) => {
 			if (appoint.dateBegin >= begin && appoint.dateEnd <= end) {
 				let hourBegin = appoint.dateBegin.getUTCHours()
+				let minuteBegin = moment(appoint.dateBegin).minutes()
 				let hourEnd = appoint.dateEnd.getUTCHours()
+				let minuteEnd = moment(appoint.dateEnd).minutes()
+
+				if (minuteBegin == 30) {
+					hourBegin += 0.5
+				}
+				if (minuteEnd == 30) {
+					hourEnd += 0.5
+				}
+
 				while (hourBegin < hourEnd) {
 					let slot = hourBegin + 0.5
 					if (hourBegin % 1 === 0) {
@@ -821,8 +832,7 @@ const resetPassword = async (req, res) => {
 	}
 }
 
-
-/** 
+/**
  * * PARTIE AGENT
  */
 
@@ -999,12 +1009,12 @@ const create = async (req, res) => {
 			}
 
 			//On ajoute notre utilisateur sur le count
-			c++;
+			c++
 
 			//Génération du nombre de 0
 			let number = c.toString()
 			while (number.length <= 8) {
-				number = '0' + number 
+				number = '0' + number
 			}
 
 			//Création de la ref
@@ -1036,10 +1046,10 @@ const create = async (req, res) => {
  * @apiGroup Agent
  *
  * @apiHeader {String} Authorization Token d'authentification
- * 
+ *
  * @apiParam {ObjectId} userId id du vendeur à ajouter
  * @apiParam {ObjectId} propertyId id de la propriété ciblé
- * 
+ *
  *
  * @apiSuccess {String} message Message de complétion.
  *
@@ -1481,7 +1491,7 @@ const anonymize = async (req, res) => {
 	}
 }
 
-/** 
+/**
  * * PARTIE TOKEN
  */
 
@@ -1835,11 +1845,7 @@ const setNewsletterForUnknown = async (req, res) => {
 	}
 }
 
-
-
-
-
-/** 
+/**
  * * PARTIE METHODE DIVERSE
  * * Méthode intervenants dans d'autres méthodes
  */
