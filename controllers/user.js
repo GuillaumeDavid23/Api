@@ -1337,16 +1337,16 @@ const removeOfPropertyList = async (req, res) => {
  */
 const getSellerForOneProperty = async (req, res) => {
 	try {
-		let users = await User.find()
-		users.forEach((user) => {
+		let sellers = await User.find({ seller: { $exists: true } })
+		sellers.forEach((seller) => {
 			if (
-				user.roles === 'seller' &&
-				user.seller.propertiesList.includes(req.params.propertyId)
+				seller.seller.propertiesList &&
+				seller.seller.propertiesList.includes(req.params.propertyId)
 			) {
 				return res.status(200).json({
 					status_code: 200,
 					message: 'Vendeur trouvé !',
-					datas: user,
+					datas: seller,
 				})
 			}
 		})
