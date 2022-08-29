@@ -630,11 +630,13 @@ const addToWishlist = async (req, res) => {
 	try {
 		let exist = false
 		let user = await User.findById(req.auth.user._id)
-		user.buyer.wishlist.forEach((element) => {
-			if (element.toString() == req.params._id) {
-				return (exist = true)
-			}
-		})
+		if(user.buyer.wishlist){
+			user.buyer.wishlist.forEach((element) => {
+				if (element.toString() == req.params._id) {
+					return (exist = true)
+				}
+			})
+		}
 		if (!exist) {
 			await User.updateOne(
 				{ _id: user._id },
