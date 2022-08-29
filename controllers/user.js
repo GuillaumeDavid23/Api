@@ -656,7 +656,7 @@ const addToWishlist = async (req, res) => {
 }
 
 /**
- * @api {get} /api/user/wishlist/:_id 7.1 - Supprimer un favori
+ * @api {DELETE} /api/user/wishlist/:_id 7.1 - Supprimer un favori
  * @apiName removeOfWishlist
  * @apiGroup Utilisateur
  *
