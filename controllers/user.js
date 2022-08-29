@@ -1561,7 +1561,7 @@ const checkBearer = async (req, res) => {
 
 // ? Quelle méthode reset token est utilisé ?
 /**
- * @api {get} /api/user/check/:token 2 - Vérifier le reset token
+ * @api {get} /api/user/checkResetToken/:token 2 - Vérifier le reset token
  * @apiName checkResetToken
  * @apiGroup Token
  *
@@ -1610,10 +1610,17 @@ const checkResetToken = async (req, res) => {
 			})
 		}
 	} catch (error) {
-		res.status(500).json({
-			status_code: 500,
-			error: error.message,
-		})
+		if (error.TokenExpiredError) {
+			res.status(401).json({
+				status_code: 401,
+				message: 'Token Expiré',
+			})
+		} else {
+			res.status(500).json({
+				status_code: 500,
+				message: 'Erreur survenue',
+			})
+		}
 	}
 }
 /**
