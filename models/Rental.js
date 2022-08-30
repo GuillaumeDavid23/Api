@@ -1,5 +1,5 @@
 import mongoose from '../db/db.js'
-import timeZone from 'mongoose-timezone'
+// import timeZone from 'mongoose-timezone'
 
 const rentalShema = mongoose.Schema(
 	{
@@ -31,6 +31,6 @@ const rentalShema = mongoose.Schema(
 	{ timestamps: true }
 )
 
-rentalShema.plugin(timeZone)
+// rentalShema.plugin(timeZone)
 
 export default mongoose.model('Rental', rentalShema)

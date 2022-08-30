@@ -1,6 +1,6 @@
 import Mongoose from '../db/db.js'
 import uniqueValidator from 'mongoose-unique-validator'
-import timeZone from 'mongoose-timezone'
+// import timeZone from 'mongoose-timezone'
 
 const propertySchema = Mongoose.Schema(
 	{
@@ -38,6 +38,6 @@ const propertySchema = Mongoose.Schema(
 )
 
 propertySchema.plugin(uniqueValidator)
-propertySchema.plugin(timeZone)
+// propertySchema.plugin(timeZone)
 
 export default Mongoose.model('Property', propertySchema)

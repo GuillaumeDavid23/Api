@@ -1,5 +1,5 @@
 import mongoose from '../db/db.js'
-import timeZone from 'mongoose-timezone'
+// import timeZone from 'mongoose-timezone'
 
 const inventoryShema = mongoose.Schema(
 	{
@@ -27,6 +27,6 @@ const inventoryShema = mongoose.Schema(
 	{ timestamps: true }
 )
 
-inventoryShema.plugin(timeZone)
+// inventoryShema.plugin(timeZone)
 
 export default mongoose.model('Inventory', inventoryShema)
