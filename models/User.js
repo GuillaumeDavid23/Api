@@ -2,7 +2,6 @@ import mongoose from 'mongoose'
 // import mongoose from '../db/db.js'
 import Property from './Property.js'
 // import seeder from 'mongoose-seeder'
-import timeZone from 'mongoose-timezone'
 
 const userSchema = mongoose.Schema(
 	{
@@ -80,7 +79,5 @@ const userSchema = mongoose.Schema(
 // } catch (error) {
 // 	console.log(error.message)
 // }
-
-userSchema.plugin(timeZone)
 
 export default mongoose.model('User', userSchema)
