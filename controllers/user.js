@@ -9,6 +9,8 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import sendMail from '../util/mail.js'
 import moment from 'moment'
+import 'moment/locale/fr.js'
+moment.locale('fr')
 dotenv.config()
 
 /**
