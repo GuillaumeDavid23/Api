@@ -1491,11 +1491,13 @@ const removeOfPropertyList = async (req, res) => {
 const getSellerForOneProperty = async (req, res) => {
 	try {
 		let sellers = await User.find({ seller: { $exists: true } })
+		let gotResult = false
 		sellers.forEach((seller) => {
 			if (
 				seller.seller.propertiesList &&
 				seller.seller.propertiesList.includes(req.params.propertyId)
 			) {
+				gotResult = true
 				return res.status(200).json({
 					status_code: 200,
 					message: 'Vendeur trouvé !',
@@ -1503,10 +1505,10 @@ const getSellerForOneProperty = async (req, res) => {
 				})
 			}
 		})
-
-		res.status(204)
+		if (gotResult == false) {
+			res.status(204).json()
+		}
 	} catch (error) {
-		console.log(error)
 		res.status(500).json({ status_code: 500, message: error.message })
 	}
 }
