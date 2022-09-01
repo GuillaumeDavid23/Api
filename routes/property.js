@@ -76,4 +76,15 @@ router.delete(
 	PC.deleteProperty
 )
 
+//(Patch) Suppression d'une propriété
+router.patch(
+	'/dispo/:_id',
+	auth,
+	checkAccess(['agent']),
+	checkPropertyExistence(),
+	validation,
+	PC.changeDispo
+)
+
+
 export default router

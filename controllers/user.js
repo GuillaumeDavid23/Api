@@ -355,10 +355,15 @@ const deleteOne = async (req, res) => {
  */
 const getOne = async (req, res) => {
 	try {
-		const user = await User.findById(req.params._id).populate({
-			path: 'buyer.agent',
-			select: 'firstname lastname agent.phonePro email',
-		})
+		const user = await User.findById(req.params._id)
+			.populate({
+				path: 'buyer.agent',
+				select: 'firstname lastname agent.phonePro email',
+			})
+			.populate({
+				path: 'agent.customers',
+				select: 'firstname lastname phone email',
+			})
 		if (user) {
 			res.status(200).json({
 				message: 'Utilissateur récupéré !',

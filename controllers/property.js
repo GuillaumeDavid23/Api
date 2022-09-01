@@ -282,7 +282,6 @@ const getCharts = async (req, res) => {
  */
 const updateProperty = async (req, res) => {
 	let datas = Object.keys(req.params).length === 0 ? req.query : req.params
-
 	try {
 		req.body = req.file
 			? {
@@ -292,13 +291,11 @@ const updateProperty = async (req, res) => {
 					}`,
 			  }
 			: { ...req.body }
-
 		// Suppression de la Ref
 		delete req.body.propertyRef
 
 		// Formattage des tableaux:
 		req.body.location = req.body.location.split(',')
-		console.log(req.body.list_equipments)
 		if (req.body.list_equipments !== undefined) {
 			req.body.list_equipments = req.body.list_equipments.split(',')
 		}
@@ -704,6 +701,60 @@ const removeEquipment = async (req, res) => {
 }
 
 /**
+ * @api {patch} /api/property/dispo/:_id 7 - Modifier dispo annonce
+ * @apiName changeDispo
+ * @apiGroup Propriété
+ *
+ * @apiHeader {String} Authorization
+ *
+ * @apiParam {ObjectId} _id id de la propriété
+ *
+ * @apiSuccess {String} message Disponibilité changé
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "message": 'Equipement ajouté !',
+ *     }
+ *
+ * @apiError PropertyValidationError Propriété non trouvé.
+ * @apiError ParamValidationError Erreur sur le format de l'identiant en paramêtre.
+ * @apiError ServerError Erreur serveur.
+ *
+ * @apiErrorExample _idError:
+ *     HTTP/1.1 422 Unprocessable Entity
+ *     {
+ * 		"status_code": 422,
+ * 		"message": "La validation à échouée.",
+ *       	"errors": [
+ * 				{
+ * 					"_id": "Propriété non trouvé."
+ * 				}
+ * 			]
+ *     }
+ */
+const changeDispo = async (req, res) => {
+	try {
+		let property = await Property.findById(req.params._id)
+		await Property.updateOne(
+			{ _id: req.params._id },
+			{
+				 isToSell : !property.isToSell,
+			}
+		)
+		res.status(200).json({
+			status_code: 200,
+			message: 'Disponibilité changé',
+		})
+	} catch (error) {
+		res.status(500).json({
+			status_code: 500,
+			error: error.message,
+		})
+	}
+}
+
+/**
  * @api {put} /api/property/heater/:_id 5 - Ajouter un chauffage
  * @apiName addHeater
  * @apiGroup Propriété
@@ -832,4 +883,5 @@ export {
 	addHeater,
 	removeHeater,
 	getCharts,
+	changeDispo,
 }
