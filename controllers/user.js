@@ -9,6 +9,8 @@ import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import sendMail from '../util/mail.js'
 import moment from 'moment'
+import 'moment/locale/fr.js'
+moment.locale('fr')
 dotenv.config()
 
 /**
@@ -353,10 +355,15 @@ const deleteOne = async (req, res) => {
  */
 const getOne = async (req, res) => {
 	try {
-		const user = await User.findById(req.params._id).populate({
-			path: 'buyer.agent',
-			select: 'firstname lastname agent.phonePro email',
-		})
+		const user = await User.findById(req.params._id)
+			.populate({
+				path: 'buyer.agent',
+				select: 'firstname lastname agent.phonePro email',
+			})
+			.populate({
+				path: 'agent.customers',
+				select: 'firstname lastname phone email',
+			})
 		if (user) {
 			res.status(200).json({
 				message: 'Utilissateur récupéré !',
@@ -485,74 +492,213 @@ const getSellers = async (req, res) => {
 const checkAgentAvailabilities = async (req, res) => {
 	let datas = req.body
 
+	// let availableArray = [
+	// 	'9h-9h30',
+	// 	'9h30-10h',
+	// 	'10h-10h30',
+	// 	'10h30-11h',
+	// 	'11h-11h30',
+	// 	'11h30-12h',
+	// 	'12h-12h30',
+	// 	'12h30-13h',
+	// 	'13h-13h30',
+	// 	'13h30-14h',
+	// 	'14h-14h30',
+	// 	'14h30-15h',
+	// 	'15h-15h30',
+	// 	'15h30-16h',
+	// 	'16h-16h30',
+	// 	'16h30-17h',
+	// 	'17h-17h30',
+	// 	'17h30-18h',
+	// 	'18h-18h30',
+	// 	'18h30-19h',
+	// ]
+
+	let availableArray = [
+		'09h00-9h30',
+		'09h30-10h00',
+		'10h00-10h30',
+		'10h30-11h00',
+		'11h00-11h30',
+		'11h30-12h00',
+		'12h00-12h30',
+		'12h30-13h00',
+		'13h00-13h30',
+		'13h30-14h00',
+		'14h00-14h30',
+		'14h30-15h00',
+		'15h00-15h30',
+		'15h30-16h00',
+		'16h00-16h30',
+		'16h30-17h00',
+		'17h00-17h30',
+		'17h30-18h00',
+		'18h00-18h30',
+		'18h30-19h00',
+	]
+
 	try {
-		let begin = new Date(datas.date)
-		let end = new Date(datas.date)
-		begin.setUTCHours(8)
-		end.setUTCHours(19)
+		// let begin = new Date(datas.date)
+		// let end = new Date(datas.date)
+		// begin.setUTCHours(8)
+		// end.setUTCHours(19)
+
+		// let appointments = await Appointment.find({
+		// 	id_agent: datas.id_agent,
+		// }).sort({ dateBegin: 'asc' })
+
+		// let index = 0
+		// appointments.forEach((appoint) => {
+		// 	if (appoint.dateBegin >= begin && appoint.dateEnd <= end) {
+		// 		let hourBegin = appoint.dateBegin.getUTCHours()
+		// 		let hourEnd = appoint.dateEnd.getUTCHours()
+		// 		while (hourBegin < hourEnd) {
+		// 			let slot = hourBegin + 0.5
+		// 			if (hourBegin % 1 === 0) {
+		// 				slot -= 0.5
+		// 				let result = hourBegin + 'h-' + slot + 'h30'
+		// 				index = availableArray.indexOf(result)
+		// 			} else {
+		// 				index = availableArray.indexOf(
+		// 					hourBegin - 0.5 + 'h30-' + slot + 'h'
+		// 				)
+		// 			}
+		// 			availableArray.splice(index, 1)
+		// 			hourBegin += 0.5
+		// 		}
+		// 	}
+		// })
+
+		// ? TEST 1:
+		let { date, id_agent } = datas
+
+		let startDate = new Date(date + ' 00:00:00'),
+			endDate = new Date(date + ' 23:59:59')
+		startDate = moment(startDate)
+		endDate = moment(endDate)
 
 		let appointments = await Appointment.find({
-			id_agent: datas.id_agent,
+			id_agent,
+			dateBegin: { $gte: startDate, $lte: endDate },
 		}).sort({ dateBegin: 'asc' })
 
-		let availableArray = [
-			'9h-9h30',
-			'9h30-10h',
-			'10h-10h30',
-			'10h30-11h',
-			'11h-11h30',
-			'11h30-12h',
-			'12h-12h30',
-			'12h30-13h',
-			'13h-13h30',
-			'13h30-14h',
-			'14h-14h30',
-			'14h30-15h',
-			'15h-15h30',
-			'15h30-16h',
-			'16h-16h30',
-			'16h30-17h',
-			'17h-17h30',
-			'17h30-18h',
-			'18h-18h30',
-			'18h30-19h',
-		]
-		let index = 0
-		appointments.forEach((appoint) => {
-			if (appoint.dateBegin >= begin && appoint.dateEnd <= end) {
-				let hourBegin = appoint.dateBegin.getUTCHours()
-				let minuteBegin = moment(appoint.dateBegin).minutes()
-				let hourEnd = appoint.dateEnd.getUTCHours()
-				let minuteEnd = moment(appoint.dateEnd).minutes()
+		let filteredAvailableArray = []
 
-				if (minuteBegin == 30) {
-					hourBegin += 0.5
-				}
-				if (minuteEnd == 30) {
-					hourEnd += 0.5
-				}
+		for (let i = 0; i < availableArray.length; i++) {
+			let hourBeginInArray = availableArray[i]
+				.split('-')[0]
+				.replace('h', ':')
 
-				while (hourBegin < hourEnd) {
-					let slot = hourBegin + 0.5
-					if (hourBegin % 1 === 0) {
-						slot -= 0.5
-						let result = hourBegin + 'h-' + slot + 'h30'
-						index = availableArray.indexOf(result)
-					} else {
-						index = availableArray.indexOf(
-							hourBegin - 0.5 + 'h30-' + slot + 'h'
-						)
-					}
-					availableArray.splice(index, 1)
-					hourBegin += 0.5
+			let availableHour = true
+
+			appointments.forEach((appointment) => {
+				if (
+					moment(appointment.dateBegin)
+						.format()
+						.substring(11, 16)
+						.includes(hourBeginInArray)
+				) {
+					availableHour = false
 				}
+			})
+			if (availableHour) {
+				filteredAvailableArray.push(availableArray[i].substring(0, 5))
 			}
-		})
+		}
+
+		// ? TEST 2:
+		// let datas = req.body
+
+		// 	let begin = new Date(datas.date)
+		// 	let end = new Date(datas.date)
+		// 	begin.setUTCHours(8)
+		// 	end.setUTCHours(19)
+
+		// 	let appointments = await Appointment.find({
+		// 		id_agent: datas.id_agent,
+		// 	}).sort({ dateBegin: 'asc' })
+
+		// 	let availableArray = [
+		// 		'9h-9h30',
+		// 		'9h30-10h',
+		// 		'10h-10h30',
+		// 		'10h30-11h',
+		// 		'11h-11h30',
+		// 		'11h30-12h',
+		// 		'12h-12h30',
+		// 		'12h30-13h',
+		// 		'13h-13h30',
+		// 		'13h30-14h',
+		// 		'14h-14h30',
+		// 		'14h30-15h',
+		// 		'15h-15h30',
+		// 		'15h30-16h',
+		// 		'16h-16h30',
+		// 		'16h30-17h',
+		// 		'17h-17h30',
+		// 		'17h30-18h',
+		// 		'18h-18h30',
+		// 		'18h30-19h',
+		// 	]
+		// 	let index = 0
+		// 	console.log('START')
+		// 	appointments = JSON.parse(JSON.stringify(appointments))
+		// 	appointments.forEach((appoint) => {
+		// 		appoint.dateBegin = moment(appoint.dateBegin).format(
+		// 			'YYYY-MM-DD hh:mm:ss'
+		// 		)
+		// 		appoint.dateEnd = moment(appoint.dateEnd).format()
+		// 		console.log(appoint.dateBegin)
+		// 		console.log('dateBeginTS', moment(appoint.dateBegin))
+		// 		console.log('beginTS', moment(begin))
+		// 		// appoint.dateBegin = new Date(moment(appoint.dateBegin).format())
+		// 		// appoint.dateEnd = new Date(moment(appoint.dateEnd).format())
+		// 		// appoint.dateBegin = moment(appoint.dateBegin)
+		// 		// 	.format()
+		// 		// 	.substring(0, 19)
+		// 		// appoint.dateEnd = new Date(
+		// 		// 	moment(appoint.dateEnd).format().substring(0, 19)
+		// 		// )
+
+		// 		console.log(appoint.dateBegin, begin, ' / ', appoint.dateEnd, end)
+		// 		console.log(appoint.dateBegin >= begin, appoint.dateEnd <= end)
+		// 		if (appoint.dateBegin >= begin && appoint.dateEnd <= end) {
+		// 			let hourBegin = appoint.dateBegin.getUTCHours()
+		// 			let minuteBegin = moment(appoint.dateBegin).minutes()
+		// 			let hourEnd = appoint.dateEnd.getUTCHours()
+		// 			let minuteEnd = moment(appoint.dateEnd).minutes()
+
+		// 			if (minuteBegin == 30) {
+		// 				hourBegin += 0.5
+		// 			}
+		// 			if (minuteEnd == 30) {
+		// 				hourEnd += 0.5
+		// 			}
+
+		// 			while (hourBegin < hourEnd) {
+		// 				let slot = hourBegin + 0.5
+		// 				if (hourBegin % 1 === 0) {
+		// 					slot -= 0.5
+		// 					let result = hourBegin + 'h-' + slot + 'h30'
+		// 					index = availableArray.indexOf(result)
+		// 				} else {
+		// 					index = availableArray.indexOf(
+		// 						hourBegin - 0.5 + 'h30-' + slot + 'h'
+		// 					)
+		// 				}
+		// 				availableArray.splice(index, 1)
+		// 				hourBegin += 0.5
+		// 			}
+		// 		}
+		// 	})
+
 		res.status(200).json({
 			status_code: 200,
-			Availabilities: availableArray,
+			Availabilities: filteredAvailableArray,
 		})
 	} catch (error) {
+		console.log(error)
 		res.status(500).json({
 			status_code: 500,
 			error: error.message,
@@ -630,11 +776,13 @@ const addToWishlist = async (req, res) => {
 	try {
 		let exist = false
 		let user = await User.findById(req.auth.user._id)
-		user.buyer.wishlist.forEach((element) => {
-			if (element.toString() == req.params._id) {
-				return (exist = true)
-			}
-		})
+		if (user.buyer.wishlist) {
+			user.buyer.wishlist.forEach((element) => {
+				if (element.toString() == req.params._id) {
+					return (exist = true)
+				}
+			})
+		}
 		if (!exist) {
 			await User.updateOne(
 				{ _id: user._id },
@@ -654,7 +802,7 @@ const addToWishlist = async (req, res) => {
 }
 
 /**
- * @api {get} /api/user/wishlist/:_id 7.1 - Supprimer un favori
+ * @api {DELETE} /api/user/wishlist/:_id 7.1 - Supprimer un favori
  * @apiName removeOfWishlist
  * @apiGroup Utilisateur
  *
@@ -1348,11 +1496,13 @@ const removeOfPropertyList = async (req, res) => {
 const getSellerForOneProperty = async (req, res) => {
 	try {
 		let sellers = await User.find({ seller: { $exists: true } })
+		let gotResult = false
 		sellers.forEach((seller) => {
 			if (
 				seller.seller.propertiesList &&
 				seller.seller.propertiesList.includes(req.params.propertyId)
 			) {
+				gotResult = true
 				return res.status(200).json({
 					status_code: 200,
 					message: 'Vendeur trouvé !',
@@ -1360,10 +1510,10 @@ const getSellerForOneProperty = async (req, res) => {
 				})
 			}
 		})
-
-		res.status(204)
+		if (gotResult == false) {
+			res.status(204).json()
+		}
 	} catch (error) {
-		console.log(error)
 		res.status(500).json({ status_code: 500, message: error.message })
 	}
 }

@@ -71,17 +71,31 @@ moment.locale('fr')
  *     }
  */
 const create = async (req, res) => {
+	let { id_agent, dateBegin, fromDesktop } = req.body
+
 	try {
-		const appointment = new Appointment({
+		// On bloque si rendez-vous déjà existant:
+		let appointment = await Appointment.findOne({ id_agent, dateBegin })
+		if (appointment) {
+			return res.status(400).json({
+				status_code: 400,
+				message: 'Plage horraire déjà prise..',
+			})
+		}
+
+		appointment = new Appointment({
 			...req.body,
-			id_agent: req.auth.user._id,
+			dateBegin,
+			id_agent: fromDesktop ? id_agent : req.auth.user._id,
 		})
+
 		await appointment.save()
 		res.status(201).json({
 			status_code: 201,
 			message: 'Rendez-vous enregistré.',
 		})
 	} catch (error) {
+		console.log(error)
 		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
