@@ -20,6 +20,10 @@ describe('Le TransactionModel', () => {
 	var Transaction, dummy
 
 	before((done) => {
+		mongoose.connection
+			.close()
+			.then()
+			.catch((err) => console.log(err))
 		mongoose.connect(util.mongo_path)
 		mongoose.connection.once('connected', () => {
 			mongoose.connection.dropDatabase()
@@ -150,14 +154,16 @@ describe('Le TransactionModel', () => {
 					done()
 				})
 		})
-		it("créer de transaction sans liste d'acheteurs", (done) => {
+		it("créer de transaction avec liste d'acheteurs à null", (done) => {
 			const t = new Transaction({
 				...transaction_default,
 				lst_buyer: null,
 			})
 
 			t.save()
-				.then(() => {
+				.then((res) => {
+					console.log(res)
+
 					done(
 						new Error(
 							'TransactionModel::create> can create without lst_buyer'
@@ -169,7 +175,7 @@ describe('Le TransactionModel', () => {
 					done()
 				})
 		})
-		it('créer de transaction sans liste de vendeurs', (done) => {
+		it('créer de transaction avec liste de vendeurs à null', (done) => {
 			const t = new Transaction({
 				...transaction_default,
 				lst_seller: null,

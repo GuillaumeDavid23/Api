@@ -2,12 +2,14 @@ import { expect } from 'chai'
 import mongoose from 'mongoose'
 import * as util from '../util.js'
 
+mongoose.Promise = global.Promise
+
 const global_id = new mongoose.Types.ObjectId()
 
 const appointement_default = {
 	dateBegin: '2022-01-01T10:00:00',
 	dateEnd: '2022-01-01T10:30:00',
-	address: '2 rue des escalopes, 69 777 Monquc',
+	address: '2 rue des escalopes, 69777 Monquc',
 	outdoor: true,
 	id_agent: global_id,
 	id_buyer: new mongoose.Types.ObjectId(),
@@ -18,6 +20,10 @@ describe("L'AppointementModel ", () => {
 	var Appointment, dummy
 
 	before((done) => {
+		mongoose.connection
+			.close()
+			.then()
+			.catch((err) => console.log(err))
 		mongoose.connect(util.mongo_path)
 		mongoose.connection.once('connected', () => {
 			mongoose.connection.db.dropDatabase()
@@ -30,6 +36,9 @@ describe("L'AppointementModel ", () => {
 				.catch((err) => {
 					done(new Error(err.message))
 				})
+		})
+		mongoose.connection.on('error', (err) => {
+			done(new Error(err.message))
 		})
 	})
 
@@ -47,7 +56,12 @@ describe("L'AppointementModel ", () => {
 	})
 
 	afterEach((done) => {
-		mongoose.connection.collections.appointments.drop(() => done())
+		mongoose.connection.collections.appointments
+			.drop()
+			.then(() => done())
+			.catch((err) => {
+				done(new Error(err.message))
+			})
 	})
 
 	describe('peut ', () => {

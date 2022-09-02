@@ -1,7 +1,13 @@
 import mongoose from 'mongoose'
-const global_id = new mongoose.Types.ObjectId()
+import jwt from 'jsonwebtoken'
+
+import dotenv from 'dotenv'
+dotenv.config()
+
+const _id = new mongoose.Types.ObjectId()
 
 const tmp_user_ok = {
+	_id: _id,
 	firstname: 'dummy',
 	lastname: 'dummy',
 	email: 'ok@dummy.com',
@@ -9,6 +15,14 @@ const tmp_user_ok = {
 	newsletter: true,
 	status: true,
 }
+
+const tmp_user_ok_token = jwt.sign(
+	{ user: tmp_user_ok },
+	process.env.SECRET_TOKEN,
+	{
+		expiresIn: '5h',
+	}
+)
 
 const tmp_user_pasconfirme = {
 	firstname: 'dummy',
@@ -37,12 +51,13 @@ const tmp_seller_acreer = {
 		propertiesList: [],
 	},
 }
-const tmp_buyer_acreer = {
+const tmp_user_acreer = {
 	firstname: 'dummy',
 	lastname: 'dummy',
 	email: 'buyer_acreer@dummy.com',
 	password: 'Dummydummy69',
 	newsletter: true,
+	status: true,
 	buyer: {
 		wishlist: [],
 	},
@@ -50,8 +65,9 @@ const tmp_buyer_acreer = {
 
 export {
 	tmp_user_ok,
+	tmp_user_ok_token,
 	tmp_user_pasconfirme,
 	tmp_user_desac,
 	tmp_seller_acreer,
-	tmp_buyer_acreer,
+	tmp_user_acreer,
 }

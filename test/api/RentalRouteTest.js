@@ -1,10 +1,13 @@
 import req from 'supertest'
 import API from '../../app.js'
 
-describe.skip('La RentalRoute ', () => {
-	describe('', () => {
-		it('peut récupérer tous les utilisateurs', (done) => {
-			req(API).get('/api/rental').expect(200, done)
+describe('La RentalRoute ', () => {
+	after((done) => {
+		done()
+	})
+	describe('ne peut pas', () => {
+		it("récupérer tous les utilisateurs sans token d'accès", (done) => {
+			req(API).get('/api/rental').expect(401, done)
 		})
 	})
 })

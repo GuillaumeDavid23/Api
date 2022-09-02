@@ -30,6 +30,10 @@ describe('Le PropertyModel', () => {
 	var Property, dummy
 
 	before((done) => {
+		mongoose.connection
+			.close()
+			.then()
+			.catch((err) => console.log(err))
 		mongoose.connect(util.mongo_path)
 		mongoose.connection.once('connected', () => {
 			mongoose.connection.db.dropDatabase()
@@ -134,20 +138,6 @@ describe('Le PropertyModel', () => {
 				done()
 			})
 		})
-		it('créer une propriété sans description', (done) => {
-			const p = new Property({ ...property_default, description: '' })
-
-			p.save((err) => {
-				if (!err)
-					done(
-						new Error(
-							'PropertyModel::create>Can create without description'
-						)
-					)
-				expect(err).to.exist.and.be.instanceof(Error)
-				done()
-			})
-		})
 		it('créer une propriété sans montant', (done) => {
 			const p = new Property({ ...property_default, amount: null })
 
@@ -163,7 +153,7 @@ describe('Le PropertyModel', () => {
 			})
 		})
 		it('créer une propriété sans localisation', (done) => {
-			const p = new Property({ ...property_default, location: '' })
+			const p = new Property({ ...property_default, location: null })
 
 			p.save((err) => {
 				if (!err)
@@ -232,82 +222,6 @@ describe('Le PropertyModel', () => {
 				done()
 			})
 		})
-		it("créer une propriété sans liste d'équipement", (done) => {
-			const p = new Property({
-				...property_default,
-				list_equipments: null,
-			})
-
-			p.save((err) => {
-				if (!err)
-					done(
-						new Error(
-							'PropertyModel::create>Can create without list_equipments'
-						)
-					)
-				expect(err).to.exist.and.be.instanceof(Error)
-				done()
-			})
-		})
-		it('créer une propriété sans liste de chauffage', (done) => {
-			const p = new Property({ ...property_default, list_heater: null })
-
-			p.save((err) => {
-				if (!err)
-					done(
-						new Error(
-							'PropertyModel::create>Can create without list_heater'
-						)
-					)
-				expect(err).to.exist.and.be.instanceof(Error)
-				done()
-			})
-		})
-		it("créer une propriété sans liste d'eau", (done) => {
-			const p = new Property({ ...property_default, list_water: null })
-
-			p.save((err) => {
-				if (!err)
-					done(
-						new Error(
-							'PropertyModel::create>Can create without list_water'
-						)
-					)
-				expect(err).to.exist.and.be.instanceof(Error)
-				done()
-			})
-		})
-		it('créer une propriété sans référence de compteur éléectrique', (done) => {
-			const p = new Property({
-				...property_default,
-				electricMeterRef: '',
-			})
-
-			p.save((err) => {
-				if (!err)
-					done(
-						new Error(
-							'PropertyModel::create>Can create without electricMeterRef'
-						)
-					)
-				expect(err).to.exist.and.be.instanceof(Error)
-				done()
-			})
-		})
-		it('créer une propriété sans référence de compteur de gaz', (done) => {
-			const p = new Property({ ...property_default, gasMeterRef: '' })
-
-			p.save((err) => {
-				if (!err)
-					done(
-						new Error(
-							'PropertyModel::create>Can create without gasMeterRef'
-						)
-					)
-				expect(err).to.exist.and.be.instanceof(Error)
-				done()
-			})
-		})
 		it("créer une propriété sans booléen d'état de vente", (done) => {
 			const p = new Property({ ...property_default, isToSell: null })
 
@@ -330,6 +244,20 @@ describe('Le PropertyModel', () => {
 					done(
 						new Error(
 							'PropertyModel::create>Can create without propertyRef'
+						)
+					)
+				expect(err).to.exist.and.be.instanceof(Error)
+				done()
+			})
+		})
+		it('créer une propriété avec attribut Verified à null', (done) => {
+			const p = new Property({ ...property_default, verified: null })
+
+			p.save((err) => {
+				if (!err)
+					done(
+						new Error(
+							'PropertyModel::create>Can create without verified'
 						)
 					)
 				expect(err).to.exist.and.be.instanceof(Error)

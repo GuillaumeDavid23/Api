@@ -76,14 +76,14 @@ const signup = async (req, res) => {
 					{
 						...req.body,
 						password: hash,
-						roles: ['user'],
+						roles: 'user',
 					}
 				)
 			} else {
 				user = new User({
 					...datas,
 					password: hash,
-					roles: ['user'],
+					roles: 'user',
 				})
 				await user.save()
 			}
@@ -179,10 +179,9 @@ const login = async (req, res) => {
 		} else {
 			if (user.status == false && user.deletedAt == undefined) {
 				sendVerificationMail(user._id, user.email)
-				return res.status(200).json({
-					status_code: 200,
-					message: 'Vous devez vérifier votre email.',
-					token,
+				return res.status(403).json({
+					status_code: 403,
+					error: 'Vous devez vérifier votre email.',
 				})
 			}
 			res.status(200).json({

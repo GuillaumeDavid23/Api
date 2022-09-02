@@ -22,6 +22,10 @@ describe('Le RentalModel ', () => {
 	var Rental, dummy
 
 	before((done) => {
+		mongoose.connection
+			.close()
+			.then()
+			.catch((err) => console.log(err))
 		mongoose.connect(mongo_path)
 		mongoose.connection.once('connected', () => {
 			mongoose.connection.db.dropDatabase()
