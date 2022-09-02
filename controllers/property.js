@@ -3,6 +3,7 @@ import User from '../models/User.js'
 import sendMail from '../util/mail.js'
 import fs from 'fs'
 import { asyncForEach } from '../util/functions.js'
+import moment from 'moment'
 
 /**
  * @api {post} /api/property 1 - Créer une propriété
@@ -211,21 +212,49 @@ const getCharts = async (req, res) => {
 	try {
 		let countMaison = await Property.count({ propertyType: 'Maison' })
 		let countAppart = await Property.count({ propertyType: 'Appartement' })
-		let charts = [countMaison, countAppart]
+		let countProperty = [countMaison, countAppart]
+		
+		let allClient = await User.find({ roles: 'user' })
+		const startOfMonth = moment().subtract(30, 'days');
+			
+		const endOfMonth = moment()
 
-		if (countMaison > 0) {
-			res.status(200).json({
-				status_code: 200,
-				message: 'Stats récupérée.',
-				charts,
+		var startingMoment = startOfMonth
+		var createdClient = []
+		let index = 0
+		while (startingMoment <= endOfMonth) {
+			
+			var countClient = 0
+			allClient.forEach((client) => {
+				if (
+					moment(client.createdAt).format('YYYY-MM-DD') ==
+					startingMoment.format('YYYY-MM-DD')
+				) {
+					countClient++
+				}
 			})
-		} else {
-			res.status(204)
+			createdClient[index] = {
+				x: startingMoment.format('DD/MM/YYYY'),
+				y: countClient,
+			}
+			startingMoment = moment(startingMoment, 'YYYY-MM-DD').add(1, 'day')
+			index++
 		}
+
+		
+
+		res.status(200).json({
+			status_code: 200,
+			message: 'Stats récupérée.',
+			countProperty,
+			createdClient,
+		})
+		
 	} catch (error) {
 		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
+
 /**
  * @api {put} /api/property/:_id 2 - Mettre à jour une propriété
  * @apiName updateProperty
