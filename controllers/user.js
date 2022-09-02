@@ -153,7 +153,7 @@ const login = async (req, res) => {
 			})
 		}
 		const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
-			expiresIn: '5h',
+			expiresIn: '8h',
 		})
 		// Insertion ou non du RefreshToken:
 		if (datas.rememberMe) {

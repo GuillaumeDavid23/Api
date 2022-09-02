@@ -546,7 +546,7 @@ const searchProperties = async (req, res) => {
 			// Filtrage sur le nombre de pièces max:
 			queryCond.roomNumber = { $lte: parseInt(roomNumberMax) }
 		}
-
+		console.log(isToSell)
 		if (isToSell != 'agent') {
 			// Ajout des conditions sur isToSell et deletedAt:
 			queryCond['isToSell'] = true
