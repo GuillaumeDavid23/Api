@@ -11,6 +11,7 @@ const inventory_default = {
 	id_rental: new mongoose.Types.ObjectId(),
 	inOut: true,
 	userReference: 'USER00001',
+	keyNumber: 3,
 	date: '2022-01-01T10:00:00',
 	previousBuyerRef: 'USER0000',
 	lst_statsMeters: [],
@@ -21,16 +22,22 @@ describe("L'InventoryModel", () => {
 	var Inventory, dummy
 
 	before((done) => {
+		mongoose.connection
+			.close()
+			.then()
+			.catch((err) => console.log(err))
 		mongoose.connect(util.mongo_path)
 		mongoose.connection.once('connected', () => {
 			mongoose.connection.db.dropDatabase()
 
-			import('../../models/Inventory.js').then(
-				({ default: InventoryModel }) => {
+			import('../../models/Inventory.js')
+				.then(({ default: InventoryModel }) => {
 					Inventory = InventoryModel
 					done()
-				}
-			)
+				})
+				.catch((err) => {
+					done(new Error(err.message))
+				})
 		})
 	})
 
@@ -41,13 +48,12 @@ describe("L'InventoryModel", () => {
 
 	beforeEach((done) => {
 		dummy = new Inventory({ ...inventory_default })
-		dummy.save((err) => {
-			if (err) {
+		dummy
+			.save()
+			.then(() => done())
+			.catch((err) => {
 				done(new Error(err.message))
-			} else {
-				done()
-			}
-		})
+			})
 	})
 
 	afterEach((done) => {
@@ -59,13 +65,14 @@ describe("L'InventoryModel", () => {
 			it('créer un état des lieux', (done) => {
 				const i = new Inventory({ ...inventory_default })
 
-				i.save((err) => {
-					if (err) {
-						done(new Error(err.message))
-					} else {
+				i.save()
+					.then(() => {
 						done()
-					}
-				})
+					})
+					.catch((err) => {
+						expect(err).not.to.exist
+						done(new Error(err.message))
+					})
 			})
 			it('récupérer un état des lieux', (done) => {
 				Inventory.findOne({ id_agent: global_id })
@@ -200,44 +207,6 @@ describe("L'InventoryModel", () => {
 					done(
 						new Error(
 							'InventoryModel::create>Can create without date'
-						)
-					)
-				}
-			})
-		})
-		it('créer un état des lieux sans référence du locataire précédent', (done) => {
-			const i = new Inventory({
-				...inventory_default,
-				previousBuyerRef: null,
-			})
-
-			i.save((err) => {
-				if (err) {
-					expect(err).to.exist.and.to.be.instanceof(Error)
-					done()
-				} else {
-					done(
-						new Error(
-							'InventoryModel::create>Can create without previousBuyerRef'
-						)
-					)
-				}
-			})
-		})
-		it('créer un état des lieux sans listes de statistiques chauffage/eau', (done) => {
-			const i = new Inventory({
-				...inventory_default,
-				lst_statsMeters: null,
-			})
-
-			i.save((err) => {
-				if (err) {
-					expect(err).to.exist.and.to.be.instanceof(Error)
-					done()
-				} else {
-					done(
-						new Error(
-							'InventoryModel::create>Can create without lst_statsMeters'
 						)
 					)
 				}

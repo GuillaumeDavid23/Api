@@ -4,3 +4,5 @@ apidoc/
 public/avatar/
 public/property/
 uploads/
+coverage/
+.nyc*

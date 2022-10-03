@@ -6,8 +6,13 @@ import mongoose from 'mongoose'
 import * as util from '../util.js'
 import * as bcrypt from 'bcrypt'
 
+import jwt from 'jsonwebtoken'
+
 import * as Ut from '../mockedUser.js'
 import { expect } from 'chai'
+
+import dotenv from 'dotenv'
+dotenv.config()
 
 mongoose.Promise = global.Promise
 
@@ -18,20 +23,22 @@ describe('La UserRoutes', () => {
 		BASE_URL = '/api/user/'
 
 	before((done) => {
-		mongoose.connection.collections.users.drop((err) => {
-			err ? done(new Error(err.message)) : null
+		mongoose.connection
+			.close()
+			.then()
+			.catch((err) => console.log(err))
+		mongoose.connect(util.mongo_path)
+
+		mongoose.connection.once('connected', () => {
+			mongoose.connection.db.dropDatabase()
+
+			import('../../models/User.js')
+				.then(({ default: UserModel }) => {
+					User = UserModel
+					done()
+				})
+				.catch((err) => done(new Error(err.message)))
 		})
-
-		import('../../models/User.js')
-			.then(({ default: UserModel }) => {
-				User = UserModel
-				done()
-			})
-			.catch((err) => done(new Error(err.message)))
-	})
-
-	after((done) => {
-		done()
 	})
 
 	beforeEach((done) => {
@@ -39,21 +46,15 @@ describe('La UserRoutes', () => {
 		let pasconfirme = new User({ ...Ut.tmp_user_pasconfirme })
 		let desac = new User({ ...Ut.tmp_user_desac })
 
-		bcrypt.hash('Dummydummy69', saltRounds, (err, hash) => {
+		bcrypt.hash('Dummydummy69', saltRounds, async (err, hash) => {
 			ok.password = hash
 			pasconfirme.password = hash
 			desac.password = hash
 
 			try {
-				ok.save((err) => {
-					err ? done(new Error(err.message)) : null
-				})
-				pasconfirme.save((err) => {
-					err ? done(new Error(err.message)) : null
-				})
-				desac.save((err) => {
-					err ? done(new Error(err.message)) : null
-				})
+				await ok.save()
+				await pasconfirme.save()
+				await desac.save()
 				done()
 			} catch (error) {
 				done(new Error(error.message))
@@ -63,6 +64,11 @@ describe('La UserRoutes', () => {
 
 	afterEach((done) => {
 		mongoose.connection.collections.users.drop(() => done())
+	})
+
+	after((done) => {
+		mongoose.disconnect()
+		done()
 	})
 
 	describe('sur la partie Login', () => {
@@ -109,17 +115,14 @@ describe('La UserRoutes', () => {
 				password: Ut.tmp_user_pasconfirme.password,
 			}
 
-			console.log(user_info)
-
 			req(API)
 				.post(api_path)
 				.send(user_info)
 				.end((err, res) => {
-					console.log(res.body)
 					expect(res.status).to.eq(403)
 					expect(res.body).to.exist.and.have.property(
 						'error',
-						'Vérification par email nécessaire.'
+						'Vous devez vérifier votre email.'
 					)
 					done()
 				})
@@ -181,120 +184,76 @@ describe('La UserRoutes', () => {
 		})
 	})
 
-	describe.skip('sur la partie Signup', () => {
-		before((done) => {
-			mongoose.connection.collections.users.drop(() => done())
-		})
-		after((done) => {
-			mongoose.connection.collections.users.drop(() => done())
-		})
-
-		describe('Inscription Vendeur', () => {
-			it('Renvoie un code 201 sur un nouveau vendeur OK', (done) => {
-				const api_path = BASE_URL + 'sellerSignup'
-
-				req(API)
-					.post(api_path)
-					.send(Ut.tmp_seller_acreer)
-					.end((err, res) => {
-						expect(res.status).to.eq(201)
-						expect(res.body).to.exist.and.to.have.property(
-							'message',
-							'Compte créé !'
-						)
-						err ? done(new Error(err.message)) : done()
-					})
-			})
-		})
-		describe('Inscription Acheteur', () => {
-			const api_path = BASE_URL + 'buyerSignup'
-			var user_info = { ...Ut.tmp_buyer_acreer }
-			it('créer un nouvel acheteur', (done) => {
-				req(API)
-					.post(api_path)
-					.send(user_info)
-					.end((err, res) => {
-						expect(res.status).to.eq(201)
-						expect(res.body).to.exist.and.to.have.property(
-							'message',
-							'Compte créé !'
-						)
-						done()
-					})
-			})
-		})
-	})
-
-	describe.skip('sur la partie Mot de Passe oublié', () => {
-		const api_path = BASE_URL + 'forgot'
-		it("Renvoie un code 403 si l'utilisateur est désactivé", (done) => {
-			const user_info = {
-				email: Ut.tmp_user_desac.email,
+	describe('sur la partie Signup', () => {
+		it('créer un nouvel utilisateur', (done) => {
+			const api_path = BASE_URL + 'signup'
+			var user_info = {
+				...Ut.tmp_user_acreer,
+				_id: new mongoose.Types.ObjectId(),
 			}
 			req(API)
 				.post(api_path)
 				.send(user_info)
 				.end((err, res) => {
-					expect(res.status).to.eq(403)
-					expect(res.body).to.exist.and.to.have.property(
-						'error',
-						'Compte utilisateur désactivé !'
-					)
-					done()
-				})
-		})
-
-		it('Renvoie un code 200 si OK', (done) => {
-			const user_info = {
-				email: Ut.tmp_user_ok.email,
-			}
-			req(API)
-				.post(api_path)
-				.send(user_info)
-				.end((err, res) => {
-					expect(res.status).to.eq(200)
+					expect(res.status).to.eq(201)
 					expect(res.body).to.exist.and.to.have.property(
 						'message',
-						'Email de réinitialisation envoyé.'
+						'Compte créé !'
 					)
 					done()
 				})
 		})
 	})
 
-	describe.skip('sur la partie Tokens', () => {
-		it("Renvoie un code 204 si le token n'est pas trouvé", (done) => {
-			const token = 'azertyuiop'
-
-			req(API)
-				.get('/api/user/check/' + token)
-				.expect(204, done)
-		})
-
-		it('Renvoie un code 200 si le token est trouvé', (done) => {
-			const user_info = {
-				email: 'ouioui@nonnon.fr',
-				password: 'Azertyuiop12',
-			}
-			req(API)
-				.post('/api/user/login/')
-				.send(user_info)
-				.then((res) => {
-					const { token } = res.body
-
-					req(API)
-						.get('/api/user/check/' + token)
-						.expect(200, done)
-				})
-		})
+	it("Renvoie un code 403 si l'utilisateur est désactivé", (done) => {
+		const api_path = BASE_URL + 'forgot'
+		const user_info = {
+			email: Ut.tmp_user_desac.email,
+		}
+		req(API)
+			.post(api_path)
+			.send(user_info)
+			.end((err, res) => {
+				expect(res.status).to.eq(403)
+				expect(res.body).to.exist.and.to.have.property(
+					'message',
+					'Compte utilisateur désactivé !'
+				)
+				done()
+			})
 	})
 
-	describe.skip('sur la partie Newsletter', () => {
-		it.skip('Renvoie un code 400 sur un update sur utilisateur déjà inscrit', (done) => {
-			const id_user = ''
-			req(API)
-				.get('/api/user/setNewsletter/' + id_user)
-				.expect(400, done)
-		})
+	it.skip('Renvoie un code 200 si OK', (done) => {
+		const api_path = BASE_URL + 'forgot'
+		const user_info = {
+			email: Ut.tmp_user_ok.email,
+		}
+		req(API)
+			.post(api_path)
+			.send(user_info)
+			.end((err, res) => {
+				expect(res.status).to.eq(200)
+				expect(res.body).to.exist.and.to.have.property(
+					'message',
+					'Email de réinitialisation envoyé.'
+				)
+				done()
+			})
+	})
+
+	it("Renvoie un code 401 si le token n'est pas correct", (done) => {
+		const token = 'azertyuiop'
+
+		req(API)
+			.post('/api/user/checkBearer/')
+			.set('Authorization', `bearer ${token}`)
+			.expect(401, done)
+	})
+
+	it('Renvoie un code 200 si le token est trouvé', (done) => {
+		req(API)
+			.post('/api/user/checkBearer/')
+			.set('Authorization', `bearer ${Ut.tmp_user_ok_token}`)
+			.expect(200, done)
 	})
 })
