@@ -1,0 +1,3 @@
+.Dockerignore
+Dockerfile
+node_modules/
