@@ -76,14 +76,14 @@ const signup = async (req, res) => {
 					{
 						...req.body,
 						password: hash,
-						roles: ['user'],
+						roles: 'user',
 					}
 				)
 			} else {
 				user = new User({
 					...datas,
 					password: hash,
-					roles: ['user'],
+					roles: 'user',
 				})
 				await user.save()
 			}
