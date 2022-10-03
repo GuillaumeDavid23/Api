@@ -245,22 +245,22 @@ const erase = async (req, res) => {
  */
 const getAll = async (req, res) => {
 	try {
-		let appointments = await Appointment.find()
+		let appointments = await Appointment.find(),
+			formattedAppointments = []
 
-		// TimeZone date:
-		appointments = JSON.parse(JSON.stringify(appointments))
-		appointments.forEach((appointment) => {
-			appointment.dateBegin = moment(appointment.dateBegin).format()
-			appointment.dateEnd = moment(appointment.dateEnd).format()
+		await asyncForEach(appointments, async (appointment) => {
+			appointment = appointment.toObject()
+			let buyer = await User.findById(appointment.id_buyer),
+				agent = await User.findById(appointment.id_agent)
+			formattedAppointments.push({ ...appointment, buyer, agent })
 		})
 
 		res.status(200).json({
 			status_code: 200,
 			message: 'Rendez-vous récupérés.',
-			appointments,
+			appointments: formattedAppointments,
 		})
 	} catch (error) {
-		console.log(error)
 		res.status(500).json({ status_code: 500, error: error.message })
 	}
 }
