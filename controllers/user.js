@@ -63,7 +63,7 @@ const signup = async (req, res) => {
 			if (mailCheck && mailCheck.password) {
 				return res.status(403).json({
 					status_code: 403,
-					message: 'Cet email est déjà utilisé !',
+					message: 'Cet email est déjà utilisé !'
 				})
 			}
 
@@ -76,38 +76,38 @@ const signup = async (req, res) => {
 					{
 						...req.body,
 						password: hash,
-						roles: ['user'],
+						roles: ['user']
 					}
 				)
 			} else {
 				user = new User({
 					...datas,
 					password: hash,
-					roles: ['user'],
+					roles: ['user']
 				})
 				await user.save()
 			}
 			user = await User.findOne({ email: req.body.email })
 			sendVerificationMail(user._id, user.email)
 			const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
-				expiresIn: '5h',
+				expiresIn: '5h'
 			})
 			res.status(201).json({
 				status_code: 201,
 				message: 'Compte créé !',
-				token,
+				token
 			})
 		} catch (error) {
 			console.log(error)
 			res.status(500).json({
 				status_code: 500,
-				error: error.message,
+				error: error.message
 			})
 		}
 	} else {
 		res.status(400).json({
 			status_code: 400,
-			message: 'Mot de passe vide',
+			message: 'Mot de passe vide'
 		})
 	}
 }
@@ -132,33 +132,33 @@ const login = async (req, res) => {
 		datas.email = datas.email.toLowerCase()
 		const user = await User.findOne({ email: datas.email }).populate({
 			path: 'buyer.agent',
-			select: 'firstname lastname agent.phonePro email',
+			select: 'firstname lastname agent.phonePro email'
 		})
 		if (!user)
 			return res.status(401).json({
 				status_code: 401,
-				error: 'Utilisateur non trouvé !',
+				error: 'Utilisateur non trouvé !'
 			})
 		if (user.status == false && user.deletedAt != undefined) {
 			return res.status(403).json({
 				status_code: 403,
-				error: 'Compte utilisateur désactivé.',
+				error: 'Compte utilisateur désactivé.'
 			})
 		}
 		let valid = await bcrypt.compare(datas.password, user.password)
 		if (!valid) {
 			return res.status(401).json({
 				status_code: 401,
-				error: 'Mot de passe incorrect !',
+				error: 'Mot de passe incorrect !'
 			})
 		}
 		const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
-			expiresIn: '5h',
+			expiresIn: '5h'
 		})
 		// Insertion ou non du RefreshToken:
 		if (datas.rememberMe) {
 			const refreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN, {
-				expiresIn: '1y',
+				expiresIn: '1y'
 			})
 			if (user.status == false && user.deletedAt == undefined) {
 				sendVerificationMail(user._id, user.email)
@@ -166,7 +166,7 @@ const login = async (req, res) => {
 					status_code: 200,
 					message: 'Vous devez vérifier votre email.',
 					token,
-					refreshToken,
+					refreshToken
 				})
 			}
 			res.status(200).json({
@@ -174,7 +174,7 @@ const login = async (req, res) => {
 				userId: user._id,
 				token,
 				refreshToken,
-				message: 'Utilisateur connecté !',
+				message: 'Utilisateur connecté !'
 			})
 		} else {
 			if (user.status == false && user.deletedAt == undefined) {
@@ -182,21 +182,21 @@ const login = async (req, res) => {
 				return res.status(200).json({
 					status_code: 200,
 					message: 'Vous devez vérifier votre email.',
-					token,
+					token
 				})
 			}
 			res.status(200).json({
 				status_code: 200,
 				userId: user._id,
 				token,
-				message: 'Utilisateur connecté !',
+				message: 'Utilisateur connecté !'
 			})
 		}
 	} catch (error) {
 		console.log(error)
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -246,7 +246,7 @@ const update = async (req, res) => {
 		) {
 			return res.status(403).json({
 				status_code: 403,
-				message: 'Pas autorisé !',
+				message: 'Pas autorisé !'
 			})
 		}
 		// On check si le mail est déjà pris:
@@ -255,7 +255,7 @@ const update = async (req, res) => {
 		if (user && user._id.toString() !== req.params._id) {
 			return res.status(403).json({
 				status_code: 403,
-				message: 'Email déjà utilisé !',
+				message: 'Email déjà utilisé !'
 			})
 		}
 
@@ -263,11 +263,11 @@ const update = async (req, res) => {
 
 		res.status(201).json({
 			status_code: 201,
-			message: 'Utilisateur modifié !',
+			message: 'Utilisateur modifié !'
 		})
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -304,21 +304,21 @@ const deleteOne = async (req, res) => {
 	try {
 		await User.updateOne(
 			{
-				_id: req.params._id,
+				_id: req.params._id
 			},
 			{
 				status: 0,
-				deletedAt: new Date(),
+				deletedAt: new Date()
 			}
 		)
 		res.status(201).json({
 			status_code: 201,
-			message: 'Utilisateur désactivé !',
+			message: 'Utilisateur désactivé !'
 		})
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -357,22 +357,22 @@ const getOne = async (req, res) => {
 	try {
 		const user = await User.findById(req.params._id).populate({
 			path: 'buyer.agent',
-			select: 'firstname lastname agent.phonePro email',
+			select: 'firstname lastname agent.phonePro email'
 		})
 		if (user) {
 			res.status(200).json({
 				message: 'Utilissateur récupéré !',
-				data: user,
+				data: user
 			})
 		} else {
 			res.status(204).json({
-				message: 'Aucun utilisateur',
+				message: 'Aucun utilisateur'
 			})
 		}
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -407,12 +407,12 @@ const getAgents = async (req, res) => {
 		// let agents = await User.find({ agent: { $exists: true }, 'agent.phonePro': {$exists:true} }).populate('agent.customers')
 		res.status(200).json({
 			status_code: 200,
-			datas: agents,
+			datas: agents
 		})
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -446,7 +446,7 @@ const getSellers = async (req, res) => {
 	try {
 		const user = await User.find({
 			status: true,
-			seller: { $exists: true },
+			seller: { $exists: true }
 		})
 		if (user) {
 			res.status(200).json(user)
@@ -530,7 +530,7 @@ const checkAgentAvailabilities = async (req, res) => {
 		'17h00-17h30',
 		'17h30-18h00',
 		'18h00-18h30',
-		'18h30-19h00',
+		'18h30-19h00'
 	]
 
 	try {
@@ -575,7 +575,7 @@ const checkAgentAvailabilities = async (req, res) => {
 
 		let appointments = await Appointment.find({
 			id_agent,
-			dateBegin: { $gte: startDate, $lte: endDate },
+			dateBegin: { $gte: startDate, $lte: endDate }
 		}).sort({ dateBegin: 'asc' })
 
 		let filteredAvailableArray = []
@@ -690,13 +690,13 @@ const checkAgentAvailabilities = async (req, res) => {
 
 		res.status(200).json({
 			status_code: 200,
-			Availabilities: filteredAvailableArray,
+			Availabilities: filteredAvailableArray
 		})
 	} catch (error) {
 		console.log(error)
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -732,16 +732,16 @@ const askForAppointment = async (req, res) => {
 			lastname: req.body.lastname,
 			email: req.body.email,
 			reason: req.body.reason,
-			infos: req.body.infos,
+			infos: req.body.infos
 		}
 
 		await sendMail('emailAppointment', {
 			to: process.env.mailAmaizon,
-			details,
+			details
 		})
 		res.status(200).json({
 			status_code: 200,
-			message: 'Envoi réussi.',
+			message: 'Envoi réussi.'
 		})
 	} catch (error) {
 		res.status(500).json({ error: error.message })
@@ -786,12 +786,12 @@ const addToWishlist = async (req, res) => {
 		}
 		res.status(200).json({
 			status_code: 200,
-			message: 'Favori ajouté !',
+			message: 'Favori ajouté !'
 		})
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -823,18 +823,18 @@ const removeOfWishlist = async (req, res) => {
 			{ _id: user._id },
 			{
 				$pull: {
-					'buyer.wishlist': req.params._id,
-				},
+					'buyer.wishlist': req.params._id
+				}
 			}
 		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'Favori supprimé !',
+			message: 'Favori supprimé !'
 		})
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -868,7 +868,7 @@ const sendMessage = (req, res) => {
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -905,19 +905,19 @@ const forgotPass = async (req, res) => {
 		if (!user) {
 			return res.status(404).json({
 				status_code: 404,
-				message: 'Adresse email introuvable.',
+				message: 'Adresse email introuvable.'
 			})
 		}
 
 		if (user.deletedAt !== undefined) {
 			return res.status(403).json({
 				status_code: 403,
-				message: 'Compte utilisateur désactivé !',
+				message: 'Compte utilisateur désactivé !'
 			})
 		}
 
 		let token = jwt.sign({ userId: user._id }, process.env.SECRET_TOKEN, {
-			expiresIn: '5h',
+			expiresIn: '5h'
 		})
 
 		await User.updateOne({ _id: user._id }, { token })
@@ -925,18 +925,18 @@ const forgotPass = async (req, res) => {
 		await sendMail('forgotPass', {
 			to: datas.email,
 			userId: user._id,
-			token,
+			token
 		})
 
 		res.status(200).json({
 			status_code: 200,
-			message: 'Email de réinitialisation envoyé.',
+			message: 'Email de réinitialisation envoyé.'
 		})
 	} catch (error) {
 		console.log(error)
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -967,7 +967,7 @@ const resetPassword = async (req, res) => {
 			await User.updateOne({ _id: id }, { password: hash })
 			res.status(201).json({
 				status_code: 201,
-				message: 'Mot de passe réinitialisé !',
+				message: 'Mot de passe réinitialisé !'
 			})
 		})
 	} catch (error) {
@@ -1001,41 +1001,41 @@ const agentLogin = async (req, res) => {
 		datas.email = datas.email.toLowerCase()
 		const user = await User.findOne({ email: datas.email }).populate({
 			path: 'agent.customers',
-			select: 'firstname lastname phone email',
+			select: 'firstname lastname phone email'
 		})
 
 		if (!user) {
 			return res.status(401).json({
 				status_code: 401,
-				error: 'Utilisateur non trouvé !',
+				error: 'Utilisateur non trouvé !'
 			})
 		}
 		if (user.roles !== 'agent') {
 			return res.status(401).json({
 				status_code: 401,
-				error: 'Mauvais rôle !',
+				error: 'Mauvais rôle !'
 			})
 		}
 		if (user.status == false && user.deletedAt != undefined) {
 			return res.status(403).json({
 				status_code: 403,
-				error: 'Compte utilisateur désactivé.',
+				error: 'Compte utilisateur désactivé.'
 			})
 		}
 		let valid = await bcrypt.compare(datas.password, user.password)
 		if (!valid) {
 			return res.status(401).json({
 				status_code: 401,
-				error: 'Mot de passe incorrect !',
+				error: 'Mot de passe incorrect !'
 			})
 		}
 		const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
-			expiresIn: '5h',
+			expiresIn: '5h'
 		})
 		// Insertion ou non du RefreshToken:
 		if (datas.rememberMe) {
 			const refreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN, {
-				expiresIn: '1y',
+				expiresIn: '1y'
 			})
 			if (user.status == false && user.deletedAt == undefined) {
 				sendVerificationMail(user._id, user.email)
@@ -1043,7 +1043,7 @@ const agentLogin = async (req, res) => {
 					status_code: 200,
 					message: 'Vous devez vérifier votre email.',
 					token,
-					refreshToken,
+					refreshToken
 				})
 			}
 			res.status(200).json({
@@ -1052,7 +1052,7 @@ const agentLogin = async (req, res) => {
 				token,
 				refreshToken,
 				message: 'Utilisateur connecté !',
-				data: user,
+				data: user
 			})
 		} else {
 			if (user.status == false && user.deletedAt == undefined) {
@@ -1060,7 +1060,7 @@ const agentLogin = async (req, res) => {
 				return res.status(200).json({
 					status_code: 200,
 					message: 'Vous devez vérifier votre email.',
-					token,
+					token
 				})
 			}
 			res.status(200).json({
@@ -1068,14 +1068,14 @@ const agentLogin = async (req, res) => {
 				userId: user._id,
 				token,
 				message: 'Utilisateur connecté !',
-				data: user,
+				data: user
 			})
 		}
 	} catch (error) {
 		console.log(error)
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -1130,7 +1130,7 @@ const create = async (req, res) => {
 		if (mailCheck) {
 			return res.status(403).json({
 				status_code: 403,
-				error: 'Un compte avec cette adresse email existe déjà !',
+				error: 'Un compte avec cette adresse email existe déjà !'
 			})
 		}
 		if (req.auth.user.roles == 'agent' && user.roles == 'user') {
@@ -1172,13 +1172,13 @@ const create = async (req, res) => {
 			res.status(201).json({
 				status_code: 201,
 				message: 'Utilisateur créé !',
-				user: user,
+				user: user
 			})
 		})
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -1234,7 +1234,7 @@ const createSeller = async (req, res) => {
 		} else {
 			return res.status(404).json({
 				status_code: 404,
-				message: 'Utilisateur introuvable..',
+				message: 'Utilisateur introuvable..'
 			})
 		}
 
@@ -1245,7 +1245,7 @@ const createSeller = async (req, res) => {
 
 		res.status(200).json({
 			status_code: 200,
-			message: 'Valeurs Sellers crée au sein du client !',
+			message: 'Valeurs Sellers crée au sein du client !'
 		})
 	} catch (error) {
 		console.log(error)
@@ -1286,23 +1286,23 @@ const getAll = async (req, res) => {
 	try {
 		const users = await User.find({ status: true }).populate({
 			path: 'buyer.agent',
-			select: 'firstname lastname agent.phonePro email',
+			select: 'firstname lastname agent.phonePro email'
 		})
 		if (users) {
 			res.status(200).json({
 				status_code: 200,
-				datas: users,
+				datas: users
 			})
 		} else {
 			res.status(204).json({
 				status_code: 204,
-				message: 'Aucun utilisateur',
+				message: 'Aucun utilisateur'
 			})
 		}
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -1342,7 +1342,7 @@ const getCustomers = async (req, res) => {
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -1375,13 +1375,13 @@ const getCustomers = async (req, res) => {
 const searchClient = async (req, res) => {
 	try {
 		let users = await User.find({
-			lastname: { $regex: req.params.lastname + '.*' },
+			lastname: { $regex: req.params.lastname + '.*' }
 		})
 
 		res.status(200).json({
 			status_code: 200,
 			message: 'Liste des clients filtrés récupérée !',
-			datas: users,
+			datas: users
 		})
 	} catch (error) {
 		res.status(500).json({ status_code: 500, message: error.message })
@@ -1416,12 +1416,12 @@ const addToPropertyList = async (req, res) => {
 		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'Propriété ajouté à la liste !',
+			message: 'Propriété ajouté à la liste !'
 		})
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -1453,18 +1453,18 @@ const removeOfPropertyList = async (req, res) => {
 			{ _id: user._id },
 			{
 				$pull: {
-					'seller.propertiesList': req.params._id,
-				},
+					'seller.propertiesList': req.params._id
+				}
 			}
 		)
 		res.status(200).json({
 			status_code: 200,
-			message: 'Propriété supprimé de la liste !',
+			message: 'Propriété supprimé de la liste !'
 		})
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -1499,7 +1499,7 @@ const getSellerForOneProperty = async (req, res) => {
 				return res.status(200).json({
 					status_code: 200,
 					message: 'Vendeur trouvé !',
-					datas: seller,
+					datas: seller
 				})
 			}
 		})
@@ -1515,119 +1515,72 @@ const getSellerForOneProperty = async (req, res) => {
 const anonymize = async (req, res) => {
 	try {
 		// Récupération de l'id et de la ref à anonymiser:
-		const userToAnonymize = await User.findOne({ _id: req.params._id })
-		const idToAnonymize = userToAnonymize._id
-		const refToAnonymize = userToAnonymize.ref
+		const userToAnonymize = await User.findOne({ _id: req.params._id }),
+			idToAnonymize = userToAnonymize._id,
+			refToAnonymize = userToAnonymize.ref
 
 		// Récupération de l'id et de la ref Anonymous:
 		const anonymous = await User.findOne({
-			lastname: 'Anonymous',
-			firstname: 'Anonymous',
-		})
-		const idAnonymous = anonymous._id
-		const refAnonymous = anonymous.ref
+				lastname: 'Anonymous',
+				firstname: 'Anonymous'
+			}),
+			idAnonymous = anonymous._id,
+			refAnonymous = anonymous.ref
 
-		// Update dans les collections Appointment:
-		await Appointment.updateMany(
-			{ id_buyer: idToAnonymize },
-			{ id_buyer: idAnonymous }
-		)
-		await Appointment.updateMany(
-			{ id_agent: idToAnonymize },
-			{ id_agent: idAnonymous }
-		)
-
-		// Update dans les collections Inventory:
-		await Inventory.updateMany(
-			{ id_agent: idToAnonymize },
-			{ id_agent: idAnonymous }
-		)
-		await Inventory.updateMany(
-			{ userReference: refToAnonymize },
-			{ userReference: refAnonymous }
-		)
-		await Inventory.updateMany(
-			{ previousBuyerRef: refToAnonymize },
-			{ previousBuyerRef: refAnonymous }
-		)
-
-		// Update dans les collections Property:
-		await Property.updateMany(
-			{ 'buyers._id': idToAnonymize },
-			{ $set: { 'buyers.$._id': idAnonymous } }
-		)
-		await Property.updateMany(
-			{ 'wishers._id': idToAnonymize },
-			{ $set: { 'wishers.$._id': idAnonymous } }
-		)
-
-		// Update dans les collections Rental:
-		await Rental.updateMany(
-			{ 'id_buyers._id': idToAnonymize },
-			{ $set: { 'id_buyers.$._id': idAnonymous } }
-		)
-
-		// Update dans les collections Transaction:
-		await Transaction.updateMany(
-			{ id_agent: refToAnonymize },
-			{ id_agent: refAnonymous }
-		)
-		await Transaction.updateMany(
-			{ 'lst_buyer._id': idToAnonymize },
-			{ $set: { lst_buyer: idAnonymous } }
-		)
-		await Transaction.updateMany(
-			{ 'lst_seller._id': idToAnonymize },
-			{ $set: { lst_seller: idAnonymous } }
-		)
-
-		// let transactions = await Transaction.find({
-		// 	'lst_seller._id': idToAnonymize,
-		// })
-		let transactions = await Transaction.find()
-		// console.log(transactions)
-		transactions.forEach(async (transaction) => {
-			var lst_seller = transaction.lst_seller
-			lst_seller.forEach((seller) => {
-				if (seller.valueOf() == idToAnonymize) {
-					// console.log(1)
-					seller = ObjectId(idAnonymous)
-				}
-			})
-			await Transaction.updateOne(
-				{ _id: transaction._id },
-				{ lst_seller }
+		// Anonymisation différente selon si l'user est un agent ou pas:
+		if (userToAnonymize.roles === 'agent') {
+			// Update dans les collections Appointment:
+			await Appointment.updateMany(
+				{ id_agent: idToAnonymize },
+				{ id_agent: idAnonymous }
 			)
-		})
 
-		// transaction.lst_seller.forEach((seller) => {
-		// 	if (seller.valueOf() == idToAnonymize)
-		// 		Transaction.updateOne({_id: seller._id}, {$addToSet: {}})
-		// })
-		// })
+			// Update dans les collections Inventory:
+			await Inventory.updateMany(
+				{ id_agent: idToAnonymize },
+				{ id_agent: idAnonymous }
+			)
+		} else {
+			// Update dans les collections Appointment:
+			await Appointment.updateMany(
+				{ id_buyer: idToAnonymize },
+				{ id_buyer: idAnonymous }
+			)
 
-		// Transaction.find({ 'lst_seller._id': idToAnonymize }).exec(
-		// 	(err, result) => {
-		// 		if (err) throw err
-		// 		if (result) {
-		// 			result.forEach((resul) => {
-		// 				resul.lst_seller.idToAnonymize = idAnonymous
-		// 				result.save()
-		// 			})
+			// Update dans les collections Inventory:
+			await Inventory.updateMany(
+				{ userReference: refToAnonymize },
+				{ userReference: refAnonymous }
+			)
+			await Inventory.updateMany(
+				{ previousBuyerRef: refToAnonymize },
+				{ previousBuyerRef: refAnonymous }
+			)
 
-		// 			console.log('new value')
-		// 		} else {
-		// 			console.log('not found')
-		// 		}
-		// 	}
-		// )
+			// Update dans les collections Property:
+			await Property.updateMany(
+				{ 'buyers._id': idToAnonymize },
+				{ $set: { 'buyers.$._id': idAnonymous } }
+			)
+			await Property.updateMany(
+				{ 'wishers._id': idToAnonymize },
+				{ $set: { 'wishers.$._id': idAnonymous } }
+			)
+
+			// Update dans les collections Rental:
+			await Rental.updateMany(
+				{ 'id_buyers._id': idToAnonymize },
+				{ $set: { 'id_buyers.$._id': idAnonymous } }
+			)
+		}
 
 		// Suppression du compte utilisateur:
+		await User.deleteOne({ _id: idToAnonymize })
 
 		// Réponse:
 		res.status(200).json({
 			status_code: 200,
-			message: 'Anonymisation réussie.',
+			message: 'Anonymisation réussie.'
 		})
 	} catch (error) {
 		res.status(500).json({ error: error.message })
@@ -1679,24 +1632,24 @@ const checkBearer = async (req, res) => {
 		const user = await User.findById(decodedToken.user._id)
 			.populate({
 				path: 'buyer.agent',
-				select: 'firstname lastname agent.phonePro email',
+				select: 'firstname lastname agent.phonePro email'
 			})
 			.populate('buyer.wishlist')
 		res.status(200).json({
 			status_code: 200,
 			message: 'Token Valide',
-			userInfos: user,
+			userInfos: user
 		})
 	} catch (error) {
 		if (error.TokenExpiredError) {
 			res.status(401).json({
 				status_code: 401,
-				message: 'Token Expiré',
+				message: 'Token Expiré'
 			})
 		} else {
 			res.status(401).json({
 				status_code: 401,
-				message: 'Token Invalide',
+				message: 'Token Invalide'
 			})
 		}
 	}
@@ -1737,31 +1690,31 @@ const checkResetToken = async (req, res) => {
 		const user = await User.findOne({ _id: decodedToken.user._id })
 		if (user) {
 			const newToken = jwt.sign({ user }, process.env.SECRET_TOKEN, {
-				expiresIn: '5h',
+				expiresIn: '5h'
 			})
 
 			res.status(200).json({
 				status_code: 200,
 				message: 'Nouveau token généré !',
 				token: newToken,
-				userInfos: decodedToken,
+				userInfos: decodedToken
 			})
 		} else {
 			res.status(204).json({
 				status_code: 204,
-				message: 'Aucun utilisateur',
+				message: 'Aucun utilisateur'
 			})
 		}
 	} catch (error) {
 		if (error.TokenExpiredError) {
 			res.status(401).json({
 				status_code: 401,
-				message: 'Token Expiré',
+				message: 'Token Expiré'
 			})
 		} else {
 			res.status(500).json({
 				status_code: 500,
-				message: 'Erreur survenue',
+				message: 'Erreur survenue'
 			})
 		}
 	}
@@ -1802,7 +1755,7 @@ const checkTokenResetPassword = async (req, res) => {
 	} else {
 		res.status(403).json({
 			status_code: 403,
-			message: 'Id ou token invalide.',
+			message: 'Id ou token invalide.'
 		})
 	}
 }
@@ -1844,12 +1797,12 @@ const verifyEmail = async (req, res) => {
 			await User.updateOne({ _id: userId }, { status: 1 })
 			res.status(200).json({
 				status_code: 200,
-				message: 'Vérification réussie.',
+				message: 'Vérification réussie.'
 			})
 		} else {
 			res.status(204).json({
 				status_code: 204,
-				message: 'Aucun utilisateur',
+				message: 'Aucun utilisateur'
 			})
 		}
 	} catch (error) {
@@ -1897,17 +1850,17 @@ const setNewsletter = async (req, res) => {
 		if (user.newsletter)
 			return res.status(200).json({
 				status_code: 200,
-				message: 'Vous êtes déjà inscrit à la newsletter.',
+				message: 'Vous êtes déjà inscrit à la newsletter.'
 			})
 		await User.updateOne({ _id: req.params._id }, { newsletter: true })
 		res.status(200).json({
 			status_code: 200,
-			message: 'Vous êtes inscrit à la newsletter !',
+			message: 'Vous êtes inscrit à la newsletter !'
 		})
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -1949,17 +1902,17 @@ const unsetNewsletter = async (req, res) => {
 		if (!user.newsletter)
 			return res.status(200).json({
 				status_code: 200,
-				message: "Vous n'êtes pas inscrit à la newsletter.",
+				message: "Vous n'êtes pas inscrit à la newsletter."
 			})
 		await User.updateOne({ _id: req.params._id }, { newsletter: false })
 		res.status(200).json({
 			status_code: 200,
-			message: 'Vous êtes désinscrit de la newsletter !',
+			message: 'Vous êtes désinscrit de la newsletter !'
 		})
 	} catch (error) {
 		res.status(500).json({
 			status_code: 500,
-			error: error.message,
+			error: error.message
 		})
 	}
 }
@@ -1988,7 +1941,7 @@ const setNewsletterForUnknown = async (req, res) => {
 		await user.save()
 		res.status(200).json({
 			status_code: 200,
-			message: 'Vous êtes inscrit à la newsletter !',
+			message: 'Vous êtes inscrit à la newsletter !'
 		})
 	} catch (error) {
 		res.status(500).json({ status_code: 500, message: error.message })
@@ -2001,7 +1954,7 @@ const setNewsletterForUnknown = async (req, res) => {
  */
 const sendVerificationMail = async (id, email) => {
 	let token = jwt.sign({ userId: id }, process.env.SECRET_TOKEN, {
-		expiresIn: '5h',
+		expiresIn: '5h'
 	})
 
 	await User.updateOne({ _id: id }, { token })
@@ -2039,5 +1992,5 @@ export {
 	resetPassword,
 	searchClient,
 	createSeller,
-	getSellerForOneProperty,
+	getSellerForOneProperty
 }
