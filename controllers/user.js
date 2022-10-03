@@ -88,7 +88,7 @@ const signup = async (req, res) => {
 				await user.save()
 			}
 			user = await User.findOne({ email: req.body.email })
-			sendVerificationMail(user._id, user.email)
+			// sendVerificationMail(user._id, user.email) // TODO: A revoir
 			const token = jwt.sign({ user }, process.env.SECRET_TOKEN, {
 				expiresIn: '5h'
 			})
