@@ -160,15 +160,15 @@ const login = async (req, res) => {
 			const refreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN, {
 				expiresIn: '1y'
 			})
-			if (user.status == false && user.deletedAt == undefined) {
-				sendVerificationMail(user._id, user.email)
-				return res.status(200).json({
-					status_code: 200,
-					message: 'Vous devez vérifier votre email.',
-					token,
-					refreshToken
-				})
-			}
+			// if (user.status == false && user.deletedAt == undefined) {
+			// 	sendVerificationMail(user._id, user.email)
+			// 	return res.status(200).json({
+			// 		status_code: 200,
+			// 		message: 'Vous devez vérifier votre email.',
+			// 		token,
+			// 		refreshToken
+			// 	})
+			// }
 			res.status(200).json({
 				status_code: 200,
 				userId: user._id,
@@ -177,13 +177,13 @@ const login = async (req, res) => {
 				message: 'Utilisateur connecté !'
 			})
 		} else {
-			if (user.status == false && user.deletedAt == undefined) {
-				sendVerificationMail(user._id, user.email)
-				return res.status(403).json({
-					status_code: 403,
-					error: 'Vous devez vérifier votre email.'
-				})
-			}
+			// if (user.status == false && user.deletedAt == undefined) {
+			// 	sendVerificationMail(user._id, user.email)
+			// 	return res.status(403).json({
+			// 		status_code: 403,
+			// 		error: 'Vous devez vérifier votre email.'
+			// 	})
+			// }
 			res.status(200).json({
 				status_code: 200,
 				userId: user._id,
