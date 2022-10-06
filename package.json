@@ -7,7 +7,9 @@
 	"scripts": {
 		"dev": "nodemon server.js",
 		"test": "mocha './test/**/*.js'",
-		"coverage": "c8 npm run test"
+		"coverage": "c8 npm run test",
+		"db:seed:all:create": "node db/seeder.js",
+		"db:seed:all:drop": "node db/seeder.js -d"
 	},
 	"keywords": [],
 	"author": "",
@@ -27,6 +29,7 @@
 		"nodemailer": "^6.7.2"
 	},
 	"devDependencies": {
+		"@faker-js/faker": "^7.5.0",
 		"c8": "^7.12.0",
 		"chai": "^4.3.6",
 		"eslint": "^8.7.0",
