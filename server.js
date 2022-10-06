@@ -1,5 +1,8 @@
 import http from 'http'
 import app from './app.js'
+import { connectToDatabase } from './db/db.js'
+
+connectToDatabase()
 
 const normalizePort = (val) => {
 	const port = parseInt(val, 10)

@@ -1,4 +1,4 @@
-import mongoose from '../db/db.js'
+import mongoose from 'mongoose'
 
 const rentalShema = mongoose.Schema(
 	{
@@ -11,21 +11,21 @@ const rentalShema = mongoose.Schema(
 		id_property: {
 			type: 'ObjectId',
 			ref: 'Property',
-			required: true,
+			required: true
 		},
 		id_buyers: [
 			{
 				type: 'ObjectId',
 				ref: 'User',
-				required: true,
-			},
+				required: true
+			}
 		],
 		id_inventories: [
 			{
 				type: 'ObjectId',
-				ref: 'Inventory',
-			},
-		],
+				ref: 'Inventory'
+			}
+		]
 	},
 	{ timestamps: true }
 )

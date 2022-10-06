@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-// import mongoose from '../db/db.js'
 import Property from './Property.js'
 
 const userSchema = mongoose.Schema(
@@ -21,16 +20,16 @@ const userSchema = mongoose.Schema(
 			agent: {
 				type: mongoose.Schema.Types.ObjectId,
 				ref: 'User',
-				default: undefined,
+				default: undefined
 			},
 			wishlist: {
 				type: [
 					{
 						type: mongoose.Schema.Types.ObjectId,
-						ref: Property,
-					},
+						ref: Property
+					}
 				],
-				default: undefined,
+				default: undefined
 			},
 			budgetMin: { type: Number },
 			budgetMax: { type: Number },
@@ -39,7 +38,7 @@ const userSchema = mongoose.Schema(
 			surfaceMax: { type: Number },
 			type: { type: String },
 			propertyType: { type: String },
-			rooms: { type: Number },
+			rooms: { type: Number }
 		},
 
 		agent: {
@@ -47,8 +46,8 @@ const userSchema = mongoose.Schema(
 			phonePro: { type: String },
 			customers: {
 				type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-				default: undefined,
-			},
+				default: undefined
+			}
 		},
 
 		seller: {
@@ -56,12 +55,12 @@ const userSchema = mongoose.Schema(
 				type: [
 					{
 						type: mongoose.Schema.Types.ObjectId,
-						ref: Property,
-					},
+						ref: Property
+					}
 				],
-				default: undefined,
-			},
-		},
+				default: undefined
+			}
+		}
 	},
 	{ timestamps: true }
 )

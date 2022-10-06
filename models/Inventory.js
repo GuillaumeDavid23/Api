@@ -1,16 +1,16 @@
-import mongoose from '../db/db.js'
+import mongoose from 'mongoose'
 
 const inventoryShema = mongoose.Schema(
 	{
 		id_agent: {
 			type: 'ObjectId',
 			ref: 'User',
-			required: true,
+			required: true
 		},
 		id_rental: {
 			type: 'ObjectId',
 			ref: 'Rental',
-			required: true,
+			required: true
 		},
 		inOut: { type: Boolean, required: true }, // In == true // Out == false
 		userReference: { type: String, required: true },
@@ -21,7 +21,7 @@ const inventoryShema = mongoose.Schema(
 		lst_roomDetails: { type: Array, required: true },
 		lst_equipements: { type: Array, required: true },
 		lst_heater: { type: Array, required: true },
-		lst_hotWater: { type: Array, required: true },
+		lst_hotWater: { type: Array, required: true }
 	},
 	{ timestamps: true }
 )

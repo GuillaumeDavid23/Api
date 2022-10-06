@@ -1,11 +1,15 @@
-import Mongoose from '../db/db.js'
+import mongoose from 'mongoose'
 import uniqueValidator from 'mongoose-unique-validator'
 
-const propertySchema = Mongoose.Schema(
+const propertySchema = mongoose.Schema(
 	{
 		title: { type: String, required: true },
 		description: { type: String },
 		amount: { type: Number, required: true },
+		// 0: adresse
+		// 1: PostalCode
+		// 2: City
+		// 3: Country
 		location: { type: Array, required: true },
 		propertyType: { type: String, required: true },
 		surface: { type: Number, required: true },
@@ -19,23 +23,27 @@ const propertySchema = Mongoose.Schema(
 		propertyRef: {
 			type: String,
 			required: true,
-			unique: true,
+			unique: true
 		},
-		imageUrl: { type: Object },
+		imageUrl: [
+			{
+				type: String
+			}
+		],
 
 		buyers: [
 			{
-				type: Mongoose.Schema.Types.ObjectId,
-				ref: 'User',
-			},
+				type: mongoose.Schema.Types.ObjectId,
+				ref: 'User'
+			}
 		],
 
 		verified: { type: Boolean, required: true, default: false },
-		deletedAt: { type: Date },
+		deletedAt: { type: Date }
 	},
 	{ timestamps: true }
 )
 
 propertySchema.plugin(uniqueValidator)
 
-export default Mongoose.model('Property', propertySchema)
+export default mongoose.model('Property', propertySchema)

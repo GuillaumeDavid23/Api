@@ -1,4 +1,4 @@
-import mongoose from '../db/db.js'
+import mongoose from 'mongoose'
 
 const appointmentShema = mongoose.Schema(
 	{
@@ -9,17 +9,17 @@ const appointmentShema = mongoose.Schema(
 		id_buyer: {
 			type: 'ObjectId',
 			ref: 'User',
-			required: true,
+			required: true
 		},
 		id_agent: {
 			type: 'ObjectId',
 			ref: 'User',
-			required: true,
+			required: true
 		},
 		id_property: {
 			type: 'ObjectId',
-			ref: 'Property',
-		},
+			ref: 'Property'
+		}
 	},
 	{ timestamps: true }
 )
