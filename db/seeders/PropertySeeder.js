@@ -33,7 +33,7 @@ const createProperties = async (number = 15) => {
 
 		try {
 			await Property({
-				title: faker.lorem.words(random(1, 3)),
+				title: `${propertyType} ${faker.lorem.words(random(1, 3))}`,
 				description: faker.lorem.lines(random(1, 10)),
 				amount: amount,
 				location: [
