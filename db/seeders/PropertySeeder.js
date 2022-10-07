@@ -16,29 +16,36 @@ const createProperties = async (number = 15) => {
 
 	// Try creating all properties
 	for (const _ of Array.from(Array(number).keys())) {
+		const propertyType = faker.helpers.arrayElement([
+			'Maison',
+			'Appartement'
+		])
+
+		const transactionType = faker.helpers.arrayElement([
+			'Achat',
+			'Location'
+		])
+
+		const amount =
+			transactionType === 'Maison'
+				? Math.round(faker.finance.amount(10000, 500000) / 1000) * 1000
+				: Math.round(faker.finance.amount(350, 1200) / 10) * 10
+
 		try {
 			await Property({
 				title: faker.lorem.words(random(1, 3)),
 				description: faker.lorem.lines(random(1, 10)),
-				amount:
-					Math.round(faker.finance.amount(10000, 500000) / 1000) *
-					1000,
+				amount: amount,
 				location: [
 					faker.address.street(),
 					faker.address.zipCode(),
 					faker.address.city(),
 					'France'
 				],
-				propertyType: faker.helpers.arrayElement([
-					'Maison',
-					'Appartement'
-				]),
+				propertyType: propertyType,
 				surface: faker.datatype.number({ min: 20, max: 200 }),
 				roomNumber: faker.datatype.number({ min: 1, max: 10 }),
-				transactionType: faker.helpers.arrayElement([
-					'Achat',
-					'Location'
-				]),
+				transactionType: transactionType,
 				isToSell: faker.datatype.boolean(),
 				propertyRef: faker.helpers.unique(
 					faker.database.mongodbObjectId
