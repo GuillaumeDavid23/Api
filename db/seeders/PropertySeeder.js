@@ -27,7 +27,7 @@ const createProperties = async (number = 15) => {
 		])
 
 		const amount =
-			transactionType === 'Maison'
+			transactionType === 'Achat'
 				? Math.round(faker.finance.amount(10000, 500000) / 1000) * 1000
 				: Math.round(faker.finance.amount(350, 1200) / 10) * 10
 
